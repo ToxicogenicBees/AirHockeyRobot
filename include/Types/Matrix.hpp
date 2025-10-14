@@ -7,11 +7,6 @@
 #include <vector>
 
 template <class T>
-class Matrix;
-
-using dMatrix = Matrix<double>;
-
-template <class T>
 class Matrix {
     private:
         uint16_t _rows, _cols;      // Matrix rows and columns
