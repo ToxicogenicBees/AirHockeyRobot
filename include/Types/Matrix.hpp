@@ -6,17 +6,21 @@
 #include <ostream>
 #include <vector>
 
+// NOTE: Elements are stored in column-major order for MATLAB compatibility.
+
 template <class T>
 class Matrix {
     private:
-        uint16_t _rows, _cols;      // Matrix rows and columns
-        std::vector<T> _data;       // Matrix entries
+        size_t _rows, _cols;      // Matrix rows and columns
+        std::vector<T> _data;     // Matrix entries
 
         // Access a constant matrix element
-        const T& _access(uint16_t row, uint16_t col) const;
+        // Throws std::out_of_range if row >= rows() or col >= cols()
+        const T& _access(size_t row, size_t col) const;
 
         // Access a matrix element
-        T& _access(uint16_t row, uint16_t col);
+        // Throws std::out_of_range if row >= rows() or col >= cols()
+        T& _access(size_t row, size_t col);
 
     public:
         /***
@@ -26,7 +30,7 @@ class Matrix {
          * @param cols      The number of columns in the matrix
          * @param init_val  The initial value populating the matrix
          */
-        Matrix(uint16_t rows, uint16_t cols, const T& init_val) noexcept;
+        Matrix(size_t rows, size_t cols, const T& init_val) noexcept;
 
         /***
          * @brief Creates a matrix with the desired rows and columns
@@ -34,17 +38,18 @@ class Matrix {
          * @param rows      The number of rows in the matrix
          * @param cols      The number of columns in the matrix
          */
-        Matrix(uint16_t rows, uint16_t cols) noexcept;
+        Matrix(size_t rows, size_t cols) noexcept;
 
         /***
          * @brief Creates a matrix from the provided arguments
+         *        Throws std::invalid_argument if the inner lists are not all the same size
          * 
          * @param values    An initializer list of array values
          */
         Matrix(const std::initializer_list<std::initializer_list<T>>& values);
 
         /***
-         * @brief Creates a column vector matrix from the provided arguments
+         * @brief Creates an nx1 column vector from the provided arguments
          * 
          * @param vec       An initializer list of array values
          */
@@ -58,6 +63,11 @@ class Matrix {
         Matrix(const Matrix& m) noexcept;
 
         /***
+         * @brief Creates an empty matrix with zero rows and columns
+         */
+        Matrix() noexcept;
+
+        /***
          * @brief Overloaded function operator, accessing an element of a constant 2D matrix
          *        Throws std::out_of_range if the provided indexes are invalid
          * 
@@ -66,18 +76,18 @@ class Matrix {
          * 
          * @return Constant reference to the desired item
          */
-        const T& operator()(uint16_t row, uint16_t col) const;
+        constexpr const T& operator()(size_t row, size_t col) const;
 
         /***
          * @brief Overloaded function operator, accessing an element of a constant column/row vector
          *        Throws std::out_of_range if the provided indexes are invalid
          *        Throws std::invalid_argument if the matrix is not a column/row vector
          * 
-         * @param row   The desired element in the column/row vector
+         * @param index The desired element in the column/row vector
          * 
          * @return Constant reference to the desired item
          */
-        const T& operator()(uint16_t index) const;
+        constexpr const T& operator()(size_t index) const;
 
         /***
          * @brief Overloaded function operator, accessing an element of a 2D matrix
@@ -88,27 +98,36 @@ class Matrix {
          * 
          * @return Reference to the desired item
          */
-        T& operator()(uint16_t row, uint16_t col);
+        T& operator()(size_t row, size_t col);
 
         /***
          * @brief Overloaded function operator, accessing an element of a column/row vector
          *        Throws std::out_of_range if the provided indexes are invalid
          *        Throws std::invalid_argument if the matrix is not a column/row vector
          * 
-         * @param row   The desired element in the column/row vector
+         * @param index The desired element in the column/row vector
          * 
          * @return Reference to the desired item
          */
-        T& operator()(uint16_t index);
+        T& operator()(size_t index);
 
         /***
          * @brief Overloaded comparison operator
          * 
          * @param m     Another matrix object
          * 
-         * @return A reference to this matrix
+         * @return Whether the two matrices are equal
          */
-        bool operator==(const Matrix& m) const noexcept;
+        constexpr bool operator==(const Matrix& m) const noexcept;
+
+        /***
+         * @brief Overloaded inequality comparison operator
+         * 
+         * @param m     Another matrix object
+         * 
+         * @return Whether the two matrices are not equal
+         */
+        constexpr bool operator!=(const Matrix& m) const noexcept;
 
         /***
          * @brief Overloaded assignment operator
@@ -157,8 +176,6 @@ class Matrix {
 
         /***
          * @brief Overloaded unary negation operator
-         * 
-         * @param m     Another matrix object
          * 
          * @return The resulting matrix
          */
@@ -219,14 +236,42 @@ class Matrix {
          * 
          * @return The number of rows in this matrix
          */
-        uint16_t rows() const noexcept { return _rows; }
+        constexpr size_t rows() const noexcept { return _rows; }
 
         /***
          * @brief Get the number of columns in this matrix
          * 
          * @return The number of columns in this matrix
          */
-        uint16_t cols() const noexcept { return _cols; }
+        constexpr size_t cols() const noexcept { return _cols; }
+
+        /***
+         * @brief Get an iterator for the beginning of the matrix elements
+         * 
+         * @return Beginning iterator for the matrix elements
+         */
+        auto begin() noexcept { return _data.begin(); }
+
+        /***
+         * @brief Get an iterator for the end of the matrix elements
+         * 
+         * @return End iterator for the matrix elements
+         */
+        auto end() noexcept { return _data.end(); }
+
+        /***
+         * @brief Get an iterator for the beginning of the matrix elements
+         * 
+         * @return Beginning iterator for the matrix elements
+         */
+        auto begin() const noexcept { return _data.begin(); }
+
+        /***
+         * @brief Get an iterator for the end of the matrix elements
+         * 
+         * @return End iterator for the matrix elements
+         */
+        auto end() const noexcept { return _data.end(); }
 
         /***
          * @brief Overloaded insertion into an output stream into MATLAB matrix format
@@ -234,22 +279,21 @@ class Matrix {
          * @param o     A reference to an output stream
          * @param m     The matrix being output to the stream
          * 
-         * @result A reference to the output stream being output to
+         * @return A reference to the output stream being output to
          */
         friend std::ostream& operator<<(std::ostream& o, const Matrix<T>& m) {
             o << "[";
             
-            for (uint16_t row = 0; row < m._rows; row++) {
-                for (uint16_t col = 0; col < m._cols; col++) {
+            for (size_t row = 0; row < m._rows; row++) {
+                for (size_t col = 0; col < m._cols; col++) {
                     o << m(row, col);
 
-                    if (col == m._cols - 1 && row == m._rows - 1)
-                        o << "]";
-                    else if (col == m._cols - 1)
-                        o << "; ";
-                    else
+                    if (col < m._cols - 1)
                         o << ", ";
                 }
+
+                if (row < m._rows - 1)
+                    o << "; ";
             }
 
             return o;
@@ -257,44 +301,31 @@ class Matrix {
 };
 
 template <class T>
-const T& Matrix<T>::_access(uint16_t row, uint16_t col) const {
-    if (row >= _rows || row < 0)
+const T& Matrix<T>::_access(size_t row, size_t col) const {
+    if (row >= _rows)
         throw std::out_of_range("Row out of range");
-    else if (col >= _cols || col < 0)
+    else if (col >= _cols)
         throw std::out_of_range("Column out of range");
     return _data[col * _rows + row];
 }
 
 
 template <class T>
-T& Matrix<T>::_access(uint16_t row, uint16_t col) {
-    if (row >= _rows || row < 0)
+T& Matrix<T>::_access(size_t row, size_t col) {
+    if (row >= _rows)
         throw std::out_of_range("Row out of range");
-    else if (col >= _cols || col < 0)
+    else if (col >= _cols)
         throw std::out_of_range("Column out of range");
     return _data[col * _rows + row];
 }
 
 template <class T>
-Matrix<T>::Matrix(uint16_t rows, uint16_t cols, const T& init_val) noexcept {
-    _data.resize(rows * cols);
-    
-    _rows = rows;
-    _cols = cols;
-
-    for (uint16_t i = 0; i < _rows; i++) {
-        for (uint16_t j = 0; j < _cols; j++) {
-            _access(i, j) = T(init_val);
-        }
-    }
-}
+Matrix<T>::Matrix(size_t rows, size_t cols, const T& init_val) noexcept
+    : _rows(rows), _cols(cols), _data(rows * cols, init_val) {}
 
 template <class T>
-Matrix<T>::Matrix(uint16_t rows, uint16_t cols) noexcept {
-    _data.resize(rows * cols);
-    _rows = rows;
-    _cols = cols;
-}
+Matrix<T>::Matrix(size_t rows, size_t cols) noexcept 
+    : _rows(rows), _cols(cols), _data(rows * cols) {}
 
 template <class T>
 Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>>& values) {
@@ -312,7 +343,7 @@ Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>>& values)
     _data.resize(_rows * _cols);
 
     // Populate matrix
-    uint16_t cur_row, cur_col = 0;
+    size_t cur_row = 0, cur_col = 0;
 
     for (auto iter_r = values.begin(); iter_r != values.end(); iter_r++) {
         for (auto iter_c = iter_r->begin(); iter_c != iter_r->end(); iter_c++) {
@@ -335,9 +366,9 @@ Matrix<T>::Matrix(const std::initializer_list<T>& vec) {
     _data.resize(_rows);
 
     // Populate matrix
-    uint16_t i = 0;
+    size_t i = 0;
     for (auto iter = vec.begin(); iter != vec.end(); iter++)
-        _access(i++) = *iter;
+        _access(i++, 0) = *iter;
 }
 
 template <class T>
@@ -348,12 +379,17 @@ Matrix<T>::Matrix(const Matrix& m) noexcept {
 }
 
 template <class T>
-const T& Matrix<T>::operator()(uint16_t row, uint16_t col) const {
+Matrix<T>::Matrix() noexcept {
+    _rows = _cols = 0;
+}
+
+template <class T>
+constexpr const T& Matrix<T>::operator()(size_t row, size_t col) const {
     return _access(row, col);
 }
 
 template <class T>
-const T& Matrix<T>::operator()(uint16_t index) const {
+constexpr const T& Matrix<T>::operator()(size_t index) const {
     if (_rows > 1 && _cols > 1)
         throw std::invalid_argument("Matrix isn't a vector, requires multiple indexes");
     if (index >= (_rows > _cols ? _rows : _cols))
@@ -362,12 +398,12 @@ const T& Matrix<T>::operator()(uint16_t index) const {
 }
 
 template <class T>
-T& Matrix<T>::operator()(uint16_t row, uint16_t col) {
+T& Matrix<T>::operator()(size_t row, size_t col) {
     return _access(row, col);
 }
 
 template <class T>
-T& Matrix<T>::operator()(uint16_t index) {
+T& Matrix<T>::operator()(size_t index) {
     if (_rows > 1 && _cols > 1)
         throw std::invalid_argument("Matrix isn't a vector, requires multiple indexes");
     if (index >= (_rows > _cols ? _rows : _cols))
@@ -376,21 +412,18 @@ T& Matrix<T>::operator()(uint16_t index) {
 }
 
 template <class T>
-bool Matrix<T>::operator==(const Matrix& m) const noexcept{
+constexpr bool Matrix<T>::operator==(const Matrix& m) const noexcept {
     // Sizes don't match
-    if (_cols != m._cols || _rows != m._cols)
+    if (_cols != m._cols || _rows != m._rows)
         return false;
 
-    // Elements don't match
-    for (uint16_t i = 0; i < _rows; i++) {
-        for (uint16_t j = 0; j < _cols; j++) {
-            if (_access(i, j) != m(i, j))
-                return false;
-        }
-    }
+    // Check if elements match
+    return _data == m._data;
+}
 
-    // Matrices are the same
-    return true;
+template <class T>
+constexpr bool Matrix<T>::operator!=(const Matrix& m) const noexcept {
+    return !(*this == m);
 }
 
 template <class T>
@@ -409,9 +442,9 @@ Matrix<T> Matrix<T>::operator+(const Matrix& m) const {
 
     Matrix result(_rows, _cols);
 
-    for (uint16_t i = 0; i < _rows; i++) {
-        for (uint16_t j = 0; j < _cols; j++) {
-            result(i, j) = (i, j) + m(i, j);
+    for (size_t i = 0; i < _rows; i++) {
+        for (size_t j = 0; j < _cols; j++) {
+            result(i, j) = (*this)(i, j) + m(i, j);
         }
     }
 
@@ -423,8 +456,8 @@ void Matrix<T>::operator+=(const Matrix& m) {
     if (_rows != m._rows || _cols != m._cols)
         throw std::invalid_argument("Incompatible matrix sizes");
 
-    for (uint16_t i = 0; i < _rows; i++) {
-        for (uint16_t j = 0; j < _cols; j++) {
+    for (size_t i = 0; i < _rows; i++) {
+        for (size_t j = 0; j < _cols; j++) {
             (*this)(i, j) += m(i, j);
         }
     }
@@ -437,8 +470,8 @@ Matrix<T> Matrix<T>::operator-(const Matrix& m) const {
 
     Matrix result(_rows, _cols);
 
-    for (uint16_t i = 0; i < _rows; i++) {
-        for (uint16_t j = 0; j < _cols; j++) {
+    for (size_t i = 0; i < _rows; i++) {
+        for (size_t j = 0; j < _cols; j++) {
             result(i, j) = (*this)(i, j) - m(i, j);
         }
     }
@@ -451,8 +484,8 @@ void Matrix<T>::operator-=(const Matrix& m) {
     if (_rows != m._rows || _cols != m._cols)
         throw std::invalid_argument("Incompatible matrix sizes");
 
-    for (uint16_t i = 0; i < _rows; i++) {
-        for (uint16_t j = 0; j < _cols; j++) {
+    for (size_t i = 0; i < _rows; i++) {
+        for (size_t j = 0; j < _cols; j++) {
             (*this)(i, j) -= m(i, j);
         }
     }
@@ -462,8 +495,8 @@ template <class T>
 Matrix<T> Matrix<T>::operator-() const noexcept {
     Matrix result(_rows, _cols);
 
-    for (uint16_t i = 0; i < _rows; i++) {
-        for (uint16_t j = 0; j < _cols; j++) {
+    for (size_t i = 0; i < _rows; i++) {
+        for (size_t j = 0; j < _cols; j++) {
             result(i, j) = -(*this)(i, j);
         }
     }
@@ -478,10 +511,10 @@ Matrix<T> Matrix<T>::operator*(const Matrix& m) const {
 
     Matrix result(_rows, m._cols);
 
-    for (uint16_t i = 0; i < _rows; i++) {
-        for (uint16_t j = 0; j < m._cols; j++) {
+    for (size_t i = 0; i < _rows; i++) {
+        for (size_t j = 0; j < m._cols; j++) {
             T sum = T();
-            for (uint16_t k = 0; k < _cols; k++)
+            for (size_t k = 0; k < _cols; k++)
                 sum += (*this)(i, k) * m(k, j);
             result(i, j) = sum;
         }
@@ -494,8 +527,8 @@ template <class T>
 Matrix<T> Matrix<T>::operator*(T s) const noexcept {
     Matrix result(_rows, _cols);
 
-    for (uint16_t i = 0; i < _rows; i++) {
-        for (uint16_t j = 0; j < _cols; j++) {
+    for (size_t i = 0; i < _rows; i++) {
+        for (size_t j = 0; j < _cols; j++) {
             result(i, j) = (*this)(i, j) * s;
         }
     }
@@ -510,8 +543,8 @@ void Matrix<T>::operator*=(const Matrix& m) {
 
 template <class T>
 void Matrix<T>::operator*=(T s) noexcept {
-    for (uint16_t i = 0; i < _rows; i++) {
-        for (uint16_t j = 0; j < _cols; j++) {
+    for (size_t i = 0; i < _rows; i++) {
+        for (size_t j = 0; j < _cols; j++) {
             (*this)(i, j) *= s;
         }
     }
@@ -521,8 +554,8 @@ template <class T>
 Matrix<T> Matrix<T>::operator/(T s) const noexcept {
     Matrix result(_rows, _cols);
 
-    for (uint16_t i = 0; i < _rows; i++) {
-        for (uint16_t j = 0; j < _cols; j++) {
+    for (size_t i = 0; i < _rows; i++) {
+        for (size_t j = 0; j < _cols; j++) {
             result(i, j) = (*this)(i, j) / s;
         }
     }
@@ -532,8 +565,8 @@ Matrix<T> Matrix<T>::operator/(T s) const noexcept {
 
 template <class T>
 void Matrix<T>::operator/=(T s) noexcept {
-    for (uint16_t i = 0; i < _rows; i++) {
-        for (uint16_t j = 0; j < _cols; j++) {
+    for (size_t i = 0; i < _rows; i++) {
+        for (size_t j = 0; j < _cols; j++) {
             (*this)(i, j) /= s;
         }
     }
