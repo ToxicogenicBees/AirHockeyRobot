@@ -1,8 +1,9 @@
 #pragma once
 
+#include <initializer_list>
 #include <stdexcept>
-#include <iostream>
 #include <stdint.h>
+#include <ostream>
 #include <vector>
 
 template <class T>
@@ -30,7 +31,7 @@ class Matrix {
          * @param cols      The number of columns in the matrix
          * @param init_val  The initial value populating the matrix
          */
-        Matrix(uint16_t rows, uint16_t cols, const T& init_val);
+        Matrix(uint16_t rows, uint16_t cols, const T& init_val) noexcept;
 
         /***
          * @brief Creates a matrix with the desired rows and columns
@@ -38,14 +39,28 @@ class Matrix {
          * @param rows      The number of rows in the matrix
          * @param cols      The number of columns in the matrix
          */
-        Matrix(uint16_t rows, uint16_t cols);
+        Matrix(uint16_t rows, uint16_t cols) noexcept;
+
+        /***
+         * @brief Creates a matrix from the provided arguments
+         * 
+         * @param values    An initializer list of array values
+         */
+        Matrix(const std::initializer_list<std::initializer_list<T>>& values);
+
+        /***
+         * @brief Creates a column vector matrix from the provided arguments
+         * 
+         * @param vec       An initializer list of array values
+         */
+        Matrix(const std::initializer_list<T>& vec);
 
         /***
          * @brief Creates a matrix copying the values of another matrix
          * 
          * @param m     The matrix being copied
          */
-        Matrix(const Matrix& m);
+        Matrix(const Matrix& m) noexcept;
 
         /***
          * @brief Overloaded function operator, accessing an element of a constant 2D matrix
@@ -98,7 +113,7 @@ class Matrix {
          * 
          * @return A reference to this matrix
          */
-        bool operator==(const Matrix& m);
+        bool operator==(const Matrix& m) const noexcept;
 
         /***
          * @brief Overloaded assignment operator
@@ -107,7 +122,7 @@ class Matrix {
          * 
          * @return A reference to this matrix
          */
-        Matrix& operator=(const Matrix& m);
+        Matrix& operator=(const Matrix& m) noexcept;
 
         /***
          * @brief Overloaded addition operator
@@ -135,7 +150,7 @@ class Matrix {
          * 
          * @return The resulting matrix
          */
-        Matrix operator-(const Matrix& m) const;
+        Matrix operator-(const Matrix& m) const ;
 
         /***
          * @brief Overloaded chained subtraction + assignment operator
@@ -152,7 +167,7 @@ class Matrix {
          * 
          * @return The resulting matrix
          */
-        Matrix operator-() const;
+        Matrix operator-() const noexcept;
 
         /***
          * @brief Overloaded multiplication operator
@@ -209,14 +224,14 @@ class Matrix {
          * 
          * @return The number of rows in this matrix
          */
-        uint16_t rows() const { return _rows; }
+        uint16_t rows() const noexcept { return _rows; }
 
         /***
          * @brief Get the number of columns in this matrix
          * 
          * @return The number of columns in this matrix
          */
-        uint16_t cols() const { return _cols; }
+        uint16_t cols() const noexcept { return _cols; }
 
         /***
          * @brief Overloaded insertion into an output stream into MATLAB matrix format
@@ -266,7 +281,7 @@ T& Matrix<T>::_access(uint16_t row, uint16_t col) {
 }
 
 template <class T>
-Matrix<T>::Matrix(uint16_t rows, uint16_t cols, const T& init_val) {
+Matrix<T>::Matrix(uint16_t rows, uint16_t cols, const T& init_val) noexcept {
     _data.resize(rows * cols);
     
     _rows = rows;
@@ -280,14 +295,58 @@ Matrix<T>::Matrix(uint16_t rows, uint16_t cols, const T& init_val) {
 }
 
 template <class T>
-Matrix<T>::Matrix(uint16_t rows, uint16_t cols) {
+Matrix<T>::Matrix(uint16_t rows, uint16_t cols) noexcept {
     _data.resize(rows * cols);
     _rows = rows;
     _cols = cols;
 }
 
 template <class T>
-Matrix<T>::Matrix(const Matrix& m) {
+Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>>& values) {
+    // Determine row and column size
+    _cols = values.begin()->size();
+    _rows = values.size();
+
+    // Ensure all rows are the same size
+    for (auto iter_r = values.begin() + 1; iter_r != values.end(); iter_r++) {
+        if (_cols != iter_r->size())
+            throw std::invalid_argument("Invalid initializer values");
+    }
+
+    // Resize matrix
+    _data.resize(_rows * _cols);
+
+    // Populate matrix
+    uint16_t cur_row, cur_col = 0;
+
+    for (auto iter_r = values.begin(); iter_r != values.end(); iter_r++) {
+        for (auto iter_c = iter_r->begin(); iter_c != iter_r->end(); iter_c++) {
+            _access(cur_row, cur_col) = *iter_c;
+            cur_col++;
+        }
+
+        cur_col = 0;
+        cur_row++;
+    }
+}
+
+template <class T>
+Matrix<T>::Matrix(const std::initializer_list<T>& vec) {
+    // Determine row and column size
+    _rows = vec.size();
+    _cols = 1;
+
+    // Resize matrix
+    _data.resize(_rows);
+
+    // Populate matrix
+    uint16_t i = 0;
+    for (auto iter = vec.begin(); iter != vec.end(); iter++)
+        _access(i++) = *iter;
+}
+
+template <class T>
+Matrix<T>::Matrix(const Matrix& m) noexcept {
     _data = m._data;
     _rows = m._rows;
     _cols = m._cols;
@@ -322,7 +381,7 @@ T& Matrix<T>::operator()(uint16_t index) {
 }
 
 template <class T>
-bool Matrix<T>::operator==(const Matrix& m) {
+bool Matrix<T>::operator==(const Matrix& m) const noexcept{
     // Sizes don't match
     if (_cols != m._cols || _rows != m._cols)
         return false;
@@ -340,7 +399,7 @@ bool Matrix<T>::operator==(const Matrix& m) {
 }
 
 template <class T>
-Matrix<T>& Matrix<T>::operator=(const Matrix& m) {
+Matrix<T>& Matrix<T>::operator=(const Matrix& m) noexcept {
     _data = m._data;
     _rows = m._rows;
     _cols = m._cols;
@@ -405,7 +464,7 @@ void Matrix<T>::operator-=(const Matrix& m) {
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator-() const {
+Matrix<T> Matrix<T>::operator-() const noexcept {
     Matrix result(_rows, _cols);
 
     for (uint16_t i = 0; i < _rows; i++) {
