@@ -77,7 +77,7 @@ class Matrix {
          * @param vec       An initializer list of array values
          * @param type      The vector type (column/row)
          */
-        Matrix(const std::initializer_list<T>& vec, MatrixVector::MatrixVectorType type = MatrixVector::column);
+        Matrix(const std::initializer_list<T>& vec, MatrixVector::MatrixVectorType type = MatrixVector::column) noexcept;
 
         /***
          * @brief Creates a vector from the provided arguments
@@ -85,7 +85,7 @@ class Matrix {
          * @param type      The vector type (column/row)
          * @param vec       An initializer list of array values
          */
-        Matrix(MatrixVector::MatrixVectorType type, const std::initializer_list<T>& vec);
+        Matrix(MatrixVector::MatrixVectorType type, const std::initializer_list<T>& vec) noexcept;
 
         /***
          * @brief Creates a matrix copying the values of another matrix
@@ -419,7 +419,7 @@ Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>>& values)
 }
 
 template <class T>
-Matrix<T>::Matrix(const std::initializer_list<T>& vec, MatrixVector::MatrixVectorType type) {
+Matrix<T>::Matrix(const std::initializer_list<T>& vec, MatrixVector::MatrixVectorType type) noexcept {
     // Determine row and column size
     _rows = (type == MatrixVector::column) ? vec.size() : 1;
     _cols = (type == MatrixVector::row) ? vec.size() : 1;
@@ -434,7 +434,7 @@ Matrix<T>::Matrix(const std::initializer_list<T>& vec, MatrixVector::MatrixVecto
 }
 
 template <class T>
-Matrix<T>::Matrix(MatrixVector::MatrixVectorType type, const std::initializer_list<T>& vec) {
+Matrix<T>::Matrix(MatrixVector::MatrixVectorType type, const std::initializer_list<T>& vec) noexcept {
     // Determine row and column size
     _rows = (type == MatrixVector::column) ? vec.size() : 1;
     _cols = (type == MatrixVector::row) ? vec.size() : 1;
