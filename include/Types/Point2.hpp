@@ -5,11 +5,6 @@
 #include <cmath>
 
 template <class T>
-struct Point2;
-
-using double2 = Point2<double>;
-
-template <class T>
 struct Point2 {
     // The x- and y-components of the point
     T x, y;
