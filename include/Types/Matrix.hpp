@@ -448,8 +448,6 @@ class Matrix {
 
             o << "]";
 
-            o << "]";
-
             return o;
         }
 };
