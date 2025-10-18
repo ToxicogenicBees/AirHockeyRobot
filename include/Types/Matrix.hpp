@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <ostream>
 #include <vector>
+#include <cmath>
 
 // NOTE: Elements are stored in column-major order for MATLAB compatibility.
 
@@ -23,6 +24,13 @@ class Matrix {
         T& _access(size_t row, size_t col);
 
     public:
+        /***
+         * @brief Creates an nxn identity matrix
+         * 
+         * @param n         The size of the matrix
+         */
+        static Matrix identity(size_t n);
+
         /***
          * @brief Creates a matrix with the desired rows and columns, populated with an initial value
          * 
@@ -217,6 +225,17 @@ class Matrix {
 
         /***
          * @brief Overloaded division operator
+         *        Throws std::invalid_argument if the matrices are incompatible sizes or if the
+         *        divisor is singular
+         * 
+         * @param m     Another matrix object
+         * 
+         * @return The resulting matrix
+         */
+        Matrix operator/(const Matrix& m) const;
+
+        /***
+         * @brief Overloaded division operator
          * 
          * @param s     A scalar value
          * 
@@ -226,10 +245,88 @@ class Matrix {
 
         /***
          * @brief Overloaded chained division + assignment operator
+         *        Throws std::invalid_argument if the matrices are incompatible sizes or if the
+         *        divisor is singular
+         * 
+         * @param m     Another matrix object
+         */
+        void operator/=(const Matrix& m);
+
+        /***
+         * @brief Overloaded chained division + assignment operator
          * 
          * @param s     A scalar value
          */
         void operator/=(T s) noexcept;
+
+        /***
+         * @brief Calculates the transpose of the matrix
+         * 
+         * @return The transpose of the matrix
+         */
+        Matrix transpose() const noexcept;
+
+        /***
+         * @brief Calculates the transpose of the matrix
+         *        Throws std::invalid_argument if the matrix is not square,
+         *        or if the matrix is empty
+         * 
+         * @return The transpose of the matrix
+         */
+        T determinant() const;
+
+        /***
+         * @brief Calculates the cofactor of the matrix at a specific row and column
+         *        Throws std::invalid_argument if the matrix is not square,
+         *        or if the matrix is empty
+         * 
+         * @return The transpose of the matrix
+         */
+        T cofactor(size_t row, size_t col) const;
+
+        /***
+         * @brief Calculates the minor of the matrix at a specific row and column
+         *        Throws std::invalid_argument if the matrix is not square,
+         *        or if the matrix is empty
+         * 
+         * @param row   Row for the minor
+         * @param col   Column for the minor
+         * 
+         * @return The transpose of the matrix
+         */
+        T minor(size_t row, size_t col) const;
+
+        /***
+         * @brief Calculates the adjoint of the matrix
+         *        Throws std::invalid_argument if the matrix is not square,
+         *        or if the matrix is empty
+         * 
+         * @return The transpose of the matrix
+         */
+        Matrix adjoint() const;
+
+        /***
+         * @brief Calculates the inverse of the matrix
+         *        Throws std::invalid_argument if the matrix is not singular,
+         *        or if the matrix is empty
+         * 
+         * @return The transpose of the matrix
+         */
+        Matrix inverse() const;
+
+        /***
+         * @brief Get whether this matrix is square or not
+         * 
+         * @return Whether this matrix is square or not
+         */
+        constexpr size_t isSquare() const noexcept { return _rows == _cols; }
+
+        /***
+         * @brief Get whether this matrix is singular or not
+         * 
+         * @return Whether this matrix is square or not
+         */
+        constexpr size_t isSingular() const noexcept { return determinant() == 0; }
 
         /***
          * @brief Get the number of rows in this matrix
@@ -296,9 +393,21 @@ class Matrix {
                     o << "; ";
             }
 
+            o << "]";
+
             return o;
         }
 };
+
+template <class T>
+Matrix<T> Matrix<T>::identity(size_t n) {
+    Matrix identity(n, n);
+
+    for (size_t i = 0; i < n; i++)
+        identity(i, i) = diag_val;
+    
+    return identity;
+}
 
 template <class T>
 const T& Matrix<T>::_access(size_t row, size_t col) const {
@@ -537,6 +646,11 @@ Matrix<T> Matrix<T>::operator*(T s) const noexcept {
 }
 
 template <class T>
+Matrix<T> operator*(T s, const Matrix<T> m) {
+    return m * s;
+}
+
+template <class T>
 void Matrix<T>::operator*=(const Matrix& m) {
     (*this) = (*this) * m;
 }
@@ -548,6 +662,11 @@ void Matrix<T>::operator*=(T s) noexcept {
             (*this)(i, j) *= s;
         }
     }
+}
+
+template <class T>
+Matrix<T> Matrix<T>::operator/(const Matrix& m) const {
+    return (*this) * m.inverse();
 }
 
 template <class T>
@@ -564,10 +683,133 @@ Matrix<T> Matrix<T>::operator/(T s) const noexcept {
 }
 
 template <class T>
+Matrix<T> operator/(T s, const Matrix<T> m) {
+    return m / s;
+}
+
+template <class T>
+void Matrix<T>::operator/=(const Matrix& m) {
+    (*this) = (*this) * m.inverse();
+}
+
+template <class T>
 void Matrix<T>::operator/=(T s) noexcept {
     for (size_t i = 0; i < _rows; i++) {
         for (size_t j = 0; j < _cols; j++) {
             (*this)(i, j) /= s;
         }
     }
+}
+
+template <class T>
+Matrix<T> Matrix<T>::transpose() const noexcept {
+    Matrix transpose(_cols, _rows);
+
+    for (size_t i = 0; i < _rows; i++) {
+        for (size_t j = 0; j < _cols; j++) {
+            transpose(j, i) = (*this)(i, j);
+        }
+    }
+
+    return transpose;
+}
+
+template <class T>
+T Matrix<T>::determinant() const {
+    // Ensure the matrix is square
+    if (!isSquare())
+        throw std::invalid_argument("Cannot calculate the determinant of a non-square matrix");
+
+    // Ensure the matrix isn't empty
+    if (_rows == 0)
+        throw std::invalid_argument("Cannot calculate the determinant of an empty matrix");
+
+    // Base case: 1x1 matrix
+    if (_rows == 1)
+        return _data[0];
+
+    // Base case: 2x2 matrix
+    if (_rows == 2)
+        return (*this)(0, 0) * (*this)(1, 1) - (*this)(0, 1) * (*this)(1, 0);
+
+    // General case: nxn matrix
+    T determinant = T();
+    for (size_t i = 0; i < _rows; i++)
+        determinant += (*this)(0, i) * cofactor(0, i);
+    return determinant;
+}
+
+template <class T>
+T Matrix<T>::cofactor(size_t row, size_t col) const {
+    return std::pow(-1, row + col) * minor(row, col);
+}
+
+template <class T>
+T Matrix<T>::minor(size_t row, size_t col) const {
+    // Ensure the matrix is square
+    if (!isSquare())
+        throw std::invalid_argument("Cannot calculate the minor of a non-square matrix");
+
+    // Ensure the matrix isn't empty
+    if (_rows == 0)
+        throw std::invalid_argument("Cannot calculate the minor of an empty matrix");
+
+    // Calculate the minor
+    Matrix temp(_rows - 1, _cols - 1);
+    size_t new_i = 0, new_j = 0;
+
+    for (size_t i = 0; i < _rows; i++) {
+        if (i == row) continue;
+
+        for (size_t j = 0; j < _cols; j++) {
+            if (j == col) continue;
+
+            temp(new_i, new_j) = (*this)(i, j);
+
+            new_j++;
+        }
+
+        new_j = 0;
+        new_i++;
+    }
+
+    return temp.determinant();
+}
+
+template <class T>
+Matrix<T> Matrix<T>::adjoint() const {
+    // Ensure the matrix is square
+    if (!isSquare())
+        throw std::invalid_argument("Cannot calculate the adjoint of a non-square matrix");
+
+    // Ensure the matrix isn't empty
+    if (_rows == 0)
+        throw std::invalid_argument("Cannot calculate the adjoint of an empty matrix");
+
+    Matrix temp(_rows, _cols);
+
+    for (size_t i = 0; i < _rows; i++) {
+        for (size_t j = 0; j < _cols; j++) {
+            temp(j, i) = cofactor(i, j);
+        }
+    }
+
+    return temp;
+}
+
+template <class T>
+Matrix<T> Matrix<T>::inverse() const {
+    // Ensure the matrix is square
+    if (!isSquare())
+        throw std::invalid_argument("Cannot invert a non-square matrix");
+
+    // Ensure the matrix isn't empty
+    if (_rows == 0)
+        throw std::invalid_argument("Cannot invert an empty matrix");
+
+    // Ensure the matrix isn't singular
+    if (isSingular())
+        throw std::invalid_argument("Cannot invert a singular matrix");
+
+    return adjoint() / determinant();
 }
