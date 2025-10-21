@@ -12,8 +12,8 @@
 namespace MatrixVector {
     using MatrixVectorType = bool;
 
-    MatrixVectorType column = true;
-    MatrixVectorType row = false;
+    const MatrixVectorType COLUMN = true;
+    const MatrixVectorType ROW = false;
 }
 
 template <class T>
@@ -61,7 +61,7 @@ class Matrix {
          * @param size      The number of elements in the vector
          * @param type      The vector type (column or row)
          */
-        Matrix(size_t size, const T& init_val, MatrixVector::MatrixVectorType type = MatrixVector::column) noexcept;
+        Matrix(size_t size, const T& init_val, MatrixVector::MatrixVectorType type = MatrixVector::COLUMN) noexcept;
 
         /***
          * @brief Creates a vector of the desired size
@@ -69,7 +69,7 @@ class Matrix {
          * @param size      The number of elements in the vector
          * @param type      The vector type (column or row)
          */
-        Matrix(size_t size, MatrixVector::MatrixVectorType type = MatrixVector::column) noexcept;
+        Matrix(size_t size, MatrixVector::MatrixVectorType type = MatrixVector::COLUMN) noexcept;
 
         /***
          * @brief Creates a matrix from the provided arguments
@@ -85,7 +85,7 @@ class Matrix {
          * @param vec       An initializer list of array values
          * @param type      The vector type (column/row)
          */
-        Matrix(const std::initializer_list<T>& vec, MatrixVector::MatrixVectorType type = MatrixVector::column) noexcept;
+        Matrix(const std::initializer_list<T>& vec, MatrixVector::MatrixVectorType type = MatrixVector::COLUMN) noexcept;
 
         /***
          * @brief Creates a vector from the provided arguments
@@ -457,7 +457,7 @@ Matrix<T> Matrix<T>::identity(size_t n) {
     Matrix identity(n, n);
 
     for (size_t i = 0; i < n; i++)
-        identity(i, i) = diag_val;
+        identity(i, i) = 1;
     
     return identity;
 }
@@ -490,11 +490,11 @@ Matrix<T>::Matrix(size_t rows, size_t cols) noexcept
 
 template <class T>
 Matrix<T>::Matrix(size_t size, const T& init_val, MatrixVector::MatrixVectorType type) noexcept
-    : _rows(type == MatrixVector::column ? size : 1), _cols(type == MatrixVector::row ? size : 1), _data(size, init_val) {}
+    : _rows(type == MatrixVector::COLUMN ? size : 1), _cols(type == MatrixVector::ROW ? size : 1), _data(size, init_val) {}
 
 template <class T>
 Matrix<T>::Matrix(size_t size, MatrixVector::MatrixVectorType type) noexcept
-    : _rows(type == MatrixVector::column ? size : 1), _cols(type == MatrixVector::row ? size : 1), _data(size) {}
+    : _rows(type == MatrixVector::COLUMN ? size : 1), _cols(type == MatrixVector::ROW ? size : 1), _data(size) {}
 
 template <class T>
 Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>>& values) {
@@ -528,11 +528,11 @@ Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>>& values)
 template <class T>
 Matrix<T>::Matrix(const std::initializer_list<T>& vec, MatrixVector::MatrixVectorType type) noexcept {
     // Determine row and column size
-    _rows = (type == MatrixVector::column) ? vec.size() : 1;
-    _cols = (type == MatrixVector::row) ? vec.size() : 1;
+    _rows = (type == MatrixVector::COLUMN) ? vec.size() : 1;
+    _cols = (type == MatrixVector::ROW) ? vec.size() : 1;
 
     // Resize matrix
-    _data.resize((type == MatrixVector::column) ? _rows : _cols);
+    _data.resize((type == MatrixVector::COLUMN) ? _rows : _cols);
 
     // Populate matrix
     size_t i = 0;
@@ -543,11 +543,11 @@ Matrix<T>::Matrix(const std::initializer_list<T>& vec, MatrixVector::MatrixVecto
 template <class T>
 Matrix<T>::Matrix(MatrixVector::MatrixVectorType type, const std::initializer_list<T>& vec) noexcept {
     // Determine row and column size
-    _rows = (type == MatrixVector::column) ? vec.size() : 1;
-    _cols = (type == MatrixVector::row) ? vec.size() : 1;
+    _rows = (type == MatrixVector::COLUMN) ? vec.size() : 1;
+    _cols = (type == MatrixVector::ROW) ? vec.size() : 1;
 
     // Resize matrix
-    _data.resize((type == MatrixVector::column) ? _rows : _cols);
+    _data.resize((type == MatrixVector::COLUMN) ? _rows : _cols);
 
     // Populate matrix
     size_t i = 0;
