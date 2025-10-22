@@ -2,20 +2,25 @@
 #include "../include/Motion/Puck.h"
 #include <iostream>
 #include <fstream>
+#include <cmath>
 
 Mallet mallet;
 Puck puck;
 
+// Sample rate and puck angle
+double sample_time = 1.0 / 90;
+double angle = 226;
+
 // Mallet location data
-Point2<double> mallet_pos(21.8, 7.2);
+Point2<double> mallet_pos(13.5, 7);
 
 // Puck location data
-Point2<double> puck_prev_pos(19.2, 33.6);
-Point2<double> puck_cur_pos(18.1230011,33.410096);
-double sample_time = 1.0 / 90;
+Point2<double> puck_prev_pos(12, 42);
+Point2<double> puck_cur_pos = puck_prev_pos +
+    Constants::MAX_PUCK_SPEED * sample_time * Point2<double>(std::cos(angle * M_PI / 180.0), std::sin(angle * M_PI / 180.0));
 
-// Sample rate
-size_t num_points = 2000;
+// Point count
+size_t num_points = 20;
 
 int main() {
     // Initialize puck
@@ -29,6 +34,7 @@ int main() {
     Matrix<Point3<double>> sample_data = puck.estimateTrajectory(num_points);
 
     // Determine time for mallet to reach these points
+    Matrix<Point2<double>> puck_pos(num_points);
     Matrix<double> relative_times(num_points);
     Matrix<double> mallet_times(num_points);
     Matrix<double> puck_times(num_points);
@@ -39,10 +45,14 @@ int main() {
 
         relative_times(i) = p.z - mallet_time;
         mallet_times(i) = mallet_time;
+        puck_pos(i) = {p.x, p.y};
         puck_times(i) = p.z;
 
         i++;
     }
+
+    // Output positions
+    std::cout << puck_pos.transpose() << std::endl;
         
     // Open MATLAB file
     std::ofstream ml;
@@ -58,7 +68,11 @@ int main() {
     ml << "zero = " << puck_times * 0 << ";\n";
 
     ml << "figure(1)\n";
-    ml << "plot(X, Y, X, zero)\n";
+    ml << "plot(X, Y, X, zero, X, Y, \".\")\n";
+
+    ml << "xlabel('Time (seconds)');\n";
+    ml << "ylabel('Puck Arrival Time - Mallet Arrival Time (seconds)');\n";
+    ml << "title('Relative Arrival Times Over Time');\n";
 
     ml.close();
 
