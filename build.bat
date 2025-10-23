@@ -1,1 +1,0 @@
-g++ src/Motion/Mallet.cpp src/Motion/Puck.cpp src/main.cpp

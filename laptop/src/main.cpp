@@ -5,22 +5,21 @@
 #include <fstream>
 #include <cmath>
 
+const size_t NUM_POINTS = 20;
+
 Mallet mallet;
 Puck puck;
 
-const double SAMPLE_RATE = 1.0 / 90;
-const size_t NUM_POINTS = 20;
-
 void initTable(const Point2<double>& mallet_pos, const Point2<double>& puck_pos, double puck_angle) {
-    // Set mallet position
-    mallet.readPosition(mallet_pos);
-
-    // Set puck positions
+    // Initialize objects
+    mallet.init(mallet_pos);
+    puck.init(puck_pos);
+    
+    // Update puck's position
     double rads = puck_angle * M_PI / 180;
     Point2<double> puck_offset(std::cos(rads), std::sin(rads));
 
-    puck.readPosition(puck_pos, SAMPLE_RATE);
-    puck.readPosition(puck_pos + Constants::MAX_PUCK_SPEED * SAMPLE_RATE * puck_offset, SAMPLE_RATE);
+    puck.readPosition(puck_pos + Constants::PUCK_SPEED * Constants::SAMPLE_RATE * puck_offset, Constants::SAMPLE_RATE);
 }
 
 int main() {
@@ -46,6 +45,11 @@ int main() {
 
         i++;
     }
+
+    std::cout << puck_times << std::endl;
+    std::cout << mallet_times << std::endl;
+
+    std::cout << mallet.position() << std::endl;
         
     // Open MATLAB file
     std::ofstream ml;
