@@ -11,11 +11,11 @@ Mallet mallet;
 Puck puck;
 
 void initTable(const Point2<double>& mallet_pos, const Point2<double>& puck_pos, double puck_angle) {
-    // Initialize objects
+    // Initialize moving objects
     mallet.init(mallet_pos);
     puck.init(puck_pos);
     
-    // Update puck's position
+    // Initialize puck motion
     double rads = puck_angle * M_PI / 180;
     Point2<double> puck_offset(std::cos(rads), std::sin(rads));
 
