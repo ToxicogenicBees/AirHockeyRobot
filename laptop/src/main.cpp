@@ -45,11 +45,6 @@ int main() {
 
         i++;
     }
-
-    std::cout << puck_times << std::endl;
-    std::cout << mallet_times << std::endl;
-
-    std::cout << mallet.position() << std::endl;
         
     // Open MATLAB file
     std::ofstream ml;
