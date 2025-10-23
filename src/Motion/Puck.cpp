@@ -1,10 +1,10 @@
 #include "../../include/Motion/Puck.h"
 
 void Puck::readPosition(const Point2<double>& new_pos, double time_step) {
+    _velocity = (new_pos - _cur_pos) / time_step;
+    
     _prev_pos = _cur_pos;
     _cur_pos = new_pos;
-
-    _velocity = (_cur_pos - _prev_pos) / time_step;
 }
 
 Matrix<Point3<double>> Puck::estimateTrajectory(size_t num_points) {
