@@ -720,9 +720,9 @@ Matrix<T> Matrix<T>::operator*(T s) const noexcept {
     return result;
 }
 
-template <class T>
-Matrix<T> operator*(T s, const Matrix<T> m) {
-    return m * s;
+template <class S, class T>
+Matrix<T> operator*(S s, const Matrix<T> m) {
+    return m * T(s);
 }
 
 template <class T>
@@ -757,9 +757,9 @@ Matrix<T> Matrix<T>::operator/(T s) const noexcept {
     return result;
 }
 
-template <class T>
-Matrix<T> operator/(T s, const Matrix<T> m) {
-    return m / s;
+template <class S, class T>
+Matrix<T> operator/(S s, const Matrix<T> m) {
+    return m / T(s);
 }
 
 template <class T>
