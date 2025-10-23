@@ -2,19 +2,10 @@
 #include "../include/Motion/Puck.h"
 #include <iostream>
 #include <fstream>
+#include <cmath>
 
 Mallet mallet;
 Puck puck;
-
-
-
-// Mallet location data
-Point2<double> mallet_pos(22, 6);
-
-// Puck location data
-Point2<double> puck_prev_pos(20.8, 36.4);
-Point2<double> puck_cur_pos(19.9041644,35.7727292);
-double sample_time = 1.0 / 90;
 
 const double SAMPLE_RATE = 1.0 / 90;
 const size_t NUM_POINTS = 20;
@@ -70,6 +61,10 @@ int main() {
 
     ml << "figure(1)\n";
     ml << "plot(X, Y, X, zero, X, Y, \".\")\n";
+
+    ml << "xlabel('Time (seconds)');\n";
+    ml << "ylabel('Puck Arrival Time - Mallet Arrival Time (seconds)');\n";
+    ml << "title('Relative Arrival Times Over Time');\n";
 
     ml.close();
 

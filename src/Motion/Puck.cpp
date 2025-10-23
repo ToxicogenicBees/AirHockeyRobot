@@ -45,7 +45,7 @@ Matrix<Point3<double>> Puck::estimateTrajectory(size_t num_points) {
         }
 
         // Add sample point to matrix
-        samples(i) = Point3<double>(est_pos.x, est_pos.y, i * time_step);
+        samples(i) = Point3<double>(est_pos.x, est_pos.y, (i + 1) * time_step);
     }
 
     // Return sample points
