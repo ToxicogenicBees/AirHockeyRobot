@@ -1,7 +1,8 @@
 #pragma once
 
+#include "Types/PinDef.h"
+
 #include <stdint.h>
-#include "PinDef.h"
 
 class Sensor {
     protected:
