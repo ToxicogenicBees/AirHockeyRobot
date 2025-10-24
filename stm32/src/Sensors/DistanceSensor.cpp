@@ -18,7 +18,9 @@ void DistanceSensor::_onInterrupt() {
         _cur_dist = 0.1715 * (_update_time - HAL_GetTick());
 }
 
-DistanceSensor::DistanceSensor(Pin& trig, Pin& echo) : Sensor(2, trig, echo) {}
+DistanceSensor::DistanceSensor(Pin& trig, Pin& echo) : Sensor(2, trig, echo) {
+    _registerInterrupt(echo);
+}
 
 void DistanceSensor::update() {
     _update_time = HAL_GetTick();
