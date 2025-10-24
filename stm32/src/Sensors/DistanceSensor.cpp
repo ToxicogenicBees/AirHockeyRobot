@@ -1,6 +1,6 @@
 #include "Sensors/DistanceSensor.h"
 
-DistanceSensor::DistanceSensor(Pin& trig, Pin& echo) : Sensor(2, &trig, &echo) {}
+DistanceSensor::DistanceSensor(PinDef& trig, PinDef& echo) : Sensor(2, &trig, &echo) {}
 
 double DistanceSensor::distance() {
     _PINS[0]->write(false);

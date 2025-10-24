@@ -1,29 +1,29 @@
-#include "Pin.h"
+#include "PinDef.h"
 
-Pin::Pin(uint32_t pin, uint32_t mode)
+PinDef::PinDef(uint8_t pin, uint8_t mode)
     : PIN(pin), MODE(mode) {}
 
-bool Pin::read() const {
+bool PinDef::read() const {
     return digitalRead(PIN) == HIGH;
 }
 
-void Pin::write(bool state) {
+void PinDef::write(bool state) {
     digitalWrite(PIN, state ? HIGH : LOW);
 }
 
-void Pin::toggle() {
+void PinDef::toggle() {
     digitalWrite(PIN, !digitalRead(PIN));
 }
 
-void Pin::init() {
+void PinDef::init() {
     pinMode(PIN, MODE);
 }
 
-Pin& Pin::operator=(bool state) {
+PinDef& PinDef::operator=(bool state) {
     write(state);
     return *this;
 }
 
-Pin::operator bool() const {
+PinDef::operator bool() const {
     return read();
 }

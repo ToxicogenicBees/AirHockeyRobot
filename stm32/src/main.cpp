@@ -1,18 +1,18 @@
 #include "Sensors/DistanceSensor.h"
 #include "Sensors/LimitSwitch.h"
 #include "Motor/Motor.h"
-#include "Pin.h"
+#include "PinDef.h"
 
 #include <Arduino.h>
 
 // Pin definitions
-Pin DISTANCE_ECHO(D4, INPUT);
-Pin DISTANCE_TRIG(D2, OUTPUT);
-// Pin LIMIT;
+PinDef DISTANCE_ECHO(D4, INPUT);
+PinDef DISTANCE_TRIG(D2, OUTPUT);
+PinDef LIMIT(D1, INPUT);
 
 // // Sensor definitions
 DistanceSensor dist(DISTANCE_TRIG, DISTANCE_ECHO);
-// LimitSwitch limit(LIMIT);
+LimitSwitch limit(LIMIT);
 
 void setup() {
     // Initialize Serial output
@@ -20,9 +20,10 @@ void setup() {
 
     // // Initialize sensors
     dist.init();
-    // limit.init();
+    limit.init();
 }
 
 void loop() {
+    // Prints the distance read by the distance sensor
     Serial.println(dist.distance());
 }

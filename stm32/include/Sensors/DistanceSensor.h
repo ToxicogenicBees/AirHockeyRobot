@@ -2,11 +2,22 @@
 
 #include <stdint.h>
 #include "Sensor.h"
-#include "Pin.h"
+#include "PinDef.h"
 
 class DistanceSensor : public Sensor {
     public:
-        DistanceSensor(Pin& trig, Pin& echo);
+        /**
+         * @brief Creates an ultrasonic distance sensor
+         * 
+         * @param trig  The trigger pin
+         * @param echo  The echo pin
+         */
+        DistanceSensor(PinDef& trig, PinDef& echo);
 
+        /**
+         * @brief Yields and returns the current distance measurement of the sensor
+         * 
+         * @return The distance read by the sensor, in millimeters
+         */
         double distance();
 };
