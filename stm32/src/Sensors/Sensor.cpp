@@ -1,4 +1,5 @@
 #include "Sensors/Sensor.h"
+
 #include <stdarg.h>
 
 Sensor::Sensor(uint8_t num_pins, ...): _NUM_PINS(num_pins) {

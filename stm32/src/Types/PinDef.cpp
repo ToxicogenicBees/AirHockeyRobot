@@ -1,4 +1,4 @@
-#include "PinDef.h"
+#include "Types/PinDef.h"
 
 PinDef::PinDef(uint8_t pin, uint8_t mode)
     : PIN(pin), MODE(mode) {}

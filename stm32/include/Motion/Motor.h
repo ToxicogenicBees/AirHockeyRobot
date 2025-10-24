@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PinDef.h"
+#include "Types/PinDef.h"
 
 class Motor {
     private:

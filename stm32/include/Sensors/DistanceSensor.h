@@ -1,8 +1,9 @@
 #pragma once
 
+#include "Sensors/Sensor.h"
+#include "Types/PinDef.h"
+
 #include <stdint.h>
-#include "Sensor.h"
-#include "PinDef.h"
 
 class DistanceSensor : public Sensor {
     public:
