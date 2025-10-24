@@ -1,7 +1,7 @@
 #include "Sensors/DistanceSensor.h"
 #include "Sensors/LimitSwitch.h"
-#include "Motor/Motor.h"
-#include "PinDef.h"
+#include "Motion/Motor.h"
+#include "Types/PinDef.h"
 
 #include <Arduino.h>
 
