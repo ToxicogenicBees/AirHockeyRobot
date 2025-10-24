@@ -8,19 +8,19 @@
 // Pin definitions
 Pin DISTANCE_ECHO(D4, INPUT);
 Pin DISTANCE_TRIG(D2, OUTPUT);
-Pin LIMIT;
+// Pin LIMIT;
 
-// Sensor definitions
+// // Sensor definitions
 DistanceSensor dist(DISTANCE_TRIG, DISTANCE_ECHO);
-LimitSwitch limit(LIMIT);
+// LimitSwitch limit(LIMIT);
 
 void setup() {
     // Initialize Serial output
-    Serial.begin(9600);
+    Serial.begin(115200);
 
-    // Initialize sensors
+    // // Initialize sensors
     dist.init();
-    limit.init();
+    // limit.init();
 }
 
 void loop() {
