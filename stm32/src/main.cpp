@@ -1,22 +1,28 @@
-#include "main.h"
+#include "Sensors/DistanceSensor.h"
+#include "Sensors/LimitSwitch.h"
+#include "Motor/Motor.h"
+#include "Pin.h"
 
-// void SystemClock_Config(void);
-// static void MX_GPIO_Init(void);
+#include <Arduino.h>
 
-int main() {
-    // Initialize the controller
-    HAL_Init();
-    // SystemClock_Config();
-    // MX_GPIO_Init();
+// Pin definitions
+Pin DISTANCE_ECHO(D4, INPUT);
+Pin DISTANCE_TRIG(D2, OUTPUT);
+Pin LIMIT;
+
+// Sensor definitions
+DistanceSensor dist(DISTANCE_TRIG, DISTANCE_ECHO);
+LimitSwitch limit(LIMIT);
+
+void setup() {
+    // Initialize Serial output
+    Serial.begin(9600);
 
     // Initialize sensors
-    x_dist.init();
-    y_dist.init();
-    x_limit.init();
-    y_limit.init();
+    dist.init();
+    limit.init();
+}
 
-    // Main loop
-    while(true) {
-
-    }
+void loop() {
+    Serial.println(dist.distance());
 }

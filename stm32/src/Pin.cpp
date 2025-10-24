@@ -1,32 +1,22 @@
 #include "Pin.h"
 
-Pin::Pin(GPIO_TypeDef* port, uint16_t pin)
-    : PORT(port), PIN(pin) {}
+Pin::Pin(uint32_t pin, uint32_t mode)
+    : PIN(pin), MODE(mode) {}
 
 bool Pin::read() const {
-    return HAL_GPIO_ReadPin(PORT, PIN) == GPIO_PIN_SET;
-}
-
-void Pin::write(const GPIO_PinState& state) {
-    HAL_GPIO_WritePin(PORT, PIN, state);
+    return digitalRead(PIN) == HIGH;
 }
 
 void Pin::write(bool state) {
-    HAL_GPIO_WritePin(PORT, PIN, state ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    digitalWrite(PIN, state ? HIGH : LOW);
 }
 
 void Pin::toggle() {
-    HAL_GPIO_TogglePin(PORT, PIN);
+    digitalWrite(PIN, !digitalRead(PIN));
 }
 
-void Pin::init(uint32_t mode, uint32_t pull, uint32_t speed, uint32_t alternate) {
-    GPIO_InitTypeDef GPIO_InitStruct = { PIN, mode, pull, speed, alternate };
-    HAL_GPIO_Init(PORT, &GPIO_InitStruct);
-}
-
-Pin& Pin::operator=(const GPIO_PinState& state) {
-    write(state);
-    return *this;
+void Pin::init() {
+    pinMode(PIN, MODE);
 }
 
 Pin& Pin::operator=(bool state) {
