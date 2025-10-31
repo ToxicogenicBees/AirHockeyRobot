@@ -4,7 +4,6 @@
 #include <iomanip>
 
 Point2<double> point(20.6, 10.5);
-Packet packet;
 
 int main() {
     Packet packet(Action::MALLET_POSITION);
