@@ -60,11 +60,18 @@ class Packet {
         uint8_t action() { return _data[0]; }
 
         /**
-         * @brief Returns the packet's length
+         * @brief Returns the packet's total length
          * 
-         * @return The packet's length
+         * @return The packet's total length
          */
         uint8_t length() { return _data[1]; }
+
+        /**
+         * @brief Returns the packet's payload legth
+         * 
+         * @return The packet's payload length
+         */
+        uint8_t payloadLength() { return length() - 3; }
 
         /**
          * @brief Returns the packet's stored CRC

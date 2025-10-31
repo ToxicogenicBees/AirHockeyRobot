@@ -24,19 +24,17 @@ bool Packet::isValid() {
 }
 
 void Packet::finalize() {
-    // CRC bytes
-    _data.push_back(0x00);
+    // CRC byte
     _data.push_back(0x00);
 
     // Adjust length parameter
     _data[1] = _data.size();
     
     // Calculate CRC
-    uint16_t crc = 0;
+    uint8_t crc = 0;
     for (uint8_t byte : _data)
         crc += byte;
 
     // Write CRC
-    _data[_data.size() - 2] = crc >> 8;
     _data[_data.size() - 1] = crc;
 }
