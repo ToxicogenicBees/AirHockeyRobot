@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(AirHockeyLaptop)
 
+if(WIN32)
+    add_definitions(-DWIN32_LEAN_AND_MEAN)
+endif()
+
 # --- OpenCV Setup ---
 set(OpenCV_DIR "C:/opencv/build-mingw/install")
 find_package(OpenCV REQUIRED)
@@ -18,6 +22,7 @@ set(COMMON_INCLUDES
 # --- List of executables ---
 set(EXECUTABLES
     PuckPrediction
+    PhysicsSim
     PacketTest
     OpenCVTest
     main
@@ -35,13 +40,23 @@ set(PacketTest_SOURCES
     src/Examples/PacketTest.cpp
 )
 
+set(PhysicsSim_SOURCES
+    src/Examples/PhysicsSim.cpp
+    src/Vision/PuckTracking.cpp
+    src/Motion/MovingObject.cpp
+    src/Motion/Mallet.cpp
+    src/Motion/Puck.cpp
+)
+
 set(OpenCVTest_SOURCES
     src/Examples/OpenCVTest.cpp
 )
 
 set(main_SOURCES
     src/main.cpp
+    src/Vision/PuckTracking.cpp
     src/Motion/MovingObject.cpp
+    src/Comms/SerialLink.cpp
     src/Motion/Mallet.cpp
     src/Motion/Puck.cpp
 )
@@ -55,6 +70,7 @@ endfunction()
 
 # --- Add all executables ---
 add_opencv_executable(PuckPrediction "${PuckPrediction_SOURCES}")
+add_opencv_executable(PhysicsSim "${PhysicsSim_SOURCES}")
 add_opencv_executable(PacketTest "${PacketTest_SOURCES}")
 add_opencv_executable(OpenCVTest "${OpenCVTest_SOURCES}")
 add_opencv_executable(main "${main_SOURCES}")
