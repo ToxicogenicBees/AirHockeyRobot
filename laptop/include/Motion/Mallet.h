@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../../shared/include/Types/Point2.hpp"
-#include "../../../shared/include/Types/Point3.hpp"
-#include "MovingObject.h"
+#include "Motion/MovingObject.h"
+#include "Types/Point2.hpp"
+#include "Types/Point3.hpp"
 
 class Mallet : public MovingObject {
     public:

@@ -1,6 +1,6 @@
-#include "../include/Motion/Mallet.h"
-#include "../include/FileFormat.hpp"
-#include "../include/Motion/Puck.h"
+#include "Motion/Mallet.h"
+#include "FileFormat.hpp"
+#include "Motion/Puck.h"
 #include <iostream>
 #include <fstream>
 #include <cmath>

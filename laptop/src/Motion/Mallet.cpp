@@ -1,4 +1,4 @@
-#include "../../include/Motion/Mallet.h"
+#include "Motion/Mallet.h"
 #include <cmath>
 
 // Constant velocity, infinite accelleration

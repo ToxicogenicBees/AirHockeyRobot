@@ -33,38 +33,71 @@ class Packet {
          * 
          * @param action    The desired action
          */
-        Packet(uint8_t action = Action::MALLET_POSITION);
+        Packet(uint8_t action = Action::MALLET_POSITION) {
+            _data.resize(2);
+
+            _data[0] = 2;       // Length
+            _data[1] = action;  // Action
+            
+            resetRead();
+        }
 
         /***
          * @brief Resets the read iterator to the first byte of message data
          */
-        void resetRead();
+        void resetRead() {
+            _read_iter = _data.begin() + 2;
+        }
 
          /***
          * @brief Runs final calculations to prep packet for sending
          */
-        void finalize();
+        void finalize() {
+                    // CRC byte
+            _data.push_back(0x00);
+
+            // Adjust length parameter
+            _data[0] = _data.size();
+            
+            // Calculate CRC
+            uint8_t crc = 0;
+            for (uint8_t byte : _data)
+                crc += byte;
+
+            // Write CRC
+            _data[_data.size() - 1] = crc;
+        }
 
         /**
          * @brief Determines if the CRC in the packet matches with the data inside the packet
          * 
          * @return If the packet is valid
          */
-        bool isValid();
+        bool isValid() {
+            uint8_t calc_crc = 0;
+            for (size_t i = 0; i < _data.size() - 2; i++)
+                calc_crc += _data[i];
+                
+            return calc_crc == crc();
+        }
 
         /**
          * @brief Returns the packet's action
          * 
          * @return The packet's action
          */
-        uint8_t action() { return _data[0]; }
+        uint8_t action() {
+            return _data[0];
+        }
 
         /**
          * @brief Returns the packet's total length
          * 
          * @return The packet's total length
          */
-        uint8_t length() { return _data[1]; }
+        uint8_t length() {
+            return _data[1];
+        }
 
         /**
          * @brief Returns the packet's payload legth
@@ -78,7 +111,9 @@ class Packet {
          * 
          * @return The packet's stored CRC
          */
-        uint8_t crc() { return _data[_data.size() - 1]; }
+        uint8_t crc() {
+            return _data[_data.size() - 1];
+        }
 
         /**
          * @brief Writes the given data into the packet's payload

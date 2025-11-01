@@ -1,0 +1,56 @@
+# === CMake build artifacts ===
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+install_manifest.txt
+
+# Ninja / MSBuild / Make variants
+*.ninja
+*.ninja_deps
+*.ninja_log
+*.sln
+*.vcxproj*
+*.cbp
+
+# === Compiled object / binary files ===
+*.o
+*.obj
+*.so
+*.dll
+*.dylib
+*.lib
+*.a
+*.exe
+*.out
+*.pdb
+*.exp
+
+# === Logs and temporary files ===
+*.log
+*.tmp
+
+# === IDE / Editor files ===
+# VSCode
+.vscode/
+# CLion / JetBrains IDEs
+.idea/
+# Visual Studio intermediate folders
+Debug/
+Release/
+x64/
+x86/
+# macOS
+.DS_Store
+# Windows
+Thumbs.db
+
+# === Generated test or cache directories ===
+Testing/
+CTestTestfile.cmake
+
+# === Other optional build dirs ===
+out/
+bin/
+lib/

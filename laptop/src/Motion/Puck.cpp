@@ -1,4 +1,4 @@
-#include "../../include/Motion/Puck.h"
+#include "Motion/Puck.h"
 
 Matrix<Point3<double>> Puck::estimateTrajectory(size_t num_points) {
     // Ignore trajectories where the puck is moving away (return empty matrix)

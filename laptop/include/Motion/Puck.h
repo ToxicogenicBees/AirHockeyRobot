@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../../shared/include/Types/Point3.hpp"
-#include "../Types/Matrix.hpp"
+#include "Types/Point3.hpp"
+#include "Types/Matrix.hpp"
 #include "MovingObject.h"
 
 class Puck : public MovingObject {

@@ -1,5 +1,4 @@
-#include "../../../shared/include/Types/Point2.hpp"
-#include "../../../shared/include/Comms/Packet.h"
+#include "Comms/Packet.hpp"
 #include <iostream>
 #include <iomanip>
 
