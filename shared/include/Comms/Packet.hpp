@@ -24,10 +24,13 @@ namespace Action {
 
 class Packet {
     private:
-        std::vector<uint8_t> _data;
-        std::vector<uint8_t>::iterator _read_iter = _data.begin();
+        std::vector<uint8_t>::iterator _read_iter;  // Read iterator for reading packet data
+        std::vector<uint8_t> _data;                 // Byte data
+        bool _finalized = false;                    // If the packet is finalized or not
 
     public:
+        friend class SerialLink;
+
         /***
          * @brief Creates a packet with the desired action type
          * 
@@ -43,6 +46,19 @@ class Packet {
         }
 
         /***
+         * @brief Creates a packet from a vector of bytes
+         * 
+         * @param bytes         The vector of bytes
+         * @param finalized     Whether the packet is ready to send or not, defaults to true
+         */
+        Packet(const std::vector<uint8_t>& bytes, bool finalized = true) {
+            _finalized = finalized;
+            _data = bytes;
+
+            resetRead();
+        }
+
+        /***
          * @brief Resets the read iterator to the first byte of message data
          */
         void resetRead() {
@@ -53,7 +69,10 @@ class Packet {
          * @brief Runs final calculations to prep packet for sending
          */
         void finalize() {
-                    // CRC byte
+            // Ignore if already finalized
+            if (_finalized) return;
+
+            // CRC byte
             _data.push_back(0x00);
 
             // Adjust length parameter
@@ -66,6 +85,9 @@ class Packet {
 
             // Write CRC
             _data[_data.size() - 1] = crc;
+
+            // Mark as finalized
+            _finalized = true;
         }
 
         /**
@@ -73,9 +95,9 @@ class Packet {
          * 
          * @return If the packet is valid
          */
-        bool isValid() {
+        bool isValid() const {
             uint8_t calc_crc = 0;
-            for (size_t i = 0; i < _data.size() - 2; i++)
+            for (size_t i = 0; i < _data.size() - 1; i++)
                 calc_crc += _data[i];
                 
             return calc_crc == crc();
@@ -86,8 +108,8 @@ class Packet {
          * 
          * @return The packet's action
          */
-        uint8_t action() {
-            return _data[0];
+        uint8_t action() const {
+            return _data[1];
         }
 
         /**
@@ -95,8 +117,8 @@ class Packet {
          * 
          * @return The packet's total length
          */
-        uint8_t length() {
-            return _data[1];
+        uint8_t length() const {
+            return _data[0];
         }
 
         /**
@@ -104,14 +126,14 @@ class Packet {
          * 
          * @return The packet's payload length
          */
-        uint8_t payloadLength() { return length() - 3; }
+        uint8_t payloadLength() const { return length() - 3; }
 
         /**
          * @brief Returns the packet's stored CRC
          * 
          * @return The packet's stored CRC
          */
-        uint8_t crc() {
+        uint8_t crc() const {
             return _data[_data.size() - 1];
         }
 
