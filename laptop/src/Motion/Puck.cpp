@@ -1,22 +1,26 @@
 #include "Motion/Puck.h"
 
-Matrix<Point3<double>> Puck::estimateTrajectory(size_t num_points) {
+Matrix<Point3<double>> Puck::estimateTrajectory() {
     // Ignore trajectories where the puck is moving away (return empty matrix)
     if (_vel.y > 0)
         return Matrix<Point3<double>>();
 
-    Matrix<Point3<double>> samples(num_points);
+    // Ignore if puck isn't moving
+    if (std::abs(_vel.y) < 1e-10)
+        return Matrix<Point3<double>>();
+
+    Matrix<Point3<double>> samples(Constants::NUM_SAMPLE_POINTS);
 
     // Determine how long each step needs to be
     double time_to_travel = -_pos.y / _vel.y;
-    double timestep = time_to_travel / num_points;
+    double timestep = time_to_travel / Constants::NUM_SAMPLE_POINTS;
 
     // Calculate trajectory path
     Point2<double> est_vel = _vel;
     Point2<double> est_pos = _pos;
 
     // Determine sample points
-    for (size_t i = 0; i < num_points; i++) {
+    for (size_t i = 0; i < Constants::NUM_SAMPLE_POINTS; i++) {
         // Step forward
         Point2<double> new_est_pos = est_pos + est_vel * timestep;
 
