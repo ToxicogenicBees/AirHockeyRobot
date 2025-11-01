@@ -1,4 +1,4 @@
-#include "../../include/Motion/MovingObject.h"
+#include "Motion/MovingObject.h"
 
 void MovingObject::readPosition(const Point2<double>& new_pos, double timestep) {
     _vel = (new_pos - _pos) / timestep;

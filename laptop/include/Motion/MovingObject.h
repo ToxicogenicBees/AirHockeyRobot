@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../../shared/include/Types/Point2.hpp"
-#include "../../../shared/include/Constants.h"
+#include "Types/Point2.hpp"
+#include "Constants.h"
 
 class MovingObject {
     protected:

@@ -1,4 +1,4 @@
-#include "../../../shared/include/Comms/Packet.h"
+#include "Comms/Packet.hpp"
 #include <iostream>
 
 Packet packet;
