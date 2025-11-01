@@ -4,6 +4,7 @@ project(AirHockeyLaptop)
 # --- OpenCV Setup ---
 set(OpenCV_DIR "C:/opencv/build-mingw/install")
 find_package(OpenCV REQUIRED)
+
 message(STATUS "OpenCV include dirs: ${OpenCV_INCLUDE_DIRS}")
 message(STATUS "OpenCV libraries: ${OpenCV_LIBS}")
 

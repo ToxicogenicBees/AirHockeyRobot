@@ -1,4 +1,5 @@
 #include "Comms/Packet.hpp"
+#include "Types/Point2.hpp"
 #include <iostream>
 #include <iomanip>
 
