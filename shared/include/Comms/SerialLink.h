@@ -1,22 +1,28 @@
 #pragma once
 
-#include "Packet.hpp"
+#include "Comms/Packet.hpp"
 
-/* 
+#ifdef WIN32_LEAN_AND_MEAN
+    #include <windows.h>
+#endif
 
-This file sets up the general USB communication scheme between
-the microcontroller and the laptop. This file provides a
-consistant interface between the two. Both systems define their
-own version of this file separately.
+struct SerialLink {
+    #ifdef WIN32_LEAN_AND_MEAN
+        static HANDLE hSerial;
+    #endif
 
-*/
+    /**
+     * @brief   Initializes the communication link on the device's end
+     */
+    static void init();
+    
+    /**
+     * @brief   Sends a packet over the link
+     */
+    static void send(Packet& packet);
 
-
-class SerialLink {
-    private:
-
-    public:
-        void send(Packet& packet);
-
-        bool readByte(Packet& packet);
+    /**
+     * @brief   Reads a packet from the link
+     */
+    static Packet read();
 };
