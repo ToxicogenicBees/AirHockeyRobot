@@ -5,21 +5,17 @@
 #include <fstream>
 #include <cmath>
 
-const size_t NUM_POINTS = 20;
-
 Mallet mallet;
 Puck puck;
 
 void initTable(const Point2<double>& mallet_pos, const Point2<double>& puck_pos, double puck_angle) {
-    // Initialize moving objects
-    mallet.init(mallet_pos);
-    puck.init(puck_pos);
-    
-    // Initialize puck motion
+    // Calculate the desired puck velocity
     double rads = puck_angle * M_PI / 180;
-    Point2<double> puck_offset(std::cos(rads), std::sin(rads));
+    Point2<double> vel = Point2<double>(std::cos(rads), std::sin(rads)) * Constants::PUCK_SPEED;
 
-    puck.readPosition(puck_pos + Constants::PUCK_SPEED * Constants::SAMPLE_RATE * puck_offset, Constants::SAMPLE_RATE);
+    // Initialize moving objects
+    puck.orient(puck_pos, vel);
+    mallet.orient(mallet_pos);
 }
 
 int main() {
@@ -27,12 +23,13 @@ int main() {
     initTable({14.0, 12.0}, {20.8, 36.4}, 226);
 
     // Run calculations
-    Matrix<Point3<double>> sample_data = puck.estimateTrajectory(NUM_POINTS);
+    Matrix<Point3<double>> sample_data = puck.estimateTrajectory();
+    std::cout << sample_data << std::endl;
 
     // Determine time for mallet to reach these points
-    Matrix<double> relative_times(NUM_POINTS);
-    Matrix<double> mallet_times(NUM_POINTS);
-    Matrix<double> puck_times(NUM_POINTS);
+    Matrix<double> relative_times(Constants::NUM_SAMPLE_POINTS);
+    Matrix<double> mallet_times(Constants::NUM_SAMPLE_POINTS);
+    Matrix<double> puck_times(Constants::NUM_SAMPLE_POINTS);
 
     size_t i = 0;
     for (auto p : sample_data) {
