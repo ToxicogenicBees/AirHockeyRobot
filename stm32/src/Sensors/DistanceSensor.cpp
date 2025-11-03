@@ -5,7 +5,13 @@ namespace {
     #define ECHO 1
 }
 
+double DistanceSensor::_speed_of_sound = 24.5;
+
 DistanceSensor::DistanceSensor(PinDef& trig, PinDef& echo) : Sensor(2, &trig, &echo) {}
+
+void DistanceSensor::calibrate(double temperature) {
+    _speed_of_sound = 331.4e-3 + 0.6e-3 * temperature;
+}
 
 double DistanceSensor::distance() {
     _PINS[TRIG]->write(false);
@@ -15,5 +21,5 @@ double DistanceSensor::distance() {
     _PINS[TRIG]->write(false);
 
     uint32_t duration = pulseIn(_PINS[ECHO]->PIN, HIGH);
-    return duration * 0.1715; // 0.343 * 0.5
+    return 0.5 * duration * _speed_of_sound;
 }

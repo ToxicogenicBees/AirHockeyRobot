@@ -6,6 +6,9 @@
 #include <stdint.h>
 
 class DistanceSensor : public Sensor {
+    private:
+        static double _speed_of_sound;
+
     public:
         /**
          * @brief Creates an ultrasonic distance sensor
@@ -14,6 +17,11 @@ class DistanceSensor : public Sensor {
          * @param echo  The echo pin
          */
         DistanceSensor(PinDef& trig, PinDef& echo);
+
+        /**
+         * @brief Calibrate the distance sensor based on temperature
+         */
+        static void calibrate(double temperature);
 
         /**
          * @brief Yields and returns the current distance measurement of the sensor
