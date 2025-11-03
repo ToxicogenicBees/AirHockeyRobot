@@ -22,7 +22,9 @@ class TemperatureSensor : public Sensor {
         // Sampling
         static constexpr uint8_t _SAMPLES = 20;
 
-        double _sampleBurst(uint8_t samples);
+        double _buffer[_SAMPLES] = {24.5};
+        size_t _buf_ind = 0;
+
         double _sample();
 
     public:

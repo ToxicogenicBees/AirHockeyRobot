@@ -16,15 +16,14 @@ double TemperatureSensor::_sample() {
         + _THRM_A0;
 }
 
-double TemperatureSensor::_sampleBurst(uint8_t samples) {
-    double sum = 0;
-
-    for (size_t i = 0; i < samples; i++)
-        sum += _sample();
-
-    return sum / samples;
-}
-
 double TemperatureSensor::temperature() {
-    return _sampleBurst(_SAMPLES);
+    _buffer[_buf_ind] = _sample();
+
+    _buf_ind = (_buf_ind + 1) % _SAMPLES;
+
+    double sum = 0;
+    for (size_t i = 0; i < _SAMPLES; i++)
+        sum += _buffer[i];
+
+    return sum / _SAMPLES;
 }
