@@ -16,6 +16,9 @@ void setup() {
     // Initialize Serial output
     SerialLink::init();
 
+    // Initialize ADC converter precision
+    analogReadResolution(12);
+
     // Initialize sensors
     dist.init();
     limit.init();
@@ -23,6 +26,12 @@ void setup() {
 }
 
 void loop() {
-    // Prints the distance read by the distance sensor
-    Serial.println(temp.temperature());
+    // Read ambient temp
+    double ambient_temp = temp.temperature();
+
+    // Calibrate distance sensor
+    DistanceSensor::calibrate(ambient_temp);
+
+    // Print distance measurement
+    Serial.println(dist.distance());
 }
