@@ -21,9 +21,4 @@ class LimitSwitch : public Sensor {
          * @return The state of the limit switch
          */
         bool pressed();
-
-        /**
-         * @brief Returns this->pressed() when converted to boolean
-         */
-        operator bool();
 };
