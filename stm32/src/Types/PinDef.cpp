@@ -7,8 +7,16 @@ bool PinDef::read() const {
     return digitalRead(PIN) == HIGH;
 }
 
+uint8_t PinDef::readAnalog() const {
+    return analogRead(PIN);
+}
+
 void PinDef::write(bool state) {
     digitalWrite(PIN, state ? HIGH : LOW);
+}
+
+void PinDef::writeAnalog(uint8_t state) {
+    analogWrite(PIN, state);
 }
 
 void PinDef::toggle() {

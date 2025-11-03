@@ -16,11 +16,18 @@ struct PinDef {
     PinDef(uint8_t pin = 0, uint8_t mode = 0);
 
     /**
-     * @brief Reads the current state of the pin
+     * @brief Reads the current (digital) state of the pin
      * 
      * @return The current state of the pin
      */
     bool read() const;
+
+    /**
+     * @brief Reads the current analog state of the pin
+     * 
+     * @return The current state of the pin
+     */
+    uint8_t readAnalog() const;
 
     /**
      * @brief Writes the desired state to the pin
@@ -30,7 +37,14 @@ struct PinDef {
     void write(bool state);
 
     /**
-     * @brief Toggles the pin's current state
+     * @brief Writes the desired state to the pin
+     * 
+     * @param state The desired state
+     */
+    void writeAnalog(uint8_t state);
+
+    /**
+     * @brief Toggles the pin's current (digital) state
      */
     void toggle();
 
