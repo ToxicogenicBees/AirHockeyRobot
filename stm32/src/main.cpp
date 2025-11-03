@@ -1,6 +1,5 @@
 #include "Sensors/DistanceSensor.h"
 #include "Sensors/LimitSwitch.h"
-#include "Comms/SerialLink.h"
 #include "Motion/Motor.h"
 #include "PinOut.h"
 
@@ -12,7 +11,7 @@ LimitSwitch limit(lim);
 
 void setup() {
     // Initialize Serial output
-    SerialLink::init();
+    Serial.begin(115200);
 
     // // Initialize sensors
     dist.init();
