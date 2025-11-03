@@ -17,13 +17,41 @@ double TemperatureSensor::_sample() {
 }
 
 double TemperatureSensor::temperature() {
-    _buffer[_buf_ind] = _sample();
+    // Sample temperature
+    double temp = _sample();
 
-    _buf_ind = (_buf_ind + 1) % _SAMPLES;
+    // If current reading is within tolerance, add to buffer and return
+    if (std::fabs(temp - _prev_avg) < _TEMP_ERR) {
+        // Store temp in buffer
+        _buffer[_buf_ind] = temp;
+        _buf_ind = (_buf_ind + 1) % _SAMPLES;
 
-    double sum = 0;
-    for (size_t i = 0; i < _SAMPLES; i++)
-        sum += _buffer[i];
+        // Calculate average of buffer with new data
+        double avg = 0;
+        for (size_t i = 0; i < _SAMPLES; i++)
+            avg += _buffer[i];
+        avg /= _SAMPLES;
 
-    return sum / _SAMPLES;
+        // Store and return average
+        _prev_avg = avg;
+        return avg;
+    }
+    
+    // Return previous average
+    return _prev_avg;
+}
+
+void TemperatureSensor::init() {
+    // Default initialization
+    Sensor::init();
+
+    // Fill the buffer with readings
+    _prev_avg = 0;
+
+    for (size_t i = 0; i < _SAMPLES; i++) {
+        _buffer[i] = _sample();
+        _prev_avg += _buffer[i];
+    }
+
+    _prev_avg /= _SAMPLES;
 }
