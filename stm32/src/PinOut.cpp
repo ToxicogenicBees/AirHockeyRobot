@@ -12,7 +12,9 @@ PinDef motor_r_step;
 PinDef motor_r_dir;
 PinDef motor_r_scs;
 
-PinDef dist_trig(D2, OUTPUT);
-PinDef dist_echo(D4, INPUT);
+PinDef dist_x_trig(D2, OUTPUT);
+PinDef dist_x_echo(D4, INPUT);
+PinDef dist_y_trig(D6, OUTPUT);
+PinDef dist_y_echo(D7, INPUT);
 PinDef lim(D7, INPUT_PULLDOWN);
 PinDef temp_read(A0, INPUT_ANALOG);

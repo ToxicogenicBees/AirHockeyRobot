@@ -8,7 +8,8 @@
 #include <Arduino.h>
 
 // Sensor definitions
-DistanceSensor dist(dist_trig, dist_echo);
+DistanceSensor dist_x(dist_x_trig, dist_x_echo);
+DistanceSensor dist_y(dist_y_trig, dist_y_echo);
 TemperatureSensor temp(temp_read);
 LimitSwitch limit(lim);
 
@@ -20,7 +21,8 @@ void setup() {
     analogReadResolution(12);
 
     // Initialize sensors
-    dist.init();
+    dist_x.init();
+    dist_y.init();
     limit.init();
     temp.init();
 }
@@ -35,5 +37,7 @@ void loop() {
     // Print distance measurement
     Serial.print(ambient_temp);
     Serial.print(" ");
-    Serial.println(dist.distance());
+    Serial.print(dist_x.distance());
+    Serial.print(" ");
+    Serial.println(dist_y.distance());
 }

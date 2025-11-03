@@ -26,9 +26,13 @@ extern PinDef motor_r_scs;
   Sensors  
 **********/
 
-// Distance sensor
-extern PinDef dist_trig;
-extern PinDef dist_echo;
+// Distance sensor x-axis
+extern PinDef dist_x_trig;
+extern PinDef dist_x_echo;
+
+// Distance sensor y-axis
+extern PinDef dist_y_trig;
+extern PinDef dist_y_echo;
 
 // Limit Switch
 extern PinDef lim;
