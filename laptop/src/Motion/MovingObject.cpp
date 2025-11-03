@@ -24,6 +24,9 @@ void MovingObject::moveTo(const Point2<double>& new_pos, int64_t micsec) {
 }
 
 void MovingObject::orient(const Point2<double>& pos, const Point2<double>& vel) {
+    // Get access to lock
+    std::lock_guard<std::mutex> lock(_access_locational_data);
+    
     _pos = pos;
     _vel = vel;
 }
