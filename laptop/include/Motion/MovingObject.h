@@ -31,7 +31,7 @@ class MovingObject {
          * @param msec      The time difference in microseconds between position updates,
          *                  defaults to the default sample time
          */
-        void moveTo(const Point2<double>& new_pos, int64_t micsec = Constants::SAMPLE_RATE);
+        void moveTo(const Point2<double>& new_pos, int64_t micsec = -1);
 
         /**
          * @brief Sets the position and velocity of the object
