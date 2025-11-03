@@ -1,3 +1,4 @@
+#include "Sensors/TemperatureSensor.h"
 #include "Sensors/DistanceSensor.h"
 #include "Sensors/LimitSwitch.h"
 #include "Comms/SerialLink.h"
@@ -8,6 +9,7 @@
 
 // Sensor definitions
 DistanceSensor dist(dist_trig, dist_echo);
+TemperatureSensor temp(temp_read);
 LimitSwitch limit(lim);
 
 void setup() {
@@ -17,10 +19,10 @@ void setup() {
     // Initialize sensors
     dist.init();
     limit.init();
+    temp.init();
 }
 
 void loop() {
     // Prints the distance read by the distance sensor
-    Serial.println(dist.distance());
-    Serial.println(limit.pressed());
+    Serial.println(temp.temperature());
 }

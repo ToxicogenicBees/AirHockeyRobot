@@ -15,3 +15,4 @@ PinDef motor_r_scs;
 PinDef dist_trig(D2, OUTPUT);
 PinDef dist_echo(D4, INPUT);
 PinDef lim(D7, INPUT_PULLDOWN);
+PinDef temp_read(A0, INPUT_ANALOG);
