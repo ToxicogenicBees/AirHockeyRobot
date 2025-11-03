@@ -33,5 +33,7 @@ void loop() {
     DistanceSensor::calibrate(ambient_temp);
 
     // Print distance measurement
+    Serial.print(ambient_temp);
+    Serial.print(" ");
     Serial.println(dist.distance());
 }
