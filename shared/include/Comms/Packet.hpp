@@ -6,16 +6,14 @@
 #include <vector>
 
 /*
+    Packet structure:
 
-Packet structure:
+    L A MMM...MMM C
 
-    A L MMM...MMM C
-
-Byte 0:                 Action
-Byte 1:                 Length
-Bytes 2 - (N - 1):      Message
-Byte N:                 CRC
-
+    Byte 0:                 Length
+    Byte 1:                 Action
+    Bytes 2 - (N - 1):      Message
+    Byte N:                 CRC
 */
 
 namespace Action {
