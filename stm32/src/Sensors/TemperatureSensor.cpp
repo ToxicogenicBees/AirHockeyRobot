@@ -1,25 +1,21 @@
 #include "Sensors/TemperatureSensor.h"
 
+#include <cmath>
+
 TemperatureSensor::TemperatureSensor(PinDef& read) : Sensor(1, &read) {}
 
-float TemperatureSensor::transferFunctionTempVsVsense(float Vsense) {
-    // we are using TMP6131LPGM thermistor
-    // the transfer function for temperature vs. Vsense voltage
-    // is given in the TI Thermistor design tool
-    float THRM_A0 =	-2.885698E+02	;
-    float THRM_A1 =	1.556236E+02	;
-    float THRM_A2 = 7.191258E+01	;
-    float THRM_A3 = -5.134061E+01	;
-    float THRM_A4 = 1.244030E+01	;
-
+float TemperatureSensor::_transferFunctionTempVsVsense(float v_sense) {
     // 4th order regression to get temperature	
-    float THRM_TEMP = (THRM_A4 * powf( Vsense,4)) + (THRM_A3 * powf( Vsense,3)) + (THRM_A2 * powf( Vsense,2)) + (THRM_A1 *  Vsense) + THRM_A0;								
-    return THRM_TEMP;									
+    return _THRM_A4 * std::pow(v_sense, 4)
+        + _THRM_A3 * std::pow(v_sense, 3)
+        + _THRM_A2 * std::pow(v_sense, 2)
+        + _THRM_A1 * v_sense
+        + _THRM_A0;									
 }
 
 float TemperatureSensor::temperature() {
-    int twelveBitADCRead = analogRead(_PINS[0]->PIN); // stm32 has 12-bit ADC, 3.3 logic
-    float Vsense = twelveBitADCRead/4095 * 3.3; // voltage over the thermistor
+    uint16_t adc_read = _PINS[0]->readAnalog();     // STM32 has 12-bit ADC, 3.3 logic
+    float v_sense = 3.3f * (adc_read / 4095.0f);    // Voltage over the thermistor
 
-    return transferFunctionTempVsVsense(Vsense);
+    return _transferFunctionTempVsVsense(v_sense);
 }
