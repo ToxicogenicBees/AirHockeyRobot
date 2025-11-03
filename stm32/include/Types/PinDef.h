@@ -27,7 +27,7 @@ struct PinDef {
      * 
      * @return The current state of the pin
      */
-    uint8_t readAnalog() const;
+    uint32_t readAnalog() const;
 
     /**
      * @brief Writes the desired state to the pin
@@ -41,7 +41,7 @@ struct PinDef {
      * 
      * @param state The desired state
      */
-    void writeAnalog(uint8_t state);
+    void writeAnalog(uint32_t state);
 
     /**
      * @brief Toggles the pin's current (digital) state
