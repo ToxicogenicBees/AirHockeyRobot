@@ -1,5 +1,6 @@
 #include "Sensors/DistanceSensor.h"
 #include "Sensors/LimitSwitch.h"
+#include "Comms/SerialLink.h"
 #include "Motion/Motor.h"
 #include "PinOut.h"
 
