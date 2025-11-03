@@ -6,7 +6,7 @@
 
 #include <Arduino.h>
 
-// // Sensor definitions
+// Sensor definitions
 DistanceSensor dist(dist_trig, dist_echo);
 LimitSwitch limit(lim);
 
@@ -14,7 +14,7 @@ void setup() {
     // Initialize Serial output
     SerialLink::init();
 
-    // // Initialize sensors
+    // Initialize sensors
     dist.init();
     limit.init();
 }
