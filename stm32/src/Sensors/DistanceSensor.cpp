@@ -5,7 +5,7 @@ namespace {
     #define ECHO 1
 }
 
-double DistanceSensor::_speed_of_sound = 24.5;
+double DistanceSensor::_speed_of_sound = 0.343;
 
 DistanceSensor::DistanceSensor(PinDef& trig, PinDef& echo) : Sensor(2, &trig, &echo) {}
 
