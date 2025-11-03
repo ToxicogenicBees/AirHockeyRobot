@@ -10,18 +10,20 @@ class TemperatureSensor : public Sensor {
         // TMP6131LPGM thermistor
         // Transfer function for temperature vs. Vsense voltage
         // is given in the TI Thermistor design tool
-        static const float _THRM_A0 = -2.885698e2;
-        static const float _THRM_A1 = 1.556236e2;
-        static const float _THRM_A2 = 7.191258e1;
-        static const float _THRM_A3 = -5.134061e1;
-        static const float _THRM_A4 = 1.244030e1;
+        static constexpr double _THRM_A0 = -2.885698e2;
+        static constexpr double _THRM_A1 = 1.556236e2;
+        static constexpr double _THRM_A2 = 7.191258e1;
+        static constexpr double _THRM_A3 = -5.134061e1;
+        static constexpr double _THRM_A4 = 1.244030e1;
 
-        /**
-         * @brief Returns temperature in Celsius using 4th order regression from TI thermistor design tool
-         * 
-         * @param Vsense Voltage sensed over thermistor
-         */
-        float _transferFunctionTempVsVsense(float v_sense);
+        // ADC convertion ratio
+        static constexpr double _ADC_BIAS = 3.3f / 4095;
+
+        // Sampling
+        static constexpr uint8_t _SAMPLES = 20;
+
+        double _sampleBurst(uint8_t samples);
+        double _sample();
 
     public:
         /**
@@ -36,5 +38,5 @@ class TemperatureSensor : public Sensor {
          * 
          * @return Temperature read by sensor in Celsius
          */
-        float temperature();
+        double temperature();
 };
