@@ -1,1 +1,0 @@
-g++ src/Examples/PacketTest.cpp src/Motion/Mallet.cpp src/Motion/Puck.cpp src/Motion/MovingObject.cpp ../shared/src/Comms/Packet.cpp
