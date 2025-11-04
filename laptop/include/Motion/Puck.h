@@ -1,5 +1,7 @@
 #pragma once
 
+#include <opencv2/opencv.hpp>
+
 #include "Motion/MovingObject.h"
 #include "Types/Point3.hpp"
 #include "Types/Matrix.hpp"
@@ -25,9 +27,11 @@ class Puck {
          *        puck's path across the table from its current spot to the back wall, or an empty vector if it's moving
          *        away from the back wall
          * 
+         * @param ignore_return Does not process if the puck is moving away from the robot
+         * 
          * @return The column vector of timestamps
          */
-        static Matrix<Point3<double>> estimateTrajectory();
+        static Matrix<Point3<double>> estimateTrajectory(bool ignore_return = true);
 
         /***
          * @brief Returns the position and velocity of the puck in the future, if it were to continue traveling in a straight line

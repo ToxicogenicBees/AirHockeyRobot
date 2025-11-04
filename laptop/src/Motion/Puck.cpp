@@ -1,4 +1,5 @@
 #include <opencv2/opencv.hpp>
+#include <algorithm>
 
 #include "Motion/Mallet.h"
 #include "Motion/Puck.h"
@@ -26,73 +27,74 @@ void Puck::locate() {
     Puck::moveTo(inches);
 }
 
-Matrix<Point3<double>> Puck::estimateTrajectory() {
-    Point2<double> est_vel = _puck.velocity();
-    Point2<double> est_pos = _puck.position();
+Matrix<Point3<double>> Puck::estimateTrajectory(bool ignore_return) {
+    Point2<double> pos = _puck.position();
+    Point2<double> vel = _puck.velocity();
 
-    // Ignore trajectories where the puck is moving away (return empty matrix)
-    if (est_vel.y > 0)
+    // If the puck isn't moving, return early
+    if (vel.magnitude() < 1e-8)
         return Matrix<Point3<double>>();
 
-    // Ignore if puck isn't moving
-    if (std::abs(est_vel.y) < 1e-10)
+    // If the puck is moving away and it should be ignored, return early
+    if (vel.y > 0 && ignore_return)
         return Matrix<Point3<double>>();
 
-    Matrix<Point3<double>> samples(Constants::NUM_SAMPLE_POINTS);
+    // Determine how long the puck will move for
+    double time_of_arrival = (vel.y > 0 ? 2 * Constants::Table::SIZE.y - pos.y : -pos.y) / vel.y;
 
-    // Determine how long each step needs to be
-    double time_to_travel = -est_pos.y / est_vel.y;
-    double timestep = time_to_travel / Constants::NUM_SAMPLE_POINTS;
-
-    // Calculate trajectory path
-    // Determine sample points
-    for (size_t i = 0; i < Constants::NUM_SAMPLE_POINTS; i++) {
-        // Determine trajectory
-        auto est_orientation = determineFutureOrientation(i * timestep);
-
-        // Add sample point to matrix
-        samples(i) = Point3<double>(est_orientation.first.x, est_orientation.first.y, (i + 1) * timestep);
+    // Determine number of sample points
+    const size_t NUM_SAMPLES = std::min(
+        (size_t) (time_of_arrival / (1e-6 * Constants::SAMPLE_PERIOD)),
+        Constants::MAX_SAMPLE_POINTS
+    );
+    
+    double time_step = time_of_arrival / NUM_SAMPLES;
+    
+    // Calculate trajectory
+    Matrix<Point3<double>> trajectory(NUM_SAMPLES);
+    for (size_t i = 0; i < NUM_SAMPLES; i++) {
+        double time = i * time_step;
+        auto o = determineFutureOrientation(time);
+        trajectory(i) = {o.first.x, o.first.y, time};
     }
-
-    // Return sample points
-    return samples;
+    
+    // Return trajectory
+    return trajectory;
 }
 
 std::pair<Point2<double>, Point2<double>> Puck::determineFutureOrientation(double dt) {
-    Point2<double> est_pos = _puck.position();
-    Point2<double> est_vel = _puck.velocity();
+    Point2<double> pos = _puck.position();
+    Point2<double> vel = _puck.velocity();
 
     // Exit early if not moving
-    if (est_vel.squaredMagnitude() <= 1e-8)
-        return {est_pos, est_vel};
+    if (vel.squaredMagnitude() <= Constants::FP_ERR)
+        return {pos, vel};
 
-    // Step forward
-    Point2<double> new_est_pos = est_pos + est_vel * dt;
+    // Raw displacement
+    Point2<double> raw_disp = pos + dt * vel;
 
-    // x-axis bounce
-    if (new_est_pos.x < Constants::Puck::RADIUS) {
-        new_est_pos.x = Constants::Puck::RADIUS + (Constants::Puck::RADIUS - new_est_pos.x);
-        est_vel.x = -est_vel.x;
-    }
-    else if (new_est_pos.x > Constants::Table::SIZE.x - Constants::Puck::RADIUS) {
-        new_est_pos.x = (Constants::Table::SIZE.x - Constants::Puck::RADIUS) - (new_est_pos.x - (Constants::Table::SIZE.x - Constants::Puck::RADIUS));
-        est_vel.x = -est_vel.x;
-    }
+    // Triangle-wave reflection
+    auto reflect = [](double x, double T, double& v) {
+        double period = 2.0 * T;
+        double mod = std::fmod(x, period);
+        if (mod < 0)
+            mod += period;
 
-    // y-axis bounce
-    if (new_est_pos.y < Constants::Puck::RADIUS) {
-        new_est_pos.y = Constants::Puck::RADIUS + (Constants::Puck::RADIUS - new_est_pos.y);
-        est_vel.y = -est_vel.y;
-    }
-    else if (new_est_pos.y > Constants::Table::SIZE.y - Constants::Puck::RADIUS) {
-        new_est_pos.y = (Constants::Table::SIZE.y - Constants::Puck::RADIUS) - (new_est_pos.y - (Constants::Table::SIZE.y - Constants::Puck::RADIUS));
-        est_vel.y = -est_vel.y;
-    }
+        if (mod <= T)
+            return mod;
 
-    // Set final position
-    est_pos = new_est_pos;
+        else {
+            v = -v;
+            return period - mod;
+        }
+    };
 
-    return {est_pos, est_vel};
+    Point2<double> future_pos(
+        reflect(raw_disp.x, Constants::Table::SIZE.x, vel.x),
+        reflect(raw_disp.y, Constants::Table::SIZE.y, vel.y)
+    );
+
+    return { future_pos, vel };
 }
 
 Point2<double> Puck::reflectedVelocity() {
