@@ -14,35 +14,35 @@ struct Point3 {
      * 
      * @return A point with all components equal to 0
      */
-    static Point2 zero() { return Point3(T(0), T(0), T(0)); }
+    static Point3<T> zero() { return Point3(T(0), T(0), T(0)); }
 
     /***
      * @brief Creates a point with all components equal to 1
      * 
      * @return A point with all components equal to 1
      */
-    static Point2 one() { return Point3(T(1), T(1), T(1)); }
+    static Point3<T> one() { return Point3(T(1), T(1), T(1)); }
 
     /***
      * @brief Creates a point with the x-component equal to 1
      * 
      * @return A point with the x-component equal to 1
      */
-    static Point2 xAxis() { return Point3(T(1), T(0), T(0)); }
+    static Point3<T> xAxis() { return Point3(T(1), T(0), T(0)); }
 
     /***
      * @brief Creates a point with the y-component equal to 1
      * 
      * @return A point with the y-component equal to 1
      */
-    static Point2 yAxis() { return Point3(T(0), T(1), T(0)); }
+    static Point3<T> yAxis() { return Point3(T(0), T(1), T(0)); }
 
     /***
      * @brief Creates a point with the y-component equal to 1
      * 
      * @return A point with the z-component equal to 1
      */
-    static Point2 zAxis() { return Point3(T(0), T(0), T(1)); }
+    static Point3<T> zAxis() { return Point3(T(0), T(0), T(1)); }
 
     /***
      * @brief Creates a point with the desired x-, y-, and z-components

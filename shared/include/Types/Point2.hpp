@@ -14,28 +14,28 @@ struct Point2 {
      * 
      * @return A point with all components equal to 0
      */
-    static Point2 zero() { return Point2(T(0), T(0)); }
+    static Point2<T> zero() { return Point2(T(0), T(0)); }
 
     /***
      * @brief Creates a point with all components equal to 1
      * 
      * @return A point with all components equal to 1
      */
-    static Point2 one() { return Point2(T(1), T(1)); }
+    static Point2<T> one() { return Point2(T(1), T(1)); }
 
     /***
      * @brief Creates a point with the x-component equal to 1
      * 
      * @return A point with the x-component equal to 1
      */
-    static Point2 xAxis() { return Point2(T(1), T(0)); }
+    static Point2<T> xAxis() { return Point2(T(1), T(0)); }
 
     /***
      * @brief Creates a point with the y-component equal to 1
      * 
      * @return A point with the y-component equal to 1
      */
-    static Point2 yAxis() { return Point2(T(0), T(1)); }
+    static Point2<T> yAxis() { return Point2(T(0), T(1)); }
 
     /***
      * @brief Creates a point with the desired x- and y-components
