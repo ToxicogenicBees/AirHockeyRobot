@@ -13,7 +13,7 @@ const double TIME_STEP = Constants::SAMPLE_RATE * 1e-6;
 const uint8_t IMG_SCALE = 10;
 
 // Canvas
-cv::Mat canvas = cv::Mat::zeros(IMG_SCALE * Constants::TABLE_SIZE.y, IMG_SCALE * Constants::TABLE_SIZE.x, CV_8UC3);
+cv::Mat canvas = cv::Mat::zeros(IMG_SCALE * Constants::Table::SIZE.y, IMG_SCALE * Constants::Table::SIZE.x, CV_8UC3);
 
 // Processing step
 void processingStep() {
@@ -27,7 +27,7 @@ void processingStep() {
     double dif_mag = pos_dif.magnitude();
 
     if (dif_mag > 1e-3) {
-        double speed = std::clamp(dif_mag / dif_time, 0.0, Constants::MALLET_SPEED);
+        double speed = std::clamp(dif_mag / dif_time, 0.0, Constants::Mallet::SPEED);
         Point2<double> new_vel = speed * pos_dif.normal();
         Mallet::orient(Mallet::position(), new_vel);
     }
@@ -44,7 +44,7 @@ void physicsStep() {
     auto fut_puck_orientation = Puck::determineFutureOrientation(TIME_STEP);
 
     // If mallet and puck are colliding, determine when they collided and recover
-    double expected_dist = Constants::MALLET_RADIUS + Constants::PUCK_RADIUS;
+    double expected_dist = Constants::Mallet::RADIUS + Constants::Puck::RADIUS;
     double cur_dist = (fut_mallet_pos - fut_puck_orientation.first).magnitude();
     double cur_time = TIME_STEP;
 
@@ -107,20 +107,20 @@ void renderStep() {
     Point2<double> puck_pos = Puck::position();
 
     // Draw mallet
-    cv::Point mallet_center(IMG_SCALE * mallet_pos.x, IMG_SCALE * (Constants::TABLE_SIZE.y - mallet_pos.y));
-    cv::circle(canvas, mallet_center, IMG_SCALE * Constants::MALLET_RADIUS, cv::Scalar(255, 255, 255), 2);
+    cv::Point mallet_center(IMG_SCALE * mallet_pos.x, IMG_SCALE * (Constants::Table::SIZE.y - mallet_pos.y));
+    cv::circle(canvas, mallet_center, IMG_SCALE * Constants::Mallet::RADIUS, cv::Scalar(255, 255, 255), 2);
 
     // Draw puck
-    cv::Point puck_center(IMG_SCALE * puck_pos.x, IMG_SCALE * (Constants::TABLE_SIZE.y - puck_pos.y));
-    cv::circle(canvas, puck_center, IMG_SCALE * Constants::PUCK_RADIUS, cv::Scalar(0, 0, 255), 2);
+    cv::Point puck_center(IMG_SCALE * puck_pos.x, IMG_SCALE * (Constants::Table::SIZE.y - puck_pos.y));
+    cv::circle(canvas, puck_center, IMG_SCALE * Constants::Puck::RADIUS, cv::Scalar(0, 0, 255), 2);
 
     // Show updated image
     cv::imshow("PhysicsSim", canvas);
 }
 
 int main() {
-    Puck::orient(Constants::PUCK_HOME, Constants::PUCK_SPEED * Point2<double>(0.5 * std::sqrt(2), 0.5 * std::sqrt(2)));
-    Mallet::orient(Constants::MALLET_HOME);
+    Puck::orient(Constants::Puck::HOME, Constants::Puck::SPEED * Point2<double>(0.5 * std::sqrt(2), 0.5 * std::sqrt(2)));
+    Mallet::orient(Constants::Mallet::HOME);
 
     while (true) {
         // "Rendering" pipeline

@@ -20,7 +20,7 @@ void Puck::locate() {
     // Scan image for puck
 
     // Adjust coordinates to inches
-    Point2<double> inches = Constants::PUCK_HOME;
+    Point2<double> inches = Constants::Puck::HOME;
 
     // Update puck location
     Puck::moveTo(inches);
@@ -70,22 +70,22 @@ std::pair<Point2<double>, Point2<double>> Puck::determineFutureOrientation(doubl
     Point2<double> new_est_pos = est_pos + est_vel * dt;
 
     // x-axis bounce
-    if (new_est_pos.x < Constants::PUCK_RADIUS) {
-        new_est_pos.x = Constants::PUCK_RADIUS + (Constants::PUCK_RADIUS - new_est_pos.x);
+    if (new_est_pos.x < Constants::Puck::RADIUS) {
+        new_est_pos.x = Constants::Puck::RADIUS + (Constants::Puck::RADIUS - new_est_pos.x);
         est_vel.x = -est_vel.x;
     }
-    else if (new_est_pos.x > Constants::TABLE_SIZE.x - Constants::PUCK_RADIUS) {
-        new_est_pos.x = (Constants::TABLE_SIZE.x - Constants::PUCK_RADIUS) - (new_est_pos.x - (Constants::TABLE_SIZE.x - Constants::PUCK_RADIUS));
+    else if (new_est_pos.x > Constants::Table::SIZE.x - Constants::Puck::RADIUS) {
+        new_est_pos.x = (Constants::Table::SIZE.x - Constants::Puck::RADIUS) - (new_est_pos.x - (Constants::Table::SIZE.x - Constants::Puck::RADIUS));
         est_vel.x = -est_vel.x;
     }
 
     // y-axis bounce
-    if (new_est_pos.y < Constants::PUCK_RADIUS) {
-        new_est_pos.y = Constants::PUCK_RADIUS + (Constants::PUCK_RADIUS - new_est_pos.y);
+    if (new_est_pos.y < Constants::Puck::RADIUS) {
+        new_est_pos.y = Constants::Puck::RADIUS + (Constants::Puck::RADIUS - new_est_pos.y);
         est_vel.y = -est_vel.y;
     }
-    else if (new_est_pos.y > Constants::TABLE_SIZE.y - Constants::PUCK_RADIUS) {
-        new_est_pos.y = (Constants::TABLE_SIZE.y - Constants::PUCK_RADIUS) - (new_est_pos.y - (Constants::TABLE_SIZE.y - Constants::PUCK_RADIUS));
+    else if (new_est_pos.y > Constants::Table::SIZE.y - Constants::Puck::RADIUS) {
+        new_est_pos.y = (Constants::Table::SIZE.y - Constants::Puck::RADIUS) - (new_est_pos.y - (Constants::Table::SIZE.y - Constants::Puck::RADIUS));
         est_vel.y = -est_vel.y;
     }
 

@@ -4,8 +4,8 @@
 #include <Arduino.h>
 
 void SerialLink::init() {
-    Serial.begin(Constants::BAUD_RATE);     // Initialize the serial communication with the desired baud rate
-    while (!Serial);                        // Wait for Serial to be trully initialized
+    Serial.begin(Constants::Comms::BAUD_RATE);  // Initialize the serial communication with the desired baud rate
+    while (!Serial);                            // Wait for Serial to be trully initialized
 }
 
 void SerialLink::send(Packet& packet) {

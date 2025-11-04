@@ -7,7 +7,7 @@
 HANDLE SerialLink::hSerial = INVALID_HANDLE_VALUE;
 
 void SerialLink::init() {
-    hSerial = CreateFileA(Constants::COM_PORT, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+    hSerial = CreateFileA(Constants::Comms::COM_PORT, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (hSerial == INVALID_HANDLE_VALUE) throw std::runtime_error("Failed to open COM port");
 
     DCB dcb = {0};

@@ -8,7 +8,7 @@
 void initTable(const Point2<double>& mallet_pos, const Point2<double>& puck_pos, double puck_angle) {
     // Calculate the desired puck velocity
     double rads = puck_angle * M_PI / 180;
-    Point2<double> vel = Point2<double>(std::cos(rads), std::sin(rads)) * Constants::PUCK_SPEED;
+    Point2<double> vel = Point2<double>(std::cos(rads), std::sin(rads)) * Constants::Puck::SPEED;
 
     // Initialize moving objects
     Puck::orient(puck_pos, vel);

@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cmath>
 
-Point2<double> Mallet::_prev_target = Constants::MALLET_HOME;
+Point2<double> Mallet::_prev_target = Constants::Mallet::HOME;
 MovingObject Mallet::_mallet;
 
 bool compTimestamps(const Point3<double>& t1, const Point3<double>& t2) {
@@ -13,15 +13,15 @@ bool compTimestamps(const Point3<double>& t1, const Point3<double>& t2) {
 
 // Constant velocity, infinite accelleration
 double Mallet::timeToReach(const Point2<double>& pos) {
-    return (pos - _mallet.position()).magnitude() / Constants::MALLET_SPEED;
+    return (pos - _mallet.position()).magnitude() / Constants::Mallet::SPEED;
 }
 
 bool Mallet::canReach(const Point2<double> pos) {
     // Ensure position is within reach
-    if (pos.x < Constants::MALLET_LIMIT_BL.x || pos.y < Constants::MALLET_LIMIT_BL.y)
+    if (pos.x < Constants::Mallet::LIMIT_BL.x || pos.y < Constants::Mallet::LIMIT_BL.y)
         return false;
     
-    else if (pos.x > Constants::MALLET_LIMIT_TR.x || pos.y > Constants::MALLET_LIMIT_TR.y)
+    else if (pos.x > Constants::Mallet::LIMIT_TR.x || pos.y > Constants::Mallet::LIMIT_TR.y)
         return false;
     
     return true;
@@ -39,9 +39,9 @@ Point2<double> Mallet::chooseTarget(const Matrix<Point3<double>>& timestamps) {
     std::sort(ts.begin(), ts.end(), compTimestamps);
 
     // Choose first time the mallet can reach (or home if none exist)
-    Point2<double> target = Constants::MALLET_HOME;
+    Point2<double> target = Constants::Mallet::HOME;
     for (auto t : ts) {
-        if (t.z > 0 && t.y <= Constants::MALLET_LIMIT_TR.y) {
+        if (t.z > 0 && t.y <= Constants::Mallet::LIMIT_TR.y) {
             target = {t.x, t.y};
             break;
         }
@@ -51,8 +51,8 @@ Point2<double> Mallet::chooseTarget(const Matrix<Point3<double>>& timestamps) {
     if ((_prev_target - target).magnitude() > _TARGET_ERR)
         _prev_target = target;
 
-    _prev_target.x = std::clamp(_prev_target.x, Constants::MALLET_LIMIT_BL.x, Constants::MALLET_LIMIT_TR.x);
-    _prev_target.y = std::clamp(_prev_target.y, Constants::MALLET_LIMIT_BL.y, Constants::MALLET_LIMIT_TR.y);
+    _prev_target.x = std::clamp(_prev_target.x, Constants::Mallet::LIMIT_BL.x, Constants::Mallet::LIMIT_TR.x);
+    _prev_target.y = std::clamp(_prev_target.y, Constants::Mallet::LIMIT_BL.y, Constants::Mallet::LIMIT_TR.y);
         
     std::cout << _prev_target << std::endl;
     

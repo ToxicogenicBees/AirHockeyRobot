@@ -9,7 +9,7 @@
 class Mallet {
     private:
         static constexpr double _TARGET_ERR         // Allowed tolerance before changing target positions
-            = 0.05 * Constants::MALLET_RADIUS;  
+            = 0.05 * Constants::Mallet::RADIUS;  
 
         static Point2<double> _prev_target;         // Previously chosen target position
         static MovingObject _mallet;                // Moving object used for the mallet
