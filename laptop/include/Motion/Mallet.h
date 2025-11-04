@@ -12,6 +12,7 @@ class Mallet {
             = 0.05 * Constants::Mallet::RADIUS;  
 
         static Point2<double> _target;              // Current target position
+        static double _target_time;                 // Current target's arrival time
         static MovingObject _mallet;                // Moving object used for the mallet
 
     public:

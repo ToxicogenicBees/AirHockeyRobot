@@ -32,7 +32,7 @@ Point2<double> Mallet::chooseTarget(const Matrix<Point3<double>>& timestamps) {
     auto ts = timestamps;
 
     // Set time for each trajectory to be the mallet's time of arrival
-    double best_weight = std::numeric_limits<double>::infinity();
+    double best_weight = -std::numeric_limits<double>::infinity();
     Point2<double> best_target = Constants::Mallet::HOME;
     Point2<double> pos = _mallet.position();
     
@@ -46,16 +46,16 @@ Point2<double> Mallet::chooseTarget(const Matrix<Point3<double>>& timestamps) {
         // Parameters for choosing a target
         double reach_time = timeToReach(tp);
         double margin = t.z - reach_time;
-        double dist_sqr = (tp - pos).squaredMagnitude();
+        double dist = (tp - pos).magnitude();
 
         // Weight targets by desire
         double weight = 
-            0.4 * margin +  // Time it takes the mallet to reach
-            0.4 * t.z +     // Time the puck arrives
-            0.2 * dist_sqr; // The distance from the puck's current location
+            0.5 * margin                                // Time it takes the mallet to reach
+            + 0.4 * 1 / (1 + t.z)                       // Time the puck arrives
+            - 0.2 * dist / Constants::Mallet::SPEED;    // The distance from the puck's current location
 
         // Check if this weight is the best
-        if (weight < best_weight) {
+        if (weight > best_weight) {
             best_weight = weight;
 
             best_target = {
