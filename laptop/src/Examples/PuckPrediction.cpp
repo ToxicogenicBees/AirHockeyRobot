@@ -24,9 +24,9 @@ int main() {
     std::cout << sample_data << std::endl;
 
     // Determine time for mallet to reach these points
-    Matrix<double> relative_times(Constants::NUM_SAMPLE_POINTS);
-    Matrix<double> mallet_times(Constants::NUM_SAMPLE_POINTS);
-    Matrix<double> puck_times(Constants::NUM_SAMPLE_POINTS);
+    Matrix<double> relative_times(sample_data.rows());
+    Matrix<double> mallet_times(sample_data.rows());
+    Matrix<double> puck_times(sample_data.rows());
 
     size_t i = 0;
     for (auto p : sample_data) {
