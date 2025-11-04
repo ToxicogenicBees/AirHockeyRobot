@@ -13,8 +13,8 @@ namespace Constants {
         const Point2<double> ROBOT_GOAL(13.25, 0.0);    // Center of robot's goal (inches)
         const Point2<double> SIZE(26.5, 54.0);          // Size of the table (inches)
         
+        constexpr double GOAL_WIDTH = 5.0;              // Width of goals (inches)
         constexpr double FRICTION = 0;                  // Coefficient of friction of the surface of the table
-        double GOAL_WIDTH = 5.0;                        // Width of goals (inches)
     }
 
     namespace Mallet {
