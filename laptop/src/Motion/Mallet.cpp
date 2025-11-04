@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cmath>
 
-Point2<double> Mallet::_prev_target = Constants::Mallet::HOME;
+Point2<double> Mallet::_target = Constants::Mallet::HOME;
 MovingObject Mallet::_mallet;
 
 bool compTimestamps(const Point3<double>& t1, const Point3<double>& t2) {
@@ -13,7 +13,7 @@ bool compTimestamps(const Point3<double>& t1, const Point3<double>& t2) {
 
 // Constant velocity, infinite accelleration
 double Mallet::timeToReach(const Point2<double>& pos) {
-    return (pos - _mallet.position()).magnitude() / Constants::Mallet::SPEED;
+    return ((pos - _mallet.position()).magnitude()) / Constants::Mallet::SPEED;
 }
 
 bool Mallet::canReach(const Point2<double> pos) {
@@ -32,31 +32,44 @@ Point2<double> Mallet::chooseTarget(const Matrix<Point3<double>>& timestamps) {
     auto ts = timestamps;
 
     // Set time for each trajectory to be the mallet's time of arrival
-    for (auto& t : ts)
-        t.z -= timeToReach({t.x, t.y});
+    double best_weight = std::numeric_limits<double>::infinity();
+    Point2<double> best_target = Constants::Mallet::HOME;
+    Point2<double> pos = _mallet.position();
+    
+    for (auto& t : ts) {
+        Point2<double> tp(t.x, t.y);
 
-    // Sort by time
-    std::sort(ts.begin(), ts.end(), compTimestamps);
+        // Ignore if unreachable
+        if (!canReach(tp))
+            continue;
 
-    // Choose first time the mallet can reach (or home if none exist)
-    Point2<double> target = Constants::Mallet::HOME;
-    for (auto t : ts) {
-        if (t.z > 0 && t.y <= Constants::Mallet::LIMIT_TR.y) {
-            target = {t.x, t.y};
-            break;
+        // Parameters for choosing a target
+        double reach_time = timeToReach(tp);
+        double margin = t.z - reach_time;
+        double dist_sqr = (tp - pos).squaredMagnitude();
+
+        // Weight targets by desire
+        double weight = 
+            0.4 * margin +  // Time it takes the mallet to reach
+            0.4 * t.z +     // Time the puck arrives
+            0.2 * dist_sqr; // The distance from the puck's current location
+
+        // Check if this weight is the best
+        if (weight < best_weight) {
+            best_weight = weight;
+
+            best_target = {
+                std::clamp(tp.x, Constants::Mallet::LIMIT_BL.x, Constants::Mallet::LIMIT_TR.x),
+                std::clamp(tp.y, Constants::Mallet::LIMIT_BL.y, Constants::Mallet::LIMIT_TR.y)
+            };
         }
     }
-
-    // Only modify target if outside of acceptable tolerance
-    if ((_prev_target - target).magnitude() > _TARGET_ERR)
-        _prev_target = target;
-
-    _prev_target.x = std::clamp(_prev_target.x, Constants::Mallet::LIMIT_BL.x, Constants::Mallet::LIMIT_TR.x);
-    _prev_target.y = std::clamp(_prev_target.y, Constants::Mallet::LIMIT_BL.y, Constants::Mallet::LIMIT_TR.y);
-        
-    std::cout << _prev_target << std::endl;
     
-    return _prev_target;
+    // Only modify target if outside of acceptable tolerance
+    if ((_target - best_target).magnitude() > _TARGET_ERR)
+        _target = best_target; //_target = 0.8 * _target + 0.2 * best_target;
+
+    return _target;
 }
 
 void Mallet::moveTo(const Point2<double>& new_pos, int64_t micsec) {
