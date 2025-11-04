@@ -30,6 +30,14 @@ class Puck {
         static Matrix<Point3<double>> estimateTrajectory();
 
         /***
+         * @brief Returns the position and velocity of the puck in the future, if it were to continue traveling in a straight line
+         *        from its current position and with it's current velocity, reguardless of where the mallet is
+         * 
+         * @return The reflected velocity
+         */
+        static std::pair<Point2<double>, Point2<double>> determineFutureOrientation(double dt);
+
+        /***
          * @brief Returns the velocity the puck would have after intersecting with the mallet,
          *        assuming it's actively touching the mallet at it's current position
          * 

@@ -8,11 +8,11 @@
 
 class Mallet {
     private:
-        // Moving object used for the mallet
-        static MovingObject _mallet;
+        static constexpr double _TARGET_ERR         // Allowed tolerance before changing target positions
+            = 0.05 * Constants::MALLET_RADIUS;  
 
-        // Calculates the time to reach this point, squared
-        static double _squaredTimeToReach(const Point2<double>& pos);
+        static Point2<double> _prev_target;         // Previously chosen target position
+        static MovingObject _mallet;                // Moving object used for the mallet
 
     public:
         /***
@@ -25,13 +25,13 @@ class Mallet {
         static double timeToReach(const Point2<double>& pos);
 
         /***
-         * @brief Determines if the mallet can reach 
+         * @brief Determines if the mallet can reach this point
          * 
-         * @param timestamp   The (x-position, y-position, time-of-arrival) timestamp to check
+         * @param timestamp   The (x-position, y-position) to check
          * 
-         * @return How long it takes the mallet to reach this point, in seconds
+         * @return If the point is within range for the mallet
          */
-        static bool canReach(const Point3<double>& timestamp);
+        static bool canReach(const Point2<double> pos);
 
         /**
          * @brief Determines the target location for the mallet to go to

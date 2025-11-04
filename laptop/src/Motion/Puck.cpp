@@ -47,32 +47,52 @@ Matrix<Point3<double>> Puck::estimateTrajectory() {
     // Calculate trajectory path
     // Determine sample points
     for (size_t i = 0; i < Constants::NUM_SAMPLE_POINTS; i++) {
-        // Step forward
-        Point2<double> new_est_pos = est_pos + est_vel * timestep;
-
-        // Adjust for overshoot when bouncing
-        if (new_est_pos.x < Constants::PUCK_RADIUS) {
-            est_pos.x = 2 * Constants::PUCK_RADIUS - new_est_pos.x;
-            est_pos.y = new_est_pos.y;
-            est_vel.x = -est_vel.x;
-        }
-
-        else if (new_est_pos.x > Constants::TABLE_SIZE.x - Constants::PUCK_RADIUS) {
-            est_pos.x = 2 * (Constants::TABLE_SIZE.x - Constants::PUCK_RADIUS) - new_est_pos.x;
-            est_pos.y = new_est_pos.y;
-            est_vel.x = -est_vel.x;
-        }
-
-        else {
-            est_pos = new_est_pos;
-        }
+        // Determine trajectory
+        auto est_orientation = determineFutureOrientation(i * timestep);
 
         // Add sample point to matrix
-        samples(i) = Point3<double>(est_pos.x, est_pos.y, (i + 1) * timestep);
+        samples(i) = Point3<double>(est_orientation.first.x, est_orientation.first.y, (i + 1) * timestep);
     }
 
     // Return sample points
     return samples;
+}
+
+std::pair<Point2<double>, Point2<double>> Puck::determineFutureOrientation(double dt) {
+    Point2<double> est_pos = _puck.position();
+    Point2<double> est_vel = _puck.velocity();
+
+    // Exit early if not moving
+    if (est_vel.squaredMagnitude() <= 1e-8)
+        return {est_pos, est_vel};
+
+    // Step forward
+    Point2<double> new_est_pos = est_pos + est_vel * dt;
+
+    // x-axis bounce
+    if (new_est_pos.x < Constants::PUCK_RADIUS) {
+        new_est_pos.x = Constants::PUCK_RADIUS + (Constants::PUCK_RADIUS - new_est_pos.x);
+        est_vel.x = -est_vel.x;
+    }
+    else if (new_est_pos.x > Constants::TABLE_SIZE.x - Constants::PUCK_RADIUS) {
+        new_est_pos.x = (Constants::TABLE_SIZE.x - Constants::PUCK_RADIUS) - (new_est_pos.x - (Constants::TABLE_SIZE.x - Constants::PUCK_RADIUS));
+        est_vel.x = -est_vel.x;
+    }
+
+    // y-axis bounce
+    if (new_est_pos.y < Constants::PUCK_RADIUS) {
+        new_est_pos.y = Constants::PUCK_RADIUS + (Constants::PUCK_RADIUS - new_est_pos.y);
+        est_vel.y = -est_vel.y;
+    }
+    else if (new_est_pos.y > Constants::TABLE_SIZE.y - Constants::PUCK_RADIUS) {
+        new_est_pos.y = (Constants::TABLE_SIZE.y - Constants::PUCK_RADIUS) - (new_est_pos.y - (Constants::TABLE_SIZE.y - Constants::PUCK_RADIUS));
+        est_vel.y = -est_vel.y;
+    }
+
+    // Set final position
+    est_pos = new_est_pos;
+
+    return {est_pos, est_vel};
 }
 
 Point2<double> Puck::reflectedVelocity() {
