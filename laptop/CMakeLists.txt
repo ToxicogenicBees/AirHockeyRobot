@@ -42,7 +42,6 @@ set(PacketTest_SOURCES
 
 set(PhysicsSim_SOURCES
     src/Examples/PhysicsSim.cpp
-    src/Vision/PuckTracking.cpp
     src/Motion/MovingObject.cpp
     src/Motion/Mallet.cpp
     src/Motion/Puck.cpp
@@ -54,7 +53,6 @@ set(OpenCVTest_SOURCES
 
 set(main_SOURCES
     src/main.cpp
-    src/Vision/PuckTracking.cpp
     src/Motion/MovingObject.cpp
     src/Comms/SerialLink.cpp
     src/Motion/Mallet.cpp
