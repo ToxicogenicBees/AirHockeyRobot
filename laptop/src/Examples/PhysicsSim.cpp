@@ -9,7 +9,7 @@
 #include "Constants.h"
 
 // Pixels per inch scalar
-const double TIME_STEP = Constants::SAMPLE_RATE * 1e-6;
+const double TIME_STEP = Constants::SAMPLE_PERIOD * 1e-6;
 const uint8_t IMG_SCALE = 10;
 
 // Canvas
@@ -21,20 +21,19 @@ void processingStep() {
     Matrix<Point3<double>> timestamps = Puck::estimateTrajectory();
 
     Point2<double> target = Mallet::chooseTarget(timestamps);
-    Point2<double> pos_dif = target - Mallet::position();
+    Point2<double> pos_error = target - Mallet::position();
+    Point2<double> vel_error = -Mallet::velocity();
 
-    double dif_time = Mallet::timeToReach(target);
-    double dif_mag = pos_dif.magnitude();
+    const double Kp = 50.0;
+    const double Kd = 8.0;
 
-    if (dif_mag > 1e-3) {
-        double speed = std::clamp(dif_mag / dif_time, 0.0, Constants::Mallet::SPEED);
-        Point2<double> new_vel = speed * pos_dif.normal();
-        Mallet::orient(Mallet::position(), new_vel);
-    }
+    Point2<double> control = Kp * pos_error + Kd * vel_error;
 
-    else {
-        Mallet::orient(Mallet::position());
-    }
+    // Clamp to max speed
+    if (control.magnitude() > Constants::Mallet::SPEED)
+        control = control.normal() * Constants::Mallet::SPEED;
+
+    Mallet::orient(Mallet::position(), control);
 }
 
 // Physics step
@@ -106,13 +105,25 @@ void renderStep() {
     Point2<double> mallet_pos = Mallet::position();
     Point2<double> puck_pos = Puck::position();
 
+    // Draw puck
+    cv::Point puck_center(IMG_SCALE * puck_pos.x, IMG_SCALE * (Constants::Table::SIZE.y - puck_pos.y));
+    cv::circle(canvas, puck_center, IMG_SCALE * Constants::Puck::RADIUS, cv::Scalar(0, 0, 255), 2);
+
+    // Draw puck trajectory
+    auto ts = Puck::estimateTrajectory(false);
+    for (auto t : ts) {
+        cv::Point point_center(IMG_SCALE * t.x, IMG_SCALE * (Constants::Table::SIZE.y - t.y));
+        cv::circle(canvas, point_center, 2, cv::Scalar(0, 0, 255), 2);
+    }
+
     // Draw mallet
     cv::Point mallet_center(IMG_SCALE * mallet_pos.x, IMG_SCALE * (Constants::Table::SIZE.y - mallet_pos.y));
     cv::circle(canvas, mallet_center, IMG_SCALE * Constants::Mallet::RADIUS, cv::Scalar(255, 255, 255), 2);
 
-    // Draw puck
-    cv::Point puck_center(IMG_SCALE * puck_pos.x, IMG_SCALE * (Constants::Table::SIZE.y - puck_pos.y));
-    cv::circle(canvas, puck_center, IMG_SCALE * Constants::Puck::RADIUS, cv::Scalar(0, 0, 255), 2);
+    // Draw mallet trajectory
+    Point2<double> t = Mallet::prevTarget();
+    cv::Point point_center(IMG_SCALE * t.x, IMG_SCALE * (Constants::Table::SIZE.y - t.y));
+    cv::circle(canvas, point_center, 3, cv::Scalar(255, 255, 255), 3);
 
     // Show updated image
     cv::imshow("PhysicsSim", canvas);
@@ -129,7 +140,7 @@ int main() {
         renderStep();
         
         // Pause for a sample tick
-        std::this_thread::sleep_for(std::chrono::microseconds(Constants::SAMPLE_RATE));
+        std::this_thread::sleep_for(std::chrono::microseconds(Constants::SAMPLE_PERIOD));
 
         // Break if requested
         if (cv::waitKey(10) == 27) break;
