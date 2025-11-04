@@ -4,6 +4,7 @@
 #include <chrono>
 #include <thread>
 
+#include "Visuals/Table.h"
 #include "Motion/Mallet.h"
 #include "Motion/Puck.h"
 #include "Constants.h"
@@ -96,39 +97,6 @@ void physicsStep() {
     }
 }
 
-// Render step
-void renderStep() {
-    // Clear image
-    canvas.setTo(cv::Scalar(0, 0, 0));
-
-    // Fetch puck/mallet locations
-    Point2<double> mallet_pos = Mallet::position();
-    Point2<double> puck_pos = Puck::position();
-
-    // Draw puck
-    cv::Point puck_center(IMG_SCALE * puck_pos.x, IMG_SCALE * (Constants::Table::SIZE.y - puck_pos.y));
-    cv::circle(canvas, puck_center, IMG_SCALE * Constants::Puck::RADIUS, cv::Scalar(0, 0, 255), 2);
-
-    // Draw puck trajectory
-    auto ts = Puck::estimateTrajectory(false);
-    for (auto t : ts) {
-        cv::Point point_center(IMG_SCALE * t.x, IMG_SCALE * (Constants::Table::SIZE.y - t.y));
-        cv::circle(canvas, point_center, 2, cv::Scalar(0, 0, 255), 2);
-    }
-
-    // Draw mallet
-    cv::Point mallet_center(IMG_SCALE * mallet_pos.x, IMG_SCALE * (Constants::Table::SIZE.y - mallet_pos.y));
-    cv::circle(canvas, mallet_center, IMG_SCALE * Constants::Mallet::RADIUS, cv::Scalar(255, 255, 255), 2);
-
-    // Draw mallet trajectory
-    Point2<double> t = Mallet::target();
-    cv::Point point_center(IMG_SCALE * t.x, IMG_SCALE * (Constants::Table::SIZE.y - t.y));
-    cv::circle(canvas, point_center, 3, cv::Scalar(255, 255, 255), 3);
-
-    // Show updated image
-    cv::imshow("PhysicsSim", canvas);
-}
-
 int main() {
     Puck::orient(Constants::Puck::HOME, Constants::Puck::SPEED * Point2<double>(0.5 * std::sqrt(2), 0.5 * std::sqrt(2)));
     Mallet::orient(Constants::Mallet::HOME);
@@ -137,13 +105,10 @@ int main() {
         // "Rendering" pipeline
         processingStep();
         physicsStep();
-        renderStep();
+        Table::render();
         
         // Pause for a sample tick
-        std::this_thread::sleep_for(std::chrono::microseconds(Constants::SAMPLE_PERIOD));
-
-        // Break if requested
-        if (cv::waitKey(10) == 27) break;
+        std::this_thread::sleep_for(std::chrono::microseconds(Constants::SAMPLE_PERIOD));;
     }
 
     return 0;

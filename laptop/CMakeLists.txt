@@ -43,6 +43,7 @@ set(PacketTest_SOURCES
 set(PhysicsSim_SOURCES
     src/Examples/PhysicsSim.cpp
     src/Motion/MovingObject.cpp
+    src/Visuals/Table.cpp
     src/Motion/Mallet.cpp
     src/Motion/Puck.cpp
 )
