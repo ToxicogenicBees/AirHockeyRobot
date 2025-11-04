@@ -4,11 +4,15 @@
 #include "Types/Matrix.hpp"
 #include "Types/Point2.hpp"
 #include "Types/Point3.hpp"
+#include "Constants.h"
 
-class Mallet : public MovingObject {
+class Mallet {
     private:
+        // Moving object used for the mallet
+        static MovingObject _mallet;
+
         // Calculates the time to reach this point, squared
-        double _squaredTimeToReach(const Point2<double>& pos);
+        static double _squaredTimeToReach(const Point2<double>& pos);
 
     public:
         /***
@@ -18,7 +22,7 @@ class Mallet : public MovingObject {
          * 
          * @return How long it takes the mallet to reach this point, in seconds
          */
-        double timeToReach(const Point2<double>& pos);
+        static double timeToReach(const Point2<double>& pos);
 
         /***
          * @brief Determines if the mallet can reach 
@@ -27,7 +31,7 @@ class Mallet : public MovingObject {
          * 
          * @return How long it takes the mallet to reach this point, in seconds
          */
-        bool canReach(const Point3<double>& timestamp);
+        static bool canReach(const Point3<double>& timestamp);
 
         /**
          * @brief Determines the target location for the mallet to go to
@@ -36,5 +40,36 @@ class Mallet : public MovingObject {
          * 
          * @return The point the mallet is targetting
          */
-        Point2<double> chooseTarget(const Matrix<Point3<double>>& timestamps);
+        static Point2<double> chooseTarget(const Matrix<Point3<double>>& timestamps);
+
+        /**
+         * @brief Updates the internal state of the object, traveling to the new position over the given time range
+         * 
+         * @param new_pos   The position the object is at now
+         * @param msec      The time difference in microseconds between position updates,
+         *                  defaults to the default sample time
+         */
+        static void moveTo(const Point2<double>& new_pos, int64_t micsec = -1);
+
+        /**
+         * @brief Sets the position and velocity of the object
+         * 
+         * @param pos   The desired velocity of the object, defaults to (0, 0)
+         * @param vel   The desired velocity of the object, defaults to (0, 0)
+         */
+        static void orient(const Point2<double>& pos = {0.0, 0.0}, const Point2<double>& vel = {0.0, 0.0});
+
+        /**
+         * @brief Returns the current position of the object, in inches
+         * 
+         * @return The position of the object, in inches
+         */
+        static Point2<double> position();
+
+        /**
+         * @brief Returns the current velocity of the object, in inches/sec
+         * 
+         * @return The velocity of the object, in inches/sec
+         */
+        static Point2<double> velocity();
 };

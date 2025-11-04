@@ -15,20 +15,13 @@
   Libraries
 ************/
 
-#include "Vision/PuckTracking.h"
 #include "Comms/SerialLink.h"
 #include "Motion/Mallet.h"
+#include "Motion/Puck.h"
 
 #include <algorithm>
 #include <thread>
 #include <mutex>
-
-
-/************
-  Variables
-************/
-
-Mallet mallet;
 
 
 /********************
@@ -41,7 +34,7 @@ void HANDLE_PACKET(Packet& packet) {
 
     switch(action) {
         case Action::MALLET_POSITION: {
-            mallet.moveTo(packet.read<Point2<double>>());
+            Mallet::moveTo(packet.read<Point2<double>>());
             break;
         }
             
@@ -58,7 +51,7 @@ void HANDLE_PACKET(Packet& packet) {
 // Camera image processing
 void PUCK_TRACKING() {
     while (true) {
-        PuckTracking::locate();
+        Puck::locate();
     }
 }
 
@@ -74,10 +67,10 @@ void RECEIVE_PACKETS() {
 void MALLET_CONTROL() {
     while (true) {
         // Get puck trajectory
-        auto timestamps = PuckTracking::estimateTrajectory();
+        auto timestamps = Puck::estimateTrajectory();
 
         // Get mallet's target location
-        Point2<double> target = mallet.chooseTarget(timestamps);
+        Point2<double> target = Mallet::chooseTarget(timestamps);
 
         // Send target out to gantry
         Packet packet(Action::MALLET_POSITION);
@@ -94,7 +87,7 @@ void MALLET_CONTROL() {
 
 bool INIT_MAIN() {
     try {
-        PuckTracking::init();   // Initialize the puck tracking
+        Puck::initTracking();   // Initialize the puck tracking
         SerialLink::init();     // Initialize serial comms
     }
 

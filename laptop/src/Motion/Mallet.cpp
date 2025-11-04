@@ -4,12 +4,14 @@
 #include <algorithm>
 #include <cmath>
 
+MovingObject Mallet::_mallet;
+
 bool compTimestamps(const Point3<double>& t1, const Point3<double>& t2) {
     return t1.z < t2.z;
 }
 
 double Mallet::_squaredTimeToReach(const Point2<double>& pos) {
-    return (pos - _pos).squaredMagnitude() / (Constants::MALLET_SPEED * Constants::MALLET_SPEED);
+    return (pos - _mallet.position()).squaredMagnitude() / (Constants::MALLET_SPEED * Constants::MALLET_SPEED);
 }
 
 // Constant velocity, infinite accelleration
@@ -38,4 +40,20 @@ Point2<double> Mallet::chooseTarget(const Matrix<Point3<double>>& timestamps) {
     
     // If mallet can't reach any of these, go to home
     return Constants::MALLET_HOME;
+}
+
+void Mallet::moveTo(const Point2<double>& new_pos, int64_t micsec) {
+    _mallet.moveTo(new_pos, micsec);
+}
+
+void Mallet::orient(const Point2<double>& pos, const Point2<double>& vel) {
+    _mallet.orient(pos, vel);
+}
+
+Point2<double> Mallet::position() {
+    return _mallet.position();
+}
+
+Point2<double> Mallet::velocity() {
+    return _mallet.velocity();
 }

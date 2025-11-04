@@ -3,11 +3,8 @@
 #include "Motion/Mallet.h"
 #include "Motion/Puck.h"
 
-Mallet mallet;
-Puck puck;
-
 void physicsStep() {
-
+    // Step forward puck and mallet
 }
 
 int main() {

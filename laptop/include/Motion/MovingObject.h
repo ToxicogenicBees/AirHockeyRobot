@@ -7,22 +7,20 @@
 #include <mutex>
 
 class MovingObject {
-    protected:
+    private:
         using Clock = std::chrono::high_resolution_clock;
         using SampleTime = std::chrono::time_point<Clock>;
 
-        // Position and velocity of the object
-        Point2<double> _pos = {0.0, 0.0}, _vel = {0.0, 0.0};
-        std::mutex _access_locational_data;
-
-        // Last sample time for the moving object
-        SampleTime _prev_sample = Clock::now();
+        Point2<double> _pos = {0.0, 0.0}, _vel = {0.0, 0.0};    // Position and velocity of the object
+        SampleTime _prev_sample = Clock::now();                 // Last sample time for the moving object
+        std::mutex _access_locational_data;                     // Mutex lock to guard access to position/velocity data
 
         // Gets time difference since last call, in microseconds
         int64_t _micsec();
 
     public:
-        virtual ~MovingObject() = default;
+        MovingObject() = default;
+        ~MovingObject() = default;
 
         /**
          * @brief Updates the internal state of the object, traveling to the new position over the given time range
