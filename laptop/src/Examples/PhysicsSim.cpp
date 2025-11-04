@@ -121,7 +121,7 @@ void renderStep() {
     cv::circle(canvas, mallet_center, IMG_SCALE * Constants::Mallet::RADIUS, cv::Scalar(255, 255, 255), 2);
 
     // Draw mallet trajectory
-    Point2<double> t = Mallet::prevTarget();
+    Point2<double> t = Mallet::target();
     cv::Point point_center(IMG_SCALE * t.x, IMG_SCALE * (Constants::Table::SIZE.y - t.y));
     cv::circle(canvas, point_center, 3, cv::Scalar(255, 255, 255), 3);
 
