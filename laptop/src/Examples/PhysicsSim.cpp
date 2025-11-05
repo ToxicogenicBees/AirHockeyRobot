@@ -83,8 +83,8 @@ void physicsStep() {
         Puck::orient(fut_puck_orientation.first, ref_vel);
 
         // Step forward the second half of the collision
-        fut_mallet_pos = Mallet::position() + Mallet::velocity() * TIME_STEP;
-        fut_puck_orientation = Puck::determineFutureOrientation(TIME_STEP);
+        fut_mallet_pos = Mallet::position() + Mallet::velocity() * (TIME_STEP - cur_time);
+        fut_puck_orientation = Puck::determineFutureOrientation(TIME_STEP - cur_time);
 
         Puck::orient(fut_puck_orientation.first, fut_puck_orientation.second);
         Mallet::moveTo(fut_mallet_pos, (TIME_STEP - cur_time) * 1e6);

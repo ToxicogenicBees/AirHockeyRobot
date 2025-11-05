@@ -40,7 +40,7 @@ Matrix<Point3<double>> Puck::estimateTrajectory(bool ignore_return) {
         return Matrix<Point3<double>>();
 
     // Determine how long the puck will move for
-    double time_of_arrival = (vel.y > 0 ? 2 * Constants::Table::SIZE.y - pos.y : -pos.y) / vel.y;
+    double time_of_arrival = (vel.y > 0 ? 2 * (Constants::Table::SIZE.y - Constants::Puck::RADIUS) - pos.y : Constants::Puck::RADIUS - pos.y) / vel.y;
 
     // Determine number of sample points
     const size_t NUM_SAMPLES = std::min(
@@ -71,30 +71,43 @@ std::pair<Point2<double>, Point2<double>> Puck::determineFutureOrientation(doubl
         return {pos, vel};
 
     // Raw displacement
-    Point2<double> raw_disp = pos + dt * vel;
+    Point2<double> new_pos = pos + dt * vel;
 
-    // Triangle-wave reflection
-    auto reflect = [](double x, double T, double& v) {
-        double period = 2.0 * T;
-        double mod = std::fmod(x, period);
-        if (mod < 0)
-            mod += period;
+    // Effective puck bounds (accounting for the radius of the puck)
+    Point2<double> min = Constants::Puck::RADIUS * Point2<double>::one();
+    Point2<double> max = Constants::Table::SIZE - min;
 
-        if (mod <= T)
-            return mod;
-
-        else {
-            v = -v;
-            return period - mod;
-        }
-    };
-
-    Point2<double> future_pos(
-        reflect(raw_disp.x, Constants::Table::SIZE.x, vel.x),
-        reflect(raw_disp.y, Constants::Table::SIZE.y, vel.y)
+    // Reflection variables
+    Point2<double> range = max - min;
+    Point2<double> period = 2.0 * range;
+    Point2<double> mod(
+        std::fmod(new_pos.x - min.x, period.x),
+        std::fmod(new_pos.y - min.y, period.y)
     );
 
-    return { future_pos, vel };
+    // Reflect off x-axis
+    if (mod.x < 0)
+        mod.x += period.x;
+
+    if (mod.x <= range.x)
+        new_pos.x = min.x + mod.x;
+    else {
+        new_pos.x = max.x - (mod.x - range.x);
+        vel.x *= -1;
+    }
+
+    // Reflect off y-axis
+    if (mod.y < 0)
+        mod.y += period.y;
+
+    if (mod.y <= range.y)
+        new_pos.y = min.y + mod.y;
+    else {
+        new_pos.y = max.y - (mod.y - range.y);
+        vel.y *= -1;
+    }
+
+    return { new_pos , vel };
 }
 
 Point2<double> Puck::reflectedVelocity() {

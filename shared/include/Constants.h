@@ -20,6 +20,7 @@ namespace Constants {
     namespace Mallet {
         const Point2<double> HOME = {13.25, 10.0};      // Homing location for the mallet
         constexpr double SPEED = 98.4251969;            // Estimated mallet speed (inch/sec)
+        constexpr double ACCEL = 1181.10236;            // Estimated mallet accelleration (inch/sec^2)
         constexpr double RADIUS = 2.0;                  // Radius in inches
 
         const Point2<double> LIMIT_BL                   // Bottom-left limit of mallet motion
@@ -30,7 +31,7 @@ namespace Constants {
     
     namespace Puck {
         const Point2<double> HOME = {13.25, 50.0};      // Homing location for the puck (initialization)
-        constexpr double SPEED = 1.5 * 137.795276;            // Estimated puck speed (inch/sec)
+        constexpr double SPEED = 137.795276;            // Estimated puck speed (inch/sec)
         constexpr double RADIUS = 1.25;                 // Radius in inches
     }
     

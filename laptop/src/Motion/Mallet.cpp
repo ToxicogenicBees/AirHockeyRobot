@@ -50,9 +50,9 @@ Point2<double> Mallet::chooseTarget(const Matrix<Point3<double>>& timestamps) {
 
         // Weight targets by desire
         double weight = 
-            0.5 * margin                                // Time it takes the mallet to reach
-            + 0.4 * 1 / (1 + t.z)                       // Time the puck arrives
-            - 0.2 * dist / Constants::Mallet::SPEED;    // The distance from the puck's current location
+            0.6 * margin                                // Relative time between arrivals
+            + 0.6 / (1 + t.z)                           // Time the puck arrives
+            - 0.15 * dist / Constants::Mallet::SPEED;   // The distance from the puck's current location (normalized for time)
 
         // Check if this weight is the best
         if (weight > best_weight) {
