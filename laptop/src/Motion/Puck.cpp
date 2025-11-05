@@ -111,18 +111,15 @@ std::pair<Point2<double>, Point2<double>> Puck::determineFutureOrientation(doubl
 }
 
 Point2<double> Puck::reflectedVelocity() {
-    // v(T+) = (I - 2nn^T)v(T-)
-    // v(T+) = v(T-) - 2(n ⋅ v(T-))n
+    // v(T+) = v(T-) + (1 + a_r)(nn^t)(V - b(T-))
+    // v(T+) = (I - (1 + a_r)nn^T)v(T-)
 
     // Get the normal to the collision
     Point2<double> n = (position() - Mallet::position()).normal();
     Point2<double> v = velocity();
 
     // Return new velocity
-    return Point2<double>(
-        v.x - 2 * n.dot(v) * n.x,
-        v.y - 2 * n.dot(v) * n.y
-    );
+    return v + (1 + Constants::Table::COEF_REST) * n.dot(Mallet::velocity() - v) * n;
 }
 
 void Puck::moveTo(const Point2<double>& new_pos, int64_t micsec) {

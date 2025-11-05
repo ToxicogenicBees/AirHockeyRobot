@@ -14,7 +14,8 @@ namespace Constants {
         const Point2<double> SIZE(26.5, 54.0);          // Size of the table (inches)
         
         constexpr double GOAL_WIDTH = 5.0;              // Width of goals (inches)
-        constexpr double FRICTION = 0;                  // Coefficient of friction of the surface of the table
+        constexpr double COEF_FRIC = 0;                 // Coefficient of friction for the surface of the table
+        constexpr double COEF_REST = 1;                 // Coefficient of friction of the walls of the table
     }
 
     namespace Mallet {
