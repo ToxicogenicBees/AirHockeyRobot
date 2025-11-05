@@ -48,7 +48,7 @@ class Mallet {
          * 
          * @param new_pos   The position the object is at now
          * @param msec      The time difference in microseconds between position updates,
-         *                  defaults to the default sample time
+         *                  defaults to the time between function calls
          */
         static void moveTo(const Point2<double>& new_pos, int64_t micsec = -1);
 
