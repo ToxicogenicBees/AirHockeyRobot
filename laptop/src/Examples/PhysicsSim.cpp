@@ -25,10 +25,11 @@ void processingStep() {
     Point2<double> pos_error = target - Mallet::position();
     Point2<double> vel_error = -Mallet::velocity();
 
-    const double Kp = 50.0;
-    const double Kd = 8.0;
+    // Simple PD controller for simulation (replace later)
+    const double K_P = 50.0;
+    const double K_D = 8.0;
 
-    Point2<double> control = Kp * pos_error + Kd * vel_error;
+    Point2<double> control = K_P * pos_error + K_D * vel_error;
 
     // Clamp to max speed
     if (control.magnitude() > Constants::Mallet::SPEED)
