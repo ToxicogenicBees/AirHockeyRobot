@@ -6,7 +6,6 @@ if(WIN32)
 endif()
 
 # --- OpenCV Setup ---
-set(OpenCV_DIR "C:/opencv/build-mingw/install")
 find_package(OpenCV REQUIRED)
 
 message(STATUS "OpenCV include dirs: ${OpenCV_INCLUDE_DIRS}")
