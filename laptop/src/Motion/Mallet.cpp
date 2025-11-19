@@ -27,16 +27,16 @@ bool Mallet::canReach(const Point2<double> pos) {
     return true;
 }
 
-Point2<double> Mallet::chooseTarget(const Matrix<Point3<double>>& timestamps) {
+Point2<double> Mallet::chooseTarget(const std::vector<Point3<double>>& timestamps) {
     // Create copy of timestamps
-    auto ts = timestamps;
+    std::vector<Point3<double>> ts = timestamps;
 
     // Set time for each trajectory to be the mallet's time of arrival
     double best_weight = -std::numeric_limits<double>::infinity();
     Point2<double> best_target = Constants::Mallet::HOME;
     Point2<double> pos = _mallet.position();
     
-    for (auto& t : ts) {
+    for (Point3<double>& t : ts) {
         Point2<double> tp(t.x, t.y);
 
         // Ignore if unreachable

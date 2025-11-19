@@ -4,6 +4,7 @@
 #include "Motion/Mallet.h"
 #include "Motion/Puck.h"
 
+
 bool Puck::_initialized = false;
 MovingObject Puck::_puck;
 
@@ -27,17 +28,17 @@ void Puck::locate() {
     Puck::moveTo(inches);
 }
 
-Matrix<Point3<double>> Puck::estimateTrajectory(bool ignore_return) {
+std::vector<Point3<double>> Puck::estimateTrajectory(bool ignore_return) {
     Point2<double> pos = _puck.position();
     Point2<double> vel = _puck.velocity();
 
     // If the puck isn't moving, return early
     if (vel.magnitude() < 1e-8)
-        return Matrix<Point3<double>>();
+        return {};
 
     // If the puck is moving away and it should be ignored, return early
     if (vel.y > 0 && ignore_return)
-        return Matrix<Point3<double>>();
+        return {};
 
     // Determine how long the puck will move for
     double time_of_arrival = (vel.y > 0 ? 2 * (Constants::Table::SIZE.y - Constants::Puck::RADIUS) - pos.y : Constants::Puck::RADIUS - pos.y) / vel.y;
@@ -51,11 +52,11 @@ Matrix<Point3<double>> Puck::estimateTrajectory(bool ignore_return) {
     double time_step = time_of_arrival / NUM_SAMPLES;
     
     // Calculate trajectory
-    Matrix<Point3<double>> trajectory(NUM_SAMPLES);
+    std::vector<Point3<double>> trajectory;
     for (size_t i = 0; i < NUM_SAMPLES; i++) {
         double time = i * time_step;
         auto o = determineFutureOrientation(time);
-        trajectory(i) = {o.first.x, o.first.y, time};
+        trajectory.push_back({o.first.x, o.first.y, time});
     }
     
     // Return trajectory

@@ -24,8 +24,8 @@ void Table::render() {
 
     // Draw puck trajectory
     if (_show_target_puck) {
-        auto ts = Puck::estimateTrajectory(false);
-        for (auto t : ts) {
+        std::vector<Point3<double>> ts = Puck::estimateTrajectory(false);
+        for (const Point3<double> t : ts) {
             cv::Point point_center(IMG_SCALE * t.x, IMG_SCALE * (Constants::Table::SIZE.y - t.y));
             cv::circle(_canvas, point_center, 2, cv::Scalar(0, 0, 255), 2);
         }

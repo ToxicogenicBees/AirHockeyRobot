@@ -1,8 +1,8 @@
 #pragma once
 
 #include <opencv2/opencv.hpp>
+#include <vector>
 
-#include "Types/Matrix.hpp"
 #include "Types/Point2.hpp"
 
 class Graph {
@@ -12,5 +12,5 @@ class Graph {
     public:
         Graph();
 
-        void plot(const Matrix<Point2<double>>& x, const Matrix<Point2<double>>& y);
+        void plot(const std::vector<Point2<double>>& x, const std::vector<Point2<double>>& y);
 }
