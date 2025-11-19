@@ -20,7 +20,6 @@ set(COMMON_INCLUDES
 
 # --- List of executables ---
 set(EXECUTABLES
-    PuckPrediction
     PhysicsSim
     PacketTest
     OpenCVTest
@@ -28,13 +27,6 @@ set(EXECUTABLES
 )
 
 # --- Mapping source files for each executable ---
-set(PuckPrediction_SOURCES
-    src/Examples/PuckPrediction.cpp
-    src/Motion/MovingObject.cpp
-    src/Motion/Mallet.cpp
-    src/Motion/Puck.cpp
-)
-
 set(PacketTest_SOURCES
     src/Examples/PacketTest.cpp
 )
@@ -67,7 +59,6 @@ function(add_opencv_executable exe_name src_list)
 endfunction()
 
 # --- Add all executables ---
-add_opencv_executable(PuckPrediction "${PuckPrediction_SOURCES}")
 add_opencv_executable(PhysicsSim "${PhysicsSim_SOURCES}")
 add_opencv_executable(PacketTest "${PacketTest_SOURCES}")
 add_opencv_executable(OpenCVTest "${OpenCVTest_SOURCES}")
