@@ -35,7 +35,10 @@ extern PinDef dist_y_trig;
 extern PinDef dist_y_echo;
 
 // Limit Switch
-extern PinDef lim;
+extern PinDef limR;
+extern PinDef limL;
+extern PinDef limT;
+extern PinDef limB;
 
 // Temperature sensor
 extern PinDef temp_read;

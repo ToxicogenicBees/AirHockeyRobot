@@ -20,6 +20,7 @@ set(COMMON_INCLUDES
 
 # --- List of executables ---
 set(EXECUTABLES
+    malletSensorFeedbackVisualizer
     PuckPrediction
     PhysicsSim
     PacketTest
@@ -32,6 +33,14 @@ set(PuckPrediction_SOURCES
     src/Examples/PuckPrediction.cpp
     src/Motion/MovingObject.cpp
     src/Motion/Mallet.cpp
+    src/Motion/Puck.cpp
+)
+
+set(malletSensorFeedbackVisualizer_SOURCES
+    src/Examples/malletSensorFeedbackVisualizer.cpp
+    src/Motion/MovingObject.cpp
+    src/Motion/Mallet.cpp
+    src/Visuals/Table.cpp
     src/Motion/Puck.cpp
 )
 
@@ -69,6 +78,7 @@ endfunction()
 # --- Add all executables ---
 add_opencv_executable(PuckPrediction "${PuckPrediction_SOURCES}")
 add_opencv_executable(PhysicsSim "${PhysicsSim_SOURCES}")
+add_opencv_executable(malletSensorFeedbackVisualizer "${malletSensorFeedbackVisualizer_SOURCES}")
 add_opencv_executable(PacketTest "${PacketTest_SOURCES}")
 add_opencv_executable(OpenCVTest "${OpenCVTest_SOURCES}")
 add_opencv_executable(main "${main_SOURCES}")
