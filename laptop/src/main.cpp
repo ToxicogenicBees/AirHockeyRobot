@@ -17,6 +17,7 @@
 
 #include "Comms/SerialLink.h"
 #include "Motion/Mallet.h"
+#include "Visuals/Table.h"
 #include "Motion/Puck.h"
 
 #include <algorithm>
@@ -112,6 +113,7 @@ int main() {
     std::thread receive_packets(RECEIVE_PACKETS);
     std::thread mallet_control(MALLET_CONTROL);
     std::thread puck_tracking(PUCK_TRACKING);
+    std::thread rendering = Table::render();
 
     // Run threads async
     receive_packets.detach();

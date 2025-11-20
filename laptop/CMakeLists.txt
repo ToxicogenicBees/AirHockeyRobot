@@ -57,6 +57,7 @@ set(main_SOURCES
     src/Motion/MovingObject.cpp
     src/Comms/SerialLink.cpp
     src/Motion/Mallet.cpp
+    src/Visuals/Table.cpp
     src/Motion/Puck.cpp
 )
 

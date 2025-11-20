@@ -1,6 +1,7 @@
 #pragma once
 
 #include <opencv2/opencv.hpp>
+#include <thread>
 
 class Table {
     private:
@@ -9,12 +10,17 @@ class Table {
         static bool _show_target_mallet;
         static bool _show_target_puck;
 
+        static void _renderStep();
+        static void _renderLoop();
+
     public:
         /**
          * @brief Renders the puck and mallet on the table, with the desired
-         *        target settings
+         *        target settings in a detached thread
+         * 
+         * @return Detached thread running the rendering loop
          */
-        static void render();
+        static std::thread render();
 
         /**
          * @brief Sets whether the mallet target location should be rendered

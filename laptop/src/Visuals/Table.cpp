@@ -10,7 +10,7 @@ cv::Mat Table::_canvas = cv::Mat::zeros(IMG_SCALE * Constants::Table::SIZE.y, IM
 bool Table::_show_target_mallet = true;
 bool Table::_show_target_puck = true;
 
-void Table::render() {
+void Table::_renderStep() {
     // Clear image
     _canvas.setTo(cv::Scalar(0, 0, 0));
 
@@ -45,6 +45,17 @@ void Table::render() {
     // Show updated image
     cv::imshow("Table Render", _canvas);
     cv::waitKey(1);
+}
+
+void Table::_renderLoop() {
+    while (true)
+        Table::_renderStep();
+}
+
+std::thread Table::render() {
+    std::thread render_thread(Table::_renderLoop);
+    render_thread.detach();
+    return render_thread;
 }
 
 void Table::setMalletTarget(bool state) {
