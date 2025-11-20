@@ -8,8 +8,7 @@
 using namespace cv;
 using namespace std;
 
-int main(int, char**)
-{
+int main(int, char**) {
     Mat frame, frameHSV, frameThreshold;
     //--- INITIALIZE VIDEOCAPTURE
     VideoCapture cap;

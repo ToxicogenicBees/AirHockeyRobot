@@ -1,7 +1,8 @@
 #pragma once
 
+#include <vector>
+
 #include "Motion/MovingObject.h"
-#include "Types/Matrix.hpp"
 #include "Types/Point2.hpp"
 #include "Types/Point3.hpp"
 #include "Constants.h"
@@ -41,7 +42,7 @@ class Mallet {
          * 
          * @return The point the mallet is targetting
          */
-        static Point2<double> chooseTarget(const Matrix<Point3<double>>& timestamps);
+        static Point2<double> chooseTarget(const std::vector<Point3<double>>& timestamps);
 
         /**
          * @brief Updates the internal state of the object, traveling to the new position over the given time range
