@@ -11,7 +11,10 @@
 DistanceSensor dist_x(dist_x_trig, dist_x_echo);
 DistanceSensor dist_y(dist_y_trig, dist_y_echo);
 TemperatureSensor temp(temp_read);
-LimitSwitch limit(lim);
+LimitSwitch limitL(limL);
+LimitSwitch limitR(limR);
+LimitSwitch limitB(limB);
+LimitSwitch limitT(limT);
 
 void setup() {
     // Initialize Serial output
@@ -23,7 +26,10 @@ void setup() {
     // Initialize sensors
     dist_x.init();
     dist_y.init();
-    limit.init();
+    limitL.init();
+    limitR.init();
+    limitB.init();
+    limitT.init();
     temp.init();
 }
 
@@ -35,9 +41,26 @@ void loop() {
     DistanceSensor::calibrate(ambient_temp);
 
     // Print distance measurement
+    Serial.print("Temp: ");
     Serial.print(ambient_temp);
     Serial.print(" ");
+    Serial.print("Dist X: ");
     Serial.print(dist_x.distance());
     Serial.print(" ");
-    Serial.println(dist_y.distance());
+    Serial.print("Dist Y: ");
+    Serial.print(dist_y.distance());
+    Serial.print(" ");
+    Serial.print("LimL: ");
+    Serial.print(limitL.pressed());
+    Serial.print(" ");
+    Serial.print("LimR: ");
+    Serial.print(limitR.pressed());
+    Serial.print(" ");
+    Serial.print("LimB: ");
+    Serial.print(limitB.pressed());
+    Serial.print(" ");
+    Serial.print("LimT: ");
+    Serial.println(limitT.pressed());
+    
+
 }

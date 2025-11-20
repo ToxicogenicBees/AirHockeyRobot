@@ -21,5 +21,6 @@ double DistanceSensor::distance() {
     _PINS[TRIG]->write(false);
 
     uint32_t duration = pulseIn(_PINS[ECHO]->PIN, HIGH);
+    // delayMicroseconds(100000);
     return 0.5 * duration * _speed_of_sound;
-}
+} 
