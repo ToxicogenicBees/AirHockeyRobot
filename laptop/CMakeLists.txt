@@ -24,6 +24,7 @@ set(EXECUTABLES
     PhysicsSim
     PacketTest
     OpenCVTest
+    GraphTest
     main
 )
 
@@ -52,6 +53,11 @@ set(OpenCVTest_SOURCES
     src/Examples/OpenCVTest.cpp
 )
 
+set(GraphTest_SOURCES
+    src/Examples/GraphTest.cpp
+    src/Visuals/Graph.cpp
+)
+
 set(main_SOURCES
     src/main.cpp
     src/Motion/MovingObject.cpp
@@ -73,4 +79,5 @@ add_opencv_executable(PhysicsSim "${PhysicsSim_SOURCES}")
 add_opencv_executable(malletSensorFeedbackVisualizer "${malletSensorFeedbackVisualizer_SOURCES}")
 add_opencv_executable(PacketTest "${PacketTest_SOURCES}")
 add_opencv_executable(OpenCVTest "${OpenCVTest_SOURCES}")
+add_opencv_executable(GraphTest "${GraphTest_SOURCES}")
 add_opencv_executable(main "${main_SOURCES}")
