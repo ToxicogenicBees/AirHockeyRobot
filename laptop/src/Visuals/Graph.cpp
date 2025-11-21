@@ -48,10 +48,10 @@ Graph::Range Graph::_dynamicRange() {
 }
 
 void Graph::_drawAxis(const Range& range) {
-    //if (_show_axis.x && range.first.x < 0 && 0 < range.first.y)
+    if (_show_axis.x)
         cv::line(_image, _normalize({0, range.first.y}, range), _normalize({0, range.second.y}, range), cv::Scalar(255, 255, 255));
 
-    //if (_show_axis.y && range.second.x < 0 && 0 < range.second.y)
+    if (_show_axis.y)
         cv::line(_image, _normalize({range.first.x, 0}, range), _normalize({range.second.x, 0}, range), cv::Scalar(255, 255, 255));
 }
 
