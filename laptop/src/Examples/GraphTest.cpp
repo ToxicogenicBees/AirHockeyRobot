@@ -5,18 +5,24 @@
 #include "Types/Point2.hpp"
 #include "Visuals/Graph.h"
 
-Graph graph;
-
 int main() {
+    // Create and scale the graph
+    Graph graph;
     graph.resize(500, 500);
 
-    double pow = 0;
+    graph.dynamicRange();
+
+    // Multiplier for the quadratic
+    double mult = 0;
 
     while (true) {
+        // Hold updates
         graph.holdOn();
 
+        // Clear what's currently plotted
         graph.clear();
 
+        // Store points to be plotted in vectors
         std::vector<Point2<double>> pts1, pts2;
         for (double i = -5; i < 5; i += 0.1) {
             pts1.push_back({
@@ -24,16 +30,19 @@ int main() {
             });
 
             pts2.push_back({
-                i, pow * i * i
+                i, mult * i * i
             });
         }
         
-        graph.plot(pts1, cv::Scalar(0, 255, 255));
-        graph.plot(pts2, cv::Scalar(0, 0, 255));
+        // Plot these vectors of data
+        graph.plot(pts1, cv::Scalar(0, 255, 255));  // Yellow cubic
+        graph.plot(pts2, cv::Scalar(0, 0, 255));    // Red quadratic
 
+        // Release updates
         graph.holdOff();
 
-        pow = std::fmod(pow + 0.01, 5);
+        // Update multiplier
+        mult = std::fmod(mult + 0.01, 10);
     }
         
     return 0;
