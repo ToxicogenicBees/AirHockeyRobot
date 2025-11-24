@@ -19,7 +19,7 @@ cv::Mat canvas = cv::Mat::zeros(IMG_SCALE * Constants::Table::SIZE.y, IMG_SCALE 
 // Processing step
 void processingStep() {
     // Determine target mallet location
-    Matrix<Point3<double>> timestamps = Puck::estimateTrajectory();
+    std::vector<Point3<double>> timestamps = Puck::estimateTrajectory();
 
     Point2<double> target = Mallet::chooseTarget(timestamps);
     Point2<double> pos_error = target - Mallet::position();

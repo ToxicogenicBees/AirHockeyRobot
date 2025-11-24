@@ -57,10 +57,6 @@ Packet SerialLink::read() {
     BYTE lengthByte;
     DWORD bytesRead;
 
-    //BOOL status;
-    DWORD bytesRead;
-    uint8_t receive_data_buffer[128] = { 0 }; // intialize the buffer 
-
     SetCommMask(hSerial, EV_RXCHAR);  // Set mask to listen for data received (EV_RXCHAR)
 
     DWORD EventMask;
@@ -74,9 +70,14 @@ Packet SerialLink::read() {
         // Read first byte
         if (!ReadFile(hSerial, &lengthByte, 1, &bytesRead, nullptr) || bytesRead != 1)
             std::cout << "Failed to read packet length, error: " << GetLastError() << "\n";
-        
-        buffer.resize(lengthByte);
-        buffer[0] = lengthByte;
+
+        if (lengthByte == 0) {
+            std::cout << "Buffer Resizing Error Lengthbyte = 0\n";
+        } else {
+            buffer.resize(lengthByte);
+            buffer[0] = lengthByte;
+        }
+        // std::cout << "Resising vector: " << int(&lengthByte) << "\n";
 
         // Read remaining bytes
         DWORD remaining = lengthByte - 1;

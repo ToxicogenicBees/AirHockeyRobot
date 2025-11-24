@@ -32,6 +32,8 @@ void setup() {
     limitB.init();
     limitT.init();
     temp.init();
+
+    Serial.print("Hello World!");
 }
 
 void loop() {
@@ -50,7 +52,7 @@ void loop() {
     // Serial.print(ambient_temp);
     // Serial.print(" ");
     // Serial.print("Dist X: ");
-    // Serial.print(x);
+    // Serial.print(dist_x.distance());
     // Serial.print(" ");
     // Serial.print("Dist Y: ");
     // Serial.print(y);
@@ -68,12 +70,12 @@ void loop() {
     // Serial.println(limitT.pressed());
     
 
-    // Point2<double> position(x, y);
+    Point2<double> position(x, y);
 
-    // packet << position;
+    packet << position;
 
-    packet = SerialLink::read();    
+    // packet = SerialLink::read();    
     SerialLink::send(packet);
 
-    // delay(2000);
+    delay(200);
 }

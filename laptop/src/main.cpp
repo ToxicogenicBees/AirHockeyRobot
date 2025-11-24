@@ -112,13 +112,13 @@ int main() {
 
     // Create threads
     std::thread receive_packets(RECEIVE_PACKETS);
-    std::thread mallet_control(MALLET_CONTROL);
-    std::thread puck_tracking(PUCK_TRACKING);
+    // std::thread mallet_control(MALLET_CONTROL);
+    // std::thread puck_tracking(PUCK_TRACKING);
 
     // Run threads async
     receive_packets.detach();
-    mallet_control.detach();
-    puck_tracking.detach();
+    // mallet_control.detach();
+    // puck_tracking.detach();
     
     // Yield main
     while (true);
