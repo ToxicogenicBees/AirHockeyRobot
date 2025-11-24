@@ -113,7 +113,6 @@ int main() {
     std::thread receive_packets(RECEIVE_PACKETS);
     std::thread mallet_control(MALLET_CONTROL);
     std::thread puck_tracking(PUCK_TRACKING);
-    std::thread rendering = Table::render();
 
     // Run threads async
     receive_packets.detach();
@@ -121,7 +120,9 @@ int main() {
     puck_tracking.detach();
     
     // Yield main
-    while (true);
+    while (true) {
+        Table::render();
+    }
 
     return 0;
 }
