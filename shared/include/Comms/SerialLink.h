@@ -9,8 +9,6 @@
 struct SerialLink {
     #ifdef WIN32_LEAN_AND_MEAN
         static HANDLE hSerial;
-
-        static void readWaitCommLoop(std::vector<Packet>*);
     #endif
 
     /**

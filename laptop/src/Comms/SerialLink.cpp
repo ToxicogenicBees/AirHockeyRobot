@@ -46,13 +46,6 @@ void SerialLink::send(Packet& packet) {
     WriteFile(hSerial, packet._data.data(), packet.length(), &bytesWritten, nullptr);
 }
 
-// run this function once in a new thread
-// will loop forever, waiting for comm events to read
-// pass in a mutex controlled vector of packets
-void SerialLink::readWaitCommLoop(std::vector<Packet>*) {
-    
-}
-
 Packet SerialLink::read() {
     BYTE lengthByte;
     DWORD bytesRead;

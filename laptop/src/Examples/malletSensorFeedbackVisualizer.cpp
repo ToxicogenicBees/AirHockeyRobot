@@ -4,6 +4,7 @@
 #include <chrono>
 #include <thread>
 
+#include "Comms/SerialLink.h"
 #include "Visuals/Table.h"
 #include "Motion/Mallet.h"
 #include "Motion/Puck.h"
@@ -88,7 +89,7 @@ void physicsStep() {
         fut_puck_orientation = Puck::determineFutureOrientation(TIME_STEP - cur_time);
 
         Puck::orient(fut_puck_orientation.first, fut_puck_orientation.second);
-        // Mallet::moveTo(fut_mallet_pos, (TIME_STEP - cur_time) * 1e6);
+        Mallet::moveTo(fut_mallet_pos, (TIME_STEP - cur_time) * 1e6);
     }
 
     // Objects won't be colliding
@@ -98,25 +99,68 @@ void physicsStep() {
     }
 }
 
-void moveMalletFromSensorData(const Point2<double>& new_pos) {
-    Mallet::moveTo(new_pos, TIME_STEP * 1e6);
+const double maxXMallet = 1190;
+const double xOffset = 67.8;
+const double maxYMallet = 1043;
+const double yOffset = 57.86;
+
+void HANDLE_PACKET(Packet& packet) {
+    uint8_t action = packet.action();
+    packet.resetRead();
+
+    switch(action) {
+        case Action::MALLET_POSITION: {
+            Point2<double> p = packet.read<Point2<double>>();
+            p.x = ((p.x - xOffset) / maxXMallet) * Constants::Table::SIZE.x;
+            p.y = ((p.y - yOffset) / maxYMallet) * Constants::Table::SIZE.y/2;
+            Mallet::moveTo(p); // moveTo is concurrent safe
+            // std::cout << p;
+            break;
+        }
+            
+        default:
+            break;
+    }
 }
 
-double myPointsDataTest[] = {1, 2, 5, 6, 7, 9, 10, 13, 11, 15}; 
-double *myPtr = myPointsDataTest;
+// Communication with the microcontroller
+void RECEIVE_PACKETS() {
+    while (true) {
+        Packet packet = SerialLink::read();
+        HANDLE_PACKET(packet);
+    }
+}
+
+bool INIT_MAIN() {
+    try {
+        // Puck::initTracking();   // Initialize the puck tracking
+        SerialLink::init();     // Initialize serial comms
+    }
+
+    catch(const std::exception& e) {
+        std::cerr << e.what() << '\n';
+        return false;
+    }
+
+    return true;
+}
+
 int main() {
+    if (!INIT_MAIN()) return -1;
+
     Puck::orient(Constants::Puck::HOME, Constants::Puck::SPEED * Point2<double>(0.5 * std::sqrt(2), 0.5 * std::sqrt(2)));
     Mallet::orient(Constants::Mallet::HOME);
 
+    // run reading serial data thread
+    std::thread receive_packets(RECEIVE_PACKETS);
+
+    // Run threads async
+    receive_packets.detach();
+
     while (true) {
         // "Rendering" pipeline
-        processingStep();
-        physicsStep();
-
-        Point2<double> malletPositionFromSensors;
-        malletPositionFromSensors.x = *myPtr++;
-        malletPositionFromSensors.y = *myPtr++;
-        moveMalletFromSensorData(malletPositionFromSensors);
+        // processingStep();
+        // physicsStep();
 
         Table::render();
         

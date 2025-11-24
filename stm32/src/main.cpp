@@ -36,6 +36,10 @@ void setup() {
     Serial.print("Hello World!");
 }
 
+const int bufferSize = 10;
+int step = 0;
+Point2<double> distanceBuffer[bufferSize];
+
 void loop() {
     Packet packet(Action::MALLET_POSITION);
 
@@ -72,10 +76,22 @@ void loop() {
 
     Point2<double> position(x, y);
 
+    distanceBuffer[step++ % bufferSize] = position;
+
+    // if average positions and send to laptop over serial
+    Point2<double> avgPos;
+    for (int i = 0; i < bufferSize; i++) {
+        avgPos.x += distanceBuffer[i].x;
+        avgPos.y += distanceBuffer[i].y;
+    }
+    avgPos.x /= bufferSize;
+    avgPos.y /= bufferSize;
+
     packet << position;
 
     // packet = SerialLink::read();    
     SerialLink::send(packet);
+    
 
-    delay(200);
+    delay(15);
 }
