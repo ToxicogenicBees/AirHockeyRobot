@@ -5,7 +5,7 @@
 namespace Constants {
     namespace Comms {
         constexpr uint32_t BAUD_RATE = 115200;          // Baud rate for USB serial communication
-        constexpr char COM_PORT[] = "COM5";             // Desired COM port
+        constexpr char COM_PORT[] = "\\\\.\\COM10";             // Desired COM port
     }
     
     namespace Table {

@@ -34,7 +34,9 @@ void HANDLE_PACKET(Packet& packet) {
 
     switch(action) {
         case Action::MALLET_POSITION: {
-            Mallet::moveTo(packet.read<Point2<double>>());
+            Point2<double> p = packet.read<Point2<double>>();
+            Mallet::moveTo(p);
+            std::cout << p;
             break;
         }
             
