@@ -2,6 +2,7 @@
 #include "Constants.h"
 
 #include <windows.h>
+#include <hidsdi.h>  // need to link hid.lib library during the compilation process
 #include <iostream>
 
 HANDLE SerialLink::hSerial = INVALID_HANDLE_VALUE;
@@ -74,13 +75,48 @@ Packet SerialLink::read() {
             DWORD remaining = lengthByte - 1;
             if (!ReadFile(hSerial, buffer.data() + 1, remaining, &bytesRead, nullptr) || bytesRead != remaining)
                 std::cout << "Failed to read packet payload, error: " << GetLastError() << "\n";
+
+            Packet packet(buffer);
+            if (!packet.isValid())
+                std::cout << "Invalid packet CRC\n";
+
+            return packet;
         }
-        // std::cout << "Resising vector: " << int(&lengthByte) << "\n";
     }
 
-    Packet packet(buffer);
-    if (!packet.isValid())
-        std::cout << "Invalid packet CRC\n";
+    // if incorrect packet format recieved, return empty packet and purge input buffer 
+    // Also check for if the USB device has been unplugged
 
-    return packet;
+    // try to reopen serial port, if disconnected this will fail:
+    hSerial = CreateFile(Constants::Comms::COM_PORT,
+        GENERIC_READ | GENERIC_WRITE,
+        0,          // No Sharing
+        nullptr,    // No Security
+        OPEN_EXISTING,
+        0,
+        nullptr);
+    if (hSerial == INVALID_HANDLE_VALUE) {
+        std::cout << "Error code: " << GetLastError() << "\n";
+        std::cout << "Failed to open COM port.\n";
+    }
+
+    DCB dcb = {0};
+    dcb.DCBlength = sizeof(dcb);
+    GetCommState(hSerial, &dcb);
+    dcb.BaudRate = Constants::Comms::BAUD_RATE;
+    dcb.ByteSize = 8;
+    dcb.Parity = NOPARITY;
+    dcb.StopBits = ONESTOPBIT;
+    SetCommState(hSerial, &dcb);
+
+    COMMTIMEOUTS timeouts = {0};
+    timeouts.ReadIntervalTimeout = 20;
+    timeouts.ReadTotalTimeoutMultiplier = 1;
+    timeouts.ReadTotalTimeoutConstant = 50;
+    timeouts.WriteTotalTimeoutMultiplier = 1; // Per-byte timeout
+    timeouts.WriteTotalTimeoutConstant = 50;  // Constant timeout (ms)
+    SetCommTimeouts(hSerial, &timeouts);
+
+    PurgeComm(hSerial, PURGE_RXCLEAR); //purge rx buffer
+    return Packet(Action::MALLET_POSITION) << Point2<double>(-1, -1);
 }
