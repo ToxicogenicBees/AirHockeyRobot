@@ -17,7 +17,9 @@ cv::Point Graph::_normalize(const Point2<double>& point, const Range& range) {
 
 void Graph::_resizeWindow(Point2<int> size) {
     _image = cv::Mat(size.y, size.x, CV_8UC3);
-    cv::resizeWindow(_NAME, size.x, size.y);
+
+    if (_open)
+        cv::resizeWindow(_NAME, size.x, size.y);
 }
 
 Graph::Range Graph::_dynamicRange() {
@@ -60,8 +62,8 @@ void Graph::_update() {
     if (_data.size() == 0 || _data[0].data.size() == 0)
         return;
 
-    // Exit early if holding
-    if (_holding)
+    // Exit early if holding or closed
+    if (_holding || !_open)
         return;
 
     // Clear the window
@@ -91,8 +93,11 @@ void Graph::_update() {
 }
 
 Graph::Graph(std::string name): _NAME(name) {
-    cv::namedWindow(_NAME, cv::WINDOW_KEEPRATIO);
-    _resizeWindow(_size);
+    show();
+}
+
+Graph::~Graph() {
+    hide();
 }
 
 void Graph::resize(int size_x, int size_y) {
@@ -100,14 +105,32 @@ void Graph::resize(int size_x, int size_y) {
 }
 
 void Graph::resize(Point2<int> size) {
-    _resizeWindow(size);
     _size = size;
+
+    _resizeWindow(size);
     _update();
 }
 
 void Graph::setMargin(int margin) {
     _margin = margin;
     _update();
+}
+
+void Graph::show() {
+    _open = true;
+
+    if (cv::getWindowProperty(_NAME, cv::WND_PROP_VISIBLE) < 1)
+        cv::namedWindow(_NAME, cv::WINDOW_KEEPRATIO);
+
+    _resizeWindow(_size);
+    _update();
+}
+
+void Graph::hide() {
+    _open = false;
+
+    if (cv::getWindowProperty(_NAME, cv::WND_PROP_VISIBLE) >= 1)
+        cv::destroyWindow(_NAME);
 }
 
 void Graph::holdOn() {
@@ -121,34 +144,42 @@ void Graph::holdOff() {
 
 void Graph::showAxes() {
     _show_axis = {true, true};
+    _update();
 }
 
 void Graph::showXAxis() {
     _show_axis.x = true;
+    _update();
 }
 
 void Graph::showYAxis() {
     _show_axis.y = true;
+    _update();
 }
 
 void Graph::hideAxes() {
     _show_axis = {false, false};
+    _update();
 }
 
 void Graph::hideXAxis() {
     _show_axis.x = false;
+    _update();
 }
 
 void Graph::hideYAxis() {
     _show_axis.y = false;
+    _update();
 }
 
 void Graph::fixedRange(const Point2<double>& x, const Point2<double>& y) {
     _range = {{x.x, y.x}, {x.y, y.y}};
+    _update();
 }
 
 void Graph::dynamicRange() {
     _range = {DYNAMIC_RANGE, DYNAMIC_RANGE};
+    _update();
 }
 
 void Graph::plot(const std::vector<double>& x, const std::vector<double>& y, cv::Scalar color) {

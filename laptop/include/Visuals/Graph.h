@@ -30,6 +30,7 @@ class Graph {
 
         Point2<bool> _show_axis = {true, true}; // Flags to show each axis
         bool _holding = false;                  // Flag to hold off on updating the graph
+        bool _open = false;                     // Flag to see if graph is visible
 
         // Normalize a point to a range
         cv::Point _normalize(const Point2<double>& point, const Range& range);
@@ -55,6 +56,11 @@ class Graph {
         Graph(std::string name = "Graph");
 
         /***
+         * @brief Destructor for graph objects
+         */
+        ~Graph();
+
+        /***
          * @brief Resize the graph size
          * 
          * @param size_x    The image width, in pixels
@@ -75,6 +81,16 @@ class Graph {
          * @param margin    The margin size, in pixels
          */
         void setMargin(int margin);
+
+        /***
+         * @brief Opens the graph window
+         */
+        void show();
+
+        /***
+         * @brief Closes the graph window
+         */
+        void hide();
 
         /***
          * @brief Stops the graph from updating uuntil holdOff() is called
