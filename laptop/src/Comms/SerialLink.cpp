@@ -69,13 +69,13 @@ Packet SerialLink::read() {
         } else {
             buffer.resize(lengthByte);
             buffer[0] = lengthByte;
+
+            // Read remaining bytes
+            DWORD remaining = lengthByte - 1;
+            if (!ReadFile(hSerial, buffer.data() + 1, remaining, &bytesRead, nullptr) || bytesRead != remaining)
+                std::cout << "Failed to read packet payload, error: " << GetLastError() << "\n";
         }
         // std::cout << "Resising vector: " << int(&lengthByte) << "\n";
-
-        // Read remaining bytes
-        DWORD remaining = lengthByte - 1;
-        if (!ReadFile(hSerial, buffer.data() + 1, remaining, &bytesRead, nullptr) || bytesRead != remaining)
-            std::cout << "Failed to read packet payload, error: " << GetLastError() << "\n";
     }
 
     Packet packet(buffer);
