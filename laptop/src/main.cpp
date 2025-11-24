@@ -69,7 +69,7 @@ void RECEIVE_PACKETS() {
 void MALLET_CONTROL() {
     while (true) {
         // Get puck trajectory
-        auto timestamps = Puck::estimateTrajectory();
+        std::vector<Point3<double>> timestamps = Puck::estimateTrajectory();
 
         // Get mallet's target location
         Point2<double> target = Mallet::chooseTarget(timestamps);

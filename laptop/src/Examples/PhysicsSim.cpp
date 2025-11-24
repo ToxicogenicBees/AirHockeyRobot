@@ -19,7 +19,7 @@ cv::Mat canvas = cv::Mat::zeros(IMG_SCALE * Constants::Table::SIZE.y, IMG_SCALE 
 // Processing step
 void processingStep() {
     // Determine target mallet location
-    Matrix<Point3<double>> timestamps = Puck::estimateTrajectory();
+    std::vector<Point3<double>> timestamps = Puck::estimateTrajectory();
 
     Point2<double> target = Mallet::chooseTarget(timestamps);
     Point2<double> pos_error = target - Mallet::position();
@@ -98,18 +98,33 @@ void physicsStep() {
     }
 }
 
+void PROCESS_LOOP() {
+    while (true) {
+        processingStep();
+        physicsStep();
+
+        std::this_thread::sleep_for(std::chrono::microseconds(Constants::SAMPLE_PERIOD));
+    }
+}
+
+void RENDER_LOOP() {
+    while (true) {
+        Table::render();
+    }
+}
+
 int main() {
     Puck::orient(Constants::Puck::HOME, Constants::Puck::SPEED * Point2<double>(0.5 * std::sqrt(2), 0.5 * std::sqrt(2)));
     Mallet::orient(Constants::Mallet::HOME);
 
+    std::thread process(PROCESS_LOOP);
+    std::thread render(RENDER_LOOP);
+
+    process.join();
+    render.join();
+
     while (true) {
-        // "Rendering" pipeline
-        processingStep();
-        physicsStep();
-        Table::render();
-        
-        // Pause for a sample tick
-        std::this_thread::sleep_for(std::chrono::microseconds(Constants::SAMPLE_PERIOD));;
+        // Pause main thread
     }
 
     return 0;

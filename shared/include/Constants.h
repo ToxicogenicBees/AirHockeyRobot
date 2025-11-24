@@ -37,7 +37,7 @@ namespace Constants {
     }
     
     // General
-    constexpr int64_t SAMPLE_PERIOD = 1e6 / 90;         // Camera sample period (microseconds)
+    constexpr int64_t SAMPLE_PERIOD = 1e6 / 10;         // Camera sample period (microseconds)
     constexpr size_t MAX_SAMPLE_POINTS = 50;            // Maximum number of sample points
     constexpr double FP_ERR = 1e-8;                     // Consistant FP error bias
 }
