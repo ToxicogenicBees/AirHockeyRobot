@@ -22,8 +22,8 @@ class Graph {
 
         std::vector<DataSet> _data;             // Plot data
         
-        Point2<size_t> _size = {100, 100};      // Window size
-        size_t _margin = 10;                    // Window margin
+        Point2<int> _size = {100, 100};    // Window size
+        int _margin = 10;                  // Window margin
         cv::Mat _image;                         // Window image
 
         Range _range = {{-5, -5}, {5, 5}};      // Data range
@@ -35,7 +35,7 @@ class Graph {
         cv::Point _normalize(const Point2<double>& point, const Range& range);
 
         // Resize the graph window
-        void _resizeWindow(Point2<size_t> size);
+        void _resizeWindow(Point2<int> size);
 
         // Draw the coordinate axes
         void _drawAxis(const Range& range);
@@ -60,21 +60,21 @@ class Graph {
          * @param size_x    The image width, in pixels
          * @param size_y    The image length, in pixels
          */
-        void resize(size_t size_x, size_t size_y);
+        void resize(int size_x, int size_y);
 
         /***
          * @brief Resize the graph size
          * 
          * @param size  The image size, in pixels
          */
-        void resize(Point2<size_t> size);
+        void resize(Point2<int> size);
 
         /***
          * @brief Set the graph's margin size
          * 
          * @param margin    The margin size, in pixels
          */
-        void setMargin(size_t margin);
+        void setMargin(int margin);
 
         /***
          * @brief Stops the graph from updating uuntil holdOff() is called
@@ -163,14 +163,14 @@ class Graph {
          * 
          * @return The size of the graph
          */
-        Point2<size_t> size() const { return _size; }
+        Point2<int> size() const { return _size; }
 
         /**
          * @brief Returns the margin size of the graph
          * 
          * @return The margin size of the graph
          */
-        size_t margin() const { return _margin; }
+        int margin() const { return _margin; }
 
         /**
          * @brief Returns the x-range of the graph

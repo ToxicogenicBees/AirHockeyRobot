@@ -11,11 +11,11 @@ cv::Point Graph::_normalize(const Point2<double>& point, const Range& range) {
 
     return {
         (int) (_margin + (_size.x - 2 * _margin) * normal.x),
-        (int) (_margin + (_size.y - 2 * _margin) * normal.y)
+        _size.y - (int) (_margin + (_size.y - 2 * _margin) * normal.y)
     };
 }
 
-void Graph::_resizeWindow(Point2<size_t> size) {
+void Graph::_resizeWindow(Point2<int> size) {
     _image = cv::Mat(size.y, size.x, CV_8UC3);
     cv::resizeWindow(_NAME, size.x, size.y);
 }
@@ -82,7 +82,7 @@ void Graph::_update() {
 
         // Plot in the window
         for (const cv::Point& p : points)
-            cv::circle(_image, {p.x, (int) _size.y - p.y}, 1, d.color, 1);
+            cv::circle(_image, p, 1, d.color, 1);
     }
 
     // Update window
@@ -95,17 +95,17 @@ Graph::Graph(std::string name): _NAME(name) {
     _resizeWindow(_size);
 }
 
-void Graph::resize(size_t size_x, size_t size_y) {
+void Graph::resize(int size_x, int size_y) {
     resize({size_x, size_y});
 }
 
-void Graph::resize(Point2<size_t> size) {
+void Graph::resize(Point2<int> size) {
     _resizeWindow(size);
     _size = size;
     _update();
 }
 
-void Graph::setMargin(size_t margin) {
+void Graph::setMargin(int margin) {
     _margin = margin;
     _update();
 }
@@ -158,7 +158,7 @@ void Graph::plot(const std::vector<double>& x, const std::vector<double>& y, cv:
 
     // Convert to vector of points
     std::vector<Point2<double>> points;
-    for (size_t i = 0; i < x.size(); i++)
+    for (int i = 0; i < x.size(); i++)
         points.push_back({x[i], y[i]});
 
     // Plot these points
