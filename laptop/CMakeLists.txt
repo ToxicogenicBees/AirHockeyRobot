@@ -36,6 +36,7 @@ set(malletSensorFeedbackVisualizer_SOURCES
     src/Motion/Mallet.cpp
     src/Visuals/Table.cpp
     src/Motion/Puck.cpp
+    src/Comms/SerialLink.cpp
 )
 
 set(PacketTest_SOURCES

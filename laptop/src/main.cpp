@@ -35,7 +35,9 @@ void HANDLE_PACKET(Packet& packet) {
 
     switch(action) {
         case Action::MALLET_POSITION: {
-            Mallet::moveTo(packet.read<Point2<double>>());
+            Point2<double> p = packet.read<Point2<double>>();
+            Mallet::moveTo(p);
+            std::cout << p;
             break;
         }
             
@@ -111,13 +113,13 @@ int main() {
 
     // Create threads
     std::thread receive_packets(RECEIVE_PACKETS);
-    std::thread mallet_control(MALLET_CONTROL);
-    std::thread puck_tracking(PUCK_TRACKING);
+    // std::thread mallet_control(MALLET_CONTROL);
+    // std::thread puck_tracking(PUCK_TRACKING);
 
     // Run threads async
     receive_packets.detach();
-    mallet_control.detach();
-    puck_tracking.detach();
+    // mallet_control.detach();
+    // puck_tracking.detach();
     
     // Yield main
     while (true) {
