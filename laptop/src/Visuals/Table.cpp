@@ -7,6 +7,7 @@ const uint8_t IMG_SCALE = 10;
 
 cv::Mat Table::_canvas = cv::Mat::zeros(IMG_SCALE * Constants::Table::SIZE.y, IMG_SCALE * Constants::Table::SIZE.x, CV_8UC3);
 
+bool Table::_show_relative_times = true;
 bool Table::_show_target_mallet = true;
 bool Table::_show_target_puck = true;
 
@@ -23,8 +24,8 @@ void Table::render() {
     cv::circle(_canvas, puck_center, IMG_SCALE * Constants::Puck::RADIUS, cv::Scalar(0, 0, 255), 2);
 
     // Draw puck trajectory
+    std::vector<Point3<double>> ts = Puck::estimateTrajectory(false);
     if (_show_target_puck) {
-        std::vector<Point3<double>> ts = Puck::estimateTrajectory(false);
         for (const Point3<double> t : ts) {
             cv::Point point_center(IMG_SCALE * t.x, IMG_SCALE * (Constants::Table::SIZE.y - t.y));
             cv::circle(_canvas, point_center, 2, cv::Scalar(0, 0, 255), 2);
@@ -45,6 +46,10 @@ void Table::render() {
     // Show updated image
     cv::imshow("Table Render", _canvas);
     cv::waitKey(1);
+}
+
+void Table::setRelativeTimes(bool state) {
+    _show_relative_times = state;
 }
 
 void Table::setMalletTarget(bool state) {

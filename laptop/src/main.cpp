@@ -17,6 +17,7 @@
 
 #include "Comms/SerialLink.h"
 #include "Motion/Mallet.h"
+#include "Visuals/Table.h"
 #include "Motion/Puck.h"
 
 #include <algorithm>
@@ -121,7 +122,9 @@ int main() {
     // puck_tracking.detach();
     
     // Yield main
-    while (true);
+    while (true) {
+        Table::render();
+    }
 
     return 0;
 }
