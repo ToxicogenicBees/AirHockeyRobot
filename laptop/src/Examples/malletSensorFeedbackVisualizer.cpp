@@ -1,39 +1,70 @@
 #include <opencv2/opencv.hpp>
-#include <windows.h>
-#include <chrono>
 #include <thread>
 
 #include "Examples/Physics.hpp"
+#include "Comms/SerialLink.h"
 #include "Visuals/Table.h"
 #include "Motion/Mallet.h"
 #include "Motion/Puck.h"
 #include "Constants.h"
 
-Point2<double> myPointsDataTest[] = {{1, 2}, {5, 6}, {7, 9}, {10, 13}, {11, 15}}; 
-Point2<double> *myPtr = myPointsDataTest;
+const double MAX_X_MALLET = 587;
+const double MAX_Y_MALLET = 505;
 
-void PHYSICS_STEP() {
-    // Update mallet position from sensor data
-    Point2<double> prev_pos = *myPtr;
-    Point2<double> cur_pos = *(++myPtr);
+const double X_OFFSET = 34.7;
+const double Y_OFFSET = 37.35;
 
-    Mallet::orient(cur_pos, (cur_pos - prev_pos) / Constants::SAMPLE_PERIOD);
-    
-    // Step physics
-    Physics::step();
-    
-    // Pause for a sample tick
-    std::this_thread::sleep_for(std::chrono::microseconds(Constants::SAMPLE_PERIOD));
+void HANDLE_PACKET(Packet& packet) {
+    uint8_t action = packet.action();
+    packet.resetRead();
+
+    switch(action) {
+        case Action::MALLET_POSITION: {
+            Point2<double> p = packet.read<Point2<double>>();
+            p.x = ((p.x - X_OFFSET) / MAX_X_MALLET) * Constants::Table::SIZE.x;
+            p.y = ((p.y - Y_OFFSET) / MAX_Y_MALLET) * Constants::Table::SIZE.y/2;
+            Mallet::moveTo(p); // moveTo is concurrent safe
+            // std::cout << p;
+            break;
+        }
+            
+        default:
+            break;
+    }
+}
+
+// Communication with the microcontroller
+void RECEIVE_PACKETS() {
+    while (true) {
+        Packet packet = SerialLink::read();
+        HANDLE_PACKET(packet);
+    }
+}
+
+bool INIT_MAIN() {
+    try {
+        SerialLink::init();     // Initialize serial comms
+    }
+
+    catch(const std::exception& e) {
+        std::cerr << e.what() << '\n';
+        return false;
+    }
+
+    return true;
 }
 
 int main() {
+    // Initialize
+    if (!INIT_MAIN()) return -1;
+
     // Initialize the table
     Puck::orient(Constants::Puck::HOME, Constants::Puck::SPEED * Point2<double>(0.5 * std::sqrt(2), 0.5 * std::sqrt(2)));
     Mallet::orient(Constants::Mallet::HOME);
 
-    // Run physics in the background
-    std::thread physics_step(PHYSICS_STEP);
-    physics_step.detach();
+    // Serial read thread
+    std::thread receive_packets(RECEIVE_PACKETS);
+    receive_packets.detach();
 
     // Render processing
     while (true) {

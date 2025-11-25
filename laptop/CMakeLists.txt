@@ -32,8 +32,8 @@ set(EXECUTABLES
 set(malletSensorFeedbackVisualizer_SOURCES
     src/Examples/malletSensorFeedbackVisualizer.cpp
     src/Motion/MovingObject.cpp
+    src/Comms/SerialLink.cpp
     src/Motion/Mallet.cpp
-    src/Visuals/Graph.cpp
     src/Visuals/Table.cpp
     src/Motion/Puck.cpp
 )
@@ -45,7 +45,6 @@ set(PacketTest_SOURCES
 set(PhysicsSim_SOURCES
     src/Examples/PhysicsSim.cpp
     src/Motion/MovingObject.cpp
-    src/Visuals/Graph.cpp
     src/Visuals/Table.cpp
     src/Motion/Mallet.cpp
     src/Motion/Puck.cpp
@@ -65,7 +64,6 @@ set(main_SOURCES
     src/Motion/MovingObject.cpp
     src/Comms/SerialLink.cpp
     src/Motion/Mallet.cpp
-    src/Visuals/Graph.cpp
     src/Visuals/Table.cpp
     src/Motion/Puck.cpp
 )

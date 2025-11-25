@@ -2,28 +2,43 @@
 #include "Constants.h"
 
 #include <windows.h>
+#include <hidsdi.h>  // need to link hid.lib library during the compilation process
 #include <iostream>
 
 HANDLE SerialLink::hSerial = INVALID_HANDLE_VALUE;
 
 void SerialLink::init() {
-    hSerial = CreateFileA(Constants::Comms::COM_PORT, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-    if (hSerial == INVALID_HANDLE_VALUE) throw std::runtime_error("Failed to open COM port");
+    hSerial = CreateFile(Constants::Comms::COM_PORT,
+        GENERIC_READ | GENERIC_WRITE,
+        0,          // No Sharing
+        nullptr,    // No Security
+        OPEN_EXISTING,
+        0,
+        nullptr);
+    if (hSerial == INVALID_HANDLE_VALUE) {
+        std::cout << "Error code: " << GetLastError() << "\n";
+        throw std::runtime_error("Failed to open COM port.");
+    }
 
     DCB dcb = {0};
     dcb.DCBlength = sizeof(dcb);
     GetCommState(hSerial, &dcb);
-    dcb.BaudRate = CBR_9600;
+    dcb.BaudRate = Constants::Comms::BAUD_RATE;
     dcb.ByteSize = 8;
     dcb.Parity = NOPARITY;
     dcb.StopBits = ONESTOPBIT;
     SetCommState(hSerial, &dcb);
 
     COMMTIMEOUTS timeouts = {0};
-    timeouts.ReadIntervalTimeout = 50;
+    timeouts.ReadIntervalTimeout = 20;
+    timeouts.ReadTotalTimeoutMultiplier = 1;
     timeouts.ReadTotalTimeoutConstant = 50;
-    timeouts.ReadTotalTimeoutMultiplier = 10;
+    timeouts.WriteTotalTimeoutMultiplier = 1; // Per-byte timeout
+    timeouts.WriteTotalTimeoutConstant = 50;  // Constant timeout (ms)
     SetCommTimeouts(hSerial, &timeouts);
+
+    //Clear both the TX and RX buffer
+    PurgeComm(hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR); //purge both tx and rx buffer
 }
 
 void SerialLink::send(Packet& packet) {
@@ -36,21 +51,72 @@ Packet SerialLink::read() {
     BYTE lengthByte;
     DWORD bytesRead;
 
-    // Read first byte
-    if (!ReadFile(hSerial, &lengthByte, 1, &bytesRead, nullptr) || bytesRead != 1)
-        throw std::runtime_error("Failed to read packet length");
+    SetCommMask(hSerial, EV_RXCHAR);  // Set mask to listen for data received (EV_RXCHAR)
 
-    std::vector<uint8_t> buffer(lengthByte);
-    buffer[0] = lengthByte;
+    DWORD EventMask;
+    
+    WaitCommEvent(hSerial, &EventMask, NULL);  // blocks until new data received
 
-    // Read remaining bytes
-    DWORD remaining = lengthByte - 1;
-    if (!ReadFile(hSerial, buffer.data() + 1, remaining, &bytesRead, nullptr) || bytesRead != remaining)
-        throw std::runtime_error("Failed to read packet payload");
+    std::vector<uint8_t> buffer;
 
-    Packet packet(buffer);
-    if (!packet.isValid())
-        throw std::runtime_error("Invalid packet CRC");
+    //Check received bitmask with EV_RXCHAR
+    if (EventMask & EV_RXCHAR) {
+        // Read first byte
+        if (!ReadFile(hSerial, &lengthByte, 1, &bytesRead, nullptr) || bytesRead != 1)
+            std::cout << "Failed to read packet length, error: " << GetLastError() << "\n";
 
-    return packet;
+        if (lengthByte == 0) {
+            std::cout << "Buffer Resizing Error Lengthbyte = 0\n";
+        } else {
+            buffer.resize(lengthByte);
+            buffer[0] = lengthByte;
+
+            // Read remaining bytes
+            DWORD remaining = lengthByte - 1;
+            if (!ReadFile(hSerial, buffer.data() + 1, remaining, &bytesRead, nullptr) || bytesRead != remaining)
+                std::cout << "Failed to read packet payload, error: " << GetLastError() << "\n";
+
+            Packet packet(buffer);
+            if (!packet.isValid())
+                std::cout << "Invalid packet CRC\n";
+
+            return packet;
+        }
+    }
+
+    // if incorrect packet format recieved, return empty packet and purge input buffer 
+    // Also check for if the USB device has been unplugged
+
+    // try to reopen serial port, if disconnected this will fail:
+    hSerial = CreateFile(Constants::Comms::COM_PORT,
+        GENERIC_READ | GENERIC_WRITE,
+        0,          // No Sharing
+        nullptr,    // No Security
+        OPEN_EXISTING,
+        0,
+        nullptr);
+    if (hSerial == INVALID_HANDLE_VALUE) {
+        std::cout << "Error code: " << GetLastError() << "\n";
+        std::cout << "Failed to open COM port.\n";
+    }
+
+    DCB dcb = {0};
+    dcb.DCBlength = sizeof(dcb);
+    GetCommState(hSerial, &dcb);
+    dcb.BaudRate = Constants::Comms::BAUD_RATE;
+    dcb.ByteSize = 8;
+    dcb.Parity = NOPARITY;
+    dcb.StopBits = ONESTOPBIT;
+    SetCommState(hSerial, &dcb);
+
+    COMMTIMEOUTS timeouts = {0};
+    timeouts.ReadIntervalTimeout = 20;
+    timeouts.ReadTotalTimeoutMultiplier = 1;
+    timeouts.ReadTotalTimeoutConstant = 50;
+    timeouts.WriteTotalTimeoutMultiplier = 1; // Per-byte timeout
+    timeouts.WriteTotalTimeoutConstant = 50;  // Constant timeout (ms)
+    SetCommTimeouts(hSerial, &timeouts);
+
+    PurgeComm(hSerial, PURGE_RXCLEAR); //purge rx buffer
+    return Packet(Action::MALLET_POSITION) << Point2<double>(-1, -1);
 }
