@@ -99,10 +99,10 @@ void physicsStep() {
     }
 }
 
-const double maxXMallet = 1190;
-const double xOffset = 67.8;
-const double maxYMallet = 1043;
-const double yOffset = 57.86;
+const double maxXMallet = 587;
+const double xOffset = 34.7;
+const double maxYMallet = 505;
+const double yOffset = 37.35;
 
 void HANDLE_PACKET(Packet& packet) {
     uint8_t action = packet.action();
