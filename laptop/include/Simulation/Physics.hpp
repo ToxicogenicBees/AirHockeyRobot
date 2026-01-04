@@ -2,9 +2,9 @@
 
 #include <vector>
 
+#include "Simulation/Table.h"
 #include "Types/Point2.hpp"
 #include "Motion/Mallet.h"
-#include "Visuals/Table.h"
 #include "Motion/Puck.h"
 #include "Constants.h"
 

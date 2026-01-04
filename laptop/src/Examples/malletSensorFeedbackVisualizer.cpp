@@ -1,8 +1,8 @@
 #include <opencv2/opencv.hpp>
 #include <thread>
 
+#include "Simulation/Table.h"
 #include "Comms/SerialLink.h"
-#include "Visuals/Table.h"
 #include "Motion/Mallet.h"
 #include "Motion/Puck.h"
 #include "Constants.h"

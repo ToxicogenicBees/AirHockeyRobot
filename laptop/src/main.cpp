@@ -15,9 +15,9 @@
   Libraries
 ************/
 
+#include "Simulation/Table.h"
 #include "Comms/SerialLink.h"
 #include "Motion/Mallet.h"
-#include "Visuals/Table.h"
 #include "Motion/Puck.h"
 
 #include <algorithm>

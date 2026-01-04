@@ -1,4 +1,4 @@
-#include "Visuals/Table.h"
+#include "Simulation/Table.h"
 #include "Motion/Mallet.h"
 #include "Motion/Puck.h"
 #include "Constants.h"

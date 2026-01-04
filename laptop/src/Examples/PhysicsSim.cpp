@@ -4,8 +4,8 @@
 #include <chrono>
 #include <thread>
 
-#include "Examples/Physics.hpp"
-#include "Visuals/Table.h"
+#include "Simulation/Physics.hpp"
+#include "Simulation/Table.h"
 #include "Motion/Mallet.h"
 #include "Motion/Puck.h"
 #include "Constants.h"
