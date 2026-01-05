@@ -67,5 +67,5 @@ double TorqueSpeed::getTorque(double rpm) {
         + _torques[i];
 
     // Return torque in N * m
-    return 100 * n_cm;
+    return n_cm / 100.0;
 }
