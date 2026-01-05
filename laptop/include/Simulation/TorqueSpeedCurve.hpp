@@ -41,7 +41,7 @@ double TorqueSpeed::_d[_N] = { 0.264810117429620, -0.436497394113912, 0.51035034
 
 double TorqueSpeed::getTorque(double speed) {
     // Saturate speed if it goes beyond the inputs range
-    if (speed > _speeds[11]) speed = _speeds[11];
+    if (speed > _speeds[_N]) speed = _speeds[_N];
     if (speed < _speeds[0])  speed = _speeds[0];
     
     // Determine which spline to use
