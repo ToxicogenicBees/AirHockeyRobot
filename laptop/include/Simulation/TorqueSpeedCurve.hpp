@@ -29,7 +29,14 @@ class TorqueSpeed {
         static double _b[_N], _c[_N], _d[_N];               // Cubic spline constants
 
     public:
-        static double getTorque(double speed);
+        /**
+         * @brief Returns the requred torque in [N*m] to drive the stepper motor at a desired RPM
+         * 
+         * @param rpm   The motor's RPM
+         * 
+         * @return The required torque in [N*m]
+         */
+        static double getTorque(double rpm);
 };
 
 double TorqueSpeed::_torques[_N + 1] = { 285.074626866, 282.089552239, 282.089552239, 240.298507463, 200.995024876, 161.691542289, 128.855721393, 116.915422886, 96.0199004975, 77.6119402985, 62.6865671642, 41.7910447761 };
@@ -39,7 +46,10 @@ double TorqueSpeed::_b[_N] = { -2.552138571324805, 0.629238542353168, -7.6212313
 double TorqueSpeed::_c[_N] = { -0.000000000000001, 1.589774368010413, -3.651206419276413, 0.926979523918217, 0.777906191930582, -0.919378524336372, 2.175545644353749, -0.882510647850208, 0.538011661194212, -0.128326816367044, -0.662324158737116 };
 double TorqueSpeed::_d[_N] = { 0.264810117429620, -0.436497394113912, 0.510350343279631, -0.016617854123605, -0.141359105440506, 0.342371064202400, -0.340894864883222, 0.118308826409781, -0.036997529133880, -0.044474203945621, 0.073832161028946 };
 
-double TorqueSpeed::getTorque(double speed) {
+double TorqueSpeed::getTorque(double rpm) {
+    // Convert speed from KPPS to RPM
+    double speed = rpm / 30;
+
     // Saturate speed if it goes beyond the inputs range
     if (speed > _speeds[_N]) speed = _speeds[_N];
     if (speed < _speeds[0])  speed = _speeds[0];
@@ -49,10 +59,13 @@ double TorqueSpeed::getTorque(double speed) {
     while (i < _N && speed > _speeds[i + 1])
         i++;
         
-    // Calculate and return desired speed
+    // Calculate torque (N * cm)
     double ds = speed - _speeds[i];
-    return ds * ds * ds * _d[i]
+    double n_cm = ds * ds * ds * _d[i]
         + ds * ds * _c[i]
         + ds * _b[i]
         + _torques[i];
+
+    // Return torque in N * m
+    return 100 * n_cm;
 }
