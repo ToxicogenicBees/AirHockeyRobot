@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Motion/StepperDriver.h"
+#include "Motion/Driver/HighPowerStepperDriver.h"
 #include "Types/PinDef.h"
 
 class Motor {
     private:
+        HighPowerStepperDriver* _driver;
         PinDef* _step, _dir, _scs;
-        StepperDriver* _driver;
 
     public:
         friend class Gantry;
@@ -19,7 +19,7 @@ class Motor {
          * @param dir       Direction pin
          * @param scs       Chip select pin
          */
-        Motor(StepperDriver* driver, PinDef& step, PinDef& dir, PinDef& scs);
+        Motor(HighPowerStepperDriver* driver, PinDef& step, PinDef& dir, PinDef& scs);
 
         /**
          * @brief Initializes a motor and its pins

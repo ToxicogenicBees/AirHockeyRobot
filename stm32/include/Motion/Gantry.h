@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Motion/StepperDriver.h"
+#include "Motion/Driver/HighPowerStepperDriver.h"
 #include "Motion/Motor.h"
 #include "Types/PinDef.h"
 
@@ -9,7 +9,7 @@
 
 class Gantry {
     private:
-        static StepperDriver _l_driver, _r_driver;
+        static HighPowerStepperDriver _l_driver, _r_driver;
         static PinDef *_miso, *_mosi, *_sclk;
         static Motor _l_motor, _r_motor;
 
