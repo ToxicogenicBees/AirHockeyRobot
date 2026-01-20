@@ -1,0 +1,17 @@
+The goal of the gantry's motion is to be able to move in straight lines to our target locations.
+This requires us to sync the motion of the motors so they finish their required step counts simultaneously.
+
+Note: <numeric> contains std::gcd
+
+0) Trivial case: ALPHA == BETA -> skip to 4 (m = n = 1)
+
+1) Determine which quantity ALPHA is larger (max between A and B)
+2) Determine which quantity BETA is smaller (min between A and B)
+
+3) Step ALPHA until gcd(ALPHA, BETA) != 1
+4) Find the ratio ALPHA:BETA = m:n
+    int m = ALPHA / gcd(ALPHA, BETA)
+    int n = BETA / gcd(ALPHA, BETA)
+
+5) Step ALPHA by m, step BETA by n
+6) Repeat 5 until done
