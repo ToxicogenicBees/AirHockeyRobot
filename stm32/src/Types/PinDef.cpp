@@ -27,11 +27,6 @@ void PinDef::init() {
     pinMode(PIN, MODE);
 }
 
-PinDef& PinDef::operator=(bool state) {
-    write(state);
-    return *this;
-}
-
 PinDef::operator bool() const {
     return read();
 }

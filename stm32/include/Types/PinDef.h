@@ -52,13 +52,6 @@ struct PinDef {
      * @brief Initializes the pin's mode, required to read pin properly
      */
     void init();
-    
-    /**
-     * @brief Assignment operator overload
-     * 
-     * @param state The desired state
-     */
-    PinDef& operator=(bool state);
 
     /**
      * @brief Returns this->read() when converted to boolean
