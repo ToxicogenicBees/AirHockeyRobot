@@ -1,21 +1,27 @@
 #pragma once
 
 #include "Motion/Driver/HighPowerStepperDriver.h"
+#include "Types/Point2.hpp"
 #include "Motion/Motor.h"
 #include "Types/PinDef.h"
+#include "Pinout.h"
 
 #include "Arduino.h"
 #include <stdint.h>
+#include <numeric>
 
 class Gantry {
     private:
-        static HighPowerStepperDriver _l_driver, _r_driver;
-        static PinDef *_miso, *_mosi, *_sclk;
-        static Motor _l_motor, _r_motor;
+        static Motor _left, _right;
 
     public:
         /**
          * @brief Initializes the gantry, its motors, and its pins
          */
         static void init();
+
+        /**
+         * @brief Updates the target position of the gantry
+         */
+        static void setTarget(const Point2<double>& target);
 };
