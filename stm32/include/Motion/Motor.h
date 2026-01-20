@@ -9,8 +9,6 @@ class Motor {
         PinDef *_step, *_dir, *_scs;        // Motor pins
 
     public:
-        friend class Gantry;
-
         // Motor config
         static const uint16_t FULL_STEPS_PER_REV = 200;
         static const uint16_t MICROSTEP_SETTING = 8;
