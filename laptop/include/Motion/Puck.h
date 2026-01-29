@@ -14,8 +14,10 @@ class Puck {
     public:
         /***
          * @brief Initializes the tracking system as a whole
+         * 
+         * @param show_debug    Enables debug output to console (false by default)
          */
-        static void initTracking();
+        static int initTracking(bool show_debug = false);
 
         /***
          * @brief Tracks the location of the puck on the table, and runs any required internal states
