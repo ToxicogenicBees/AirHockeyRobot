@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+bool SerialLink::_ready = false;
+
 void SerialLink::init() {
     Serial.begin(Constants::Comms::BAUD_RATE);  // Initialize the serial communication with the desired baud rate
     while (!Serial);                            // Wait for Serial to be trully initialized
