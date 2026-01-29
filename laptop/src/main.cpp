@@ -30,7 +30,7 @@
 ********************/
 
 void HANDLE_PACKET(Packet& packet) {
-    uint8_t action = packet.action();
+    Action action = packet.action();
     packet.resetRead();
 
     switch(action) {

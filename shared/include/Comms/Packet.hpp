@@ -16,9 +16,13 @@
     Byte N:                 CRC
 */
 
-namespace Action {
-    constexpr uint8_t MALLET_POSITION = 0x00;
-}
+enum class Action {
+    TERMINATE,          // Marks end of one-side communication
+    MALLET_POSITION,    // Contains mallet position data
+    E_STOP,             // E-Stop triggered event
+
+    COUNT               // Sentinal value
+};
 
 class Packet {
     private:
@@ -34,11 +38,11 @@ class Packet {
          * 
          * @param action    The desired action
          */
-        Packet(uint8_t action = Action::MALLET_POSITION) {
+        Packet(Action action = Action::TERMINATE) {
             _data.resize(2);
 
-            _data[0] = 2;       // Length
-            _data[1] = action;  // Action
+            _data[0] = 2;                   // Length
+            _data[1] = (uint8_t) action;    // Action
             
             resetRead();
         }
@@ -106,8 +110,8 @@ class Packet {
          * 
          * @return The packet's action
          */
-        uint8_t action() const {
-            return _data[1];
+        Action action() const {
+            return (Action) _data[1];
         }
 
         /**
