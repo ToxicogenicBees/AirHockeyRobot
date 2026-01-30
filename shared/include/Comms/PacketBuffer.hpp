@@ -4,31 +4,32 @@
 
 class PacketBuffer {
     private:
-        static const size_t _SIZE = static_cast<size_t>(Action::COUNT) - 1;     // Number of different packet types (ignoring TERMINATE)
-        static Packet* _packets[_SIZE];                                         // Array of packet references
+        static const size_t _SIZE =                          // Number of different packet types (ignoring TERMINATE)
+            static_cast<size_t>(Action::COUNT) - 1;
+        Packet* _packets[_SIZE];                             // Array of packet references
 
     public:
+        PacketBuffer() = default;
+
         /***
          * @brief Inserts a packet into the buffer
          * 
          * @param packet    The packet being inserted
          */
-        static void insert(const Packet& packet);
+        void insert(const Packet& packet);
 
         /***
          * @brief Clears the packet buffer
          */
-        static void clear();
+        void clear();
 
         /***
          * @brief Fetches the packet with the given action
          * 
          * @return Immutable pointer to the desired packet
          */
-        static Packet* const operator[](Action action);
+        Packet* const operator[](Action action);
 };
-
-Packet* PacketBuffer::_packets[_SIZE]{nullptr};
 
 void PacketBuffer::insert(const Packet& packet) {
     Action action = packet.action();
