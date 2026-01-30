@@ -1,28 +1,34 @@
 #pragma once
 
+#include "Comms/PacketBuffer.hpp"
 #include "Comms/Packet.hpp"
 
 #ifdef WIN32_LEAN_AND_MEAN
     #include <windows.h>
 #endif
 
-struct SerialLink {
-    #ifdef WIN32_LEAN_AND_MEAN
-        static HANDLE hSerial;
-    #endif
+class SerialLink {
+    private:
+        #ifdef WIN32_LEAN_AND_MEAN
+            static HANDLE _h_serial;
+        #endif
 
-    /**
-     * @brief   Initializes the communication link on the device's end
-     */
-    static void init();
-    
-    /**
-     * @brief   Sends a packet over the link
-     */
-    static void send(Packet& packet);
+        static PacketBuffer _buffer;
+        static bool _ready;
 
-    /**
-     * @brief   Reads a packet from the link
-     */
-    static Packet read();
+    public:
+        /**
+         * @brief   Initializes the communication link on the device's end
+         */
+        static void init();
+        
+        /**
+         * @brief   Sends a packet over the link
+         */
+        static void send(Packet& packet);
+
+        /**
+         * @brief   Reads a packet from the link
+         */
+        static Packet read();
 };

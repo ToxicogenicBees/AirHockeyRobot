@@ -31,7 +31,7 @@ class Motor {
          */
         void setDir(bool dir);
 
-         /**
+        /**
          * @brief Steps the motor in it's current direction
          */
         void step();
