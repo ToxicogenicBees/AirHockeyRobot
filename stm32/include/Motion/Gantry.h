@@ -12,7 +12,18 @@
 
 class Gantry {
     private:
-        static Motor _left, _right;
+        /*
+            Motor pairs and their motion:
+
+            | LEFT    RIGHT   RESULT |
+            |------------------------|
+            | CW      CW      LEFT   |
+            | CW      CCW     DOWN   |
+            | CCW     CW      UP     |
+            | CCW     CCW     RIGHT  |
+        */
+        static Motor _left;
+        static Motor _right;
 
     public:
         /**
