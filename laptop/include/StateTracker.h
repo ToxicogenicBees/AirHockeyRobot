@@ -1,0 +1,39 @@
+#pragma once
+
+#include <stdint.h>
+
+class StateTracker {
+    private:
+        static uint8_t _difficulty;
+        static bool _state;
+
+    public:
+        /**
+         * @brief Initializes the difficulty through console input
+         */
+        static void init();
+
+        /**
+         * @brief Enables gantry motion
+         */
+        static void enable();
+
+        /**
+         * @brief Disables gantry motion
+         */
+        static void disable();
+
+        /**
+         * @brief Fetches the current difficulty
+         * 
+         * @return The current difficulty
+         */
+        static bool getDifficulty() { return _difficulty; }
+
+        /**
+         * @brief Fetches the current state
+         * 
+         * @return The current state
+         */
+        static uint8_t getState() { return _state; }
+};

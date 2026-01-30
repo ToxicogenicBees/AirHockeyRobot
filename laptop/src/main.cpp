@@ -18,6 +18,7 @@
 #include "Simulation/Table.h"
 #include "Comms/SerialLink.h"
 #include "Motion/Mallet.h"
+#include "StateTracker.h"
 #include "Motion/Puck.h"
 
 #include <algorithm>
@@ -90,6 +91,7 @@ void MALLET_CONTROL() {
 
 bool INIT_MAIN() {
     try {
+        StateTracker::init();   // Initialize state tracker
         Puck::initTracking();   // Initialize the puck tracking
         SerialLink::init();     // Initialize serial comms
     }

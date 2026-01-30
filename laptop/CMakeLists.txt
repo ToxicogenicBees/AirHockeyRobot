@@ -62,6 +62,7 @@ set(GraphTest_SOURCES
 
 set(main_SOURCES
     src/main.cpp
+    src/StateTracker.cpp
     src/Motion/MovingObject.cpp
     src/Simulation/Table.cpp
     src/Comms/SerialLink.cpp
