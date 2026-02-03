@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Comms/PacketBuffer.hpp"
 #include "Comms/Packet.hpp"
 
 #ifdef WIN32_LEAN_AND_MEAN
@@ -13,7 +12,6 @@ class SerialLink {
             static HANDLE _h_serial;
         #endif
 
-        static PacketBuffer _buffer;
         static bool _ready;
 
     public:
