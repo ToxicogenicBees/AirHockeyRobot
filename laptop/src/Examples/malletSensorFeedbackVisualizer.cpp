@@ -14,7 +14,7 @@ const double X_OFFSET = 34.7;
 const double Y_OFFSET = 37.35;
 
 void HANDLE_PACKET(Packet& packet) {
-    uint8_t action = packet.action();
+    Action action = packet.action();
     packet.resetRead();
 
     switch(action) {
