@@ -15,11 +15,11 @@
   Libraries
 ************/
 
+#include "Comms/SerialLink.hpp"
 #include "Simulation/Table.h"
-#include "Comms/SerialLink.h"
-#include "Motion/Mallet.h"
 #include "State/StateTracker.h"
 #include "State/KeyLog.h"
+#include "Motion/Mallet.h"
 #include "Motion/Puck.h"
 
 #include <algorithm>
@@ -81,7 +81,7 @@ void MALLET_CONTROL() {
         Packet packet(Action::MALLET_POSITION);
         packet << target;
 
-        SerialLink::send(packet);
+        SerialLink::buffer(packet);
     }
 }
 

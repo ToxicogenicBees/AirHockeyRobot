@@ -1,21 +1,41 @@
-#include "Comms/SerialLink.h"
+#include "Comms/SerialLink.hpp"
 #include "Constants.h"
 
 #include <Arduino.h>
 
+PacketBuffer SerialLink::_receive_buffer;
+PacketBuffer SerialLink::_send_buffer;
 bool SerialLink::_ready = false;
+
+void SerialLink::_sendOverLink(const Packet& packet) {
+    Serial.write(packet._data.data(), packet.length());
+}
 
 void SerialLink::init() {
     Serial.begin(Constants::Comms::BAUD_RATE);  // Initialize the serial communication with the desired baud rate
     while (!Serial);                            // Wait for Serial to be trully initialized
 }
 
-void SerialLink::send(Packet& packet) {
-    // Ensure the packet is finalized
-    packet.finalize();
+void SerialLink::buffer(const Packet& packet) {
+    _send_buffer.insert(packet);
+}
 
-    // Send the raw bytes across the link
-    Serial.write(packet._data.data(), packet.length());
+void SerialLink::send() {
+    // Send all buffered packets
+    for (auto p : _send_buffer) {
+        if (p) {
+            p->finalize();
+            _sendOverLink(*p);
+        }
+    }
+
+    // Send a sentinal packet to signal end of communication
+    Packet terminate(Action::TERMINATE);
+    terminate.finalize();
+    _sendOverLink(terminate);
+
+    // Clear the packet buffer
+    _send_buffer.clear();
 }
 
 Packet SerialLink::read() {

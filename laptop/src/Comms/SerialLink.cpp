@@ -1,4 +1,4 @@
-#include "Comms/SerialLink.h"
+#include "Comms/SerialLink.hpp"
 #include "Constants.h"
 
 #include <windows.h>
@@ -6,7 +6,14 @@
 #include <iostream>
 
 HANDLE SerialLink::_h_serial = INVALID_HANDLE_VALUE;
+PacketBuffer SerialLink::_receive_buffer;
+PacketBuffer SerialLink::_send_buffer;
 bool SerialLink::_ready = true;
+
+void SerialLink::_sendOverLink(const Packet& packet) {
+    DWORD bytesWritten;
+    WriteFile(_h_serial, packet._data.data(), packet.length(), &bytesWritten, nullptr);
+}
 
 void SerialLink::init() {
     _h_serial = CreateFile(Constants::Comms::COM_PORT,
@@ -42,10 +49,26 @@ void SerialLink::init() {
     PurgeComm(_h_serial, PURGE_RXCLEAR | PURGE_TXCLEAR); //purge both tx and rx buffer
 }
 
-void SerialLink::send(Packet& packet) {
-    packet.finalize();
-    DWORD bytesWritten;
-    WriteFile(_h_serial, packet._data.data(), packet.length(), &bytesWritten, nullptr);
+void SerialLink::buffer(const Packet& packet) {
+    _send_buffer.insert(packet);
+}
+
+void SerialLink::send() {
+    // Send all buffered packets
+    for (auto p : _send_buffer) {
+        if (p) {
+            p->finalize();
+            _sendOverLink(*p);
+        }
+    }
+
+    // Send a sentinal packet to signal end of communication
+    Packet terminate(Action::TERMINATE);
+    terminate.finalize();
+    _sendOverLink(terminate);
+
+    // Clear the packet buffer
+    _send_buffer.clear();
 }
 
 Packet SerialLink::read() {

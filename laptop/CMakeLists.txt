@@ -34,13 +34,14 @@ set(malletSensorFeedbackVisualizer_SOURCES
     src/Motion/MovingObject.cpp
     src/Simulation/Table.cpp
     src/Comms/SerialLink.cpp
+    src/Comms/SerialLink.cpp
     src/Motion/Mallet.cpp
     src/Motion/Puck.cpp
-    src/Comms/SerialLink.cpp
 )
 
 set(PacketTest_SOURCES
     src/Examples/PacketTest.cpp
+    src/Comms/SerialLink.cpp
 )
 
 set(PhysicsSim_SOURCES

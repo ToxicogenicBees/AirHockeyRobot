@@ -1,7 +1,7 @@
 #include "Sensors/TemperatureSensor.h"
 #include "Sensors/DistanceSensor.h"
 #include "Sensors/LimitSwitch.h"
-#include "Comms/SerialLink.h"
+#include "Comms/SerialLink.hpp"
 #include "Motion/Motor.h"
 #include "PinOut.h"
 #include "Types/Point2.hpp"
