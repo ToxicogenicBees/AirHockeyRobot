@@ -1,4 +1,5 @@
-#pragma once
+#ifndef POINT3_HPP
+#define POINT3_HPP
 
 #include <iostream>
 #include <stdint.h>
@@ -366,3 +367,5 @@ template <class T>
 T Point3<T>::squaredMagnitude() const {
     return dot(*this);
 }
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PACKET_HPP
+#define PACKET_HPP
 
 #include <stdexcept>
 #include <stdint.h>
@@ -17,10 +18,10 @@
 */
 
 enum class Action {
-    TERMINATE,          // Marks end of one-side communication
     MALLET_POSITION,    // Contains mallet position data
     E_STOP,             // E-Stop triggered event
-
+    
+    TERMINATE,          // Marks end of one-side communication
     COUNT               // Sentinal value
 };
 
@@ -195,3 +196,5 @@ class Packet {
             return value;
         }
 };
+
+#endif

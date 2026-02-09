@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
 
 #include "Types/Point2.hpp"
 
@@ -41,3 +42,5 @@ namespace Constants {
     constexpr size_t MAX_SAMPLE_POINTS = 50;            // Maximum number of sample points
     constexpr double FP_ERR = 1e-8;                     // Consistant FP error bias
 }
+
+#endif
