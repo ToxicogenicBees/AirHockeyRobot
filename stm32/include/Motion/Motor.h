@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MOTOR_H
+#define MOTOR_H
 
 #include "Motion/Driver/HighPowerStepperDriver.h"
 #include "Types/PinDef.h"
@@ -41,3 +42,5 @@ class Motor {
          */
         void init();
 };
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PUCK_H
+#define PUCK_H
 
 #include <opencv2/opencv.hpp>
 #include <vector>
@@ -89,3 +90,5 @@ class Puck {
          */
         static bool initialized() { return _initialized; }
 };
+
+#endif

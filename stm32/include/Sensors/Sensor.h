@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SENSOR_H
+#define SENSOR_H
 
 #include "Types/PinDef.h"
 
@@ -28,3 +29,5 @@ class Sensor {
          */
         virtual void init();
 };
+
+#endif

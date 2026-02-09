@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COLLISION_HPP
+#define COLLISION_HPP
 
 #include "Types/Point2.hpp"
 #include "Motion/Mallet.h"
@@ -25,3 +26,5 @@ Point2<double> Collision::_getRequiredPuckVel(const Point2<double>& target_pos, 
     // using the provided collision normal
     return Point2<double>();
 }
+
+#endif

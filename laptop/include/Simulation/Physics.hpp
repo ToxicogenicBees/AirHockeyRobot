@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PHYSICS_HPP
+#define PHYSICS_HPP
 
 #include <vector>
 
@@ -103,3 +104,5 @@ void Physics::step() {
     _processingStep();
     _physicsStep();
 }
+
+#endif

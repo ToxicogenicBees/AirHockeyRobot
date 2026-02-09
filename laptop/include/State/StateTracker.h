@@ -1,4 +1,5 @@
-#pragma once
+#ifndef STATETRACKER_H
+#define STATETRACKER_H
 
 #include <stdint.h>
 
@@ -37,3 +38,5 @@ class StateTracker {
          */
         static uint8_t getState() { return _state; }
 };
+
+#endif

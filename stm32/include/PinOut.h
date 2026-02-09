@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PINOUT_H
+#define PINOUT_H
 
 #include "Types/PinDef.h"
 
@@ -42,3 +43,5 @@ extern PinDef limB;
 
 // Temperature sensor
 extern PinDef temp_read;
+
+#endif

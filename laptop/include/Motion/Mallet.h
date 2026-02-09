@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MALLET_H
+#define MALLET_H
 
 #include <vector>
 
@@ -82,3 +83,5 @@ class Mallet {
          */
         static Point2<double> target() { return _target; }
 };
+
+#endif

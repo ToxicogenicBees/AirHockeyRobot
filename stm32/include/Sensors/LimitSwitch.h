@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LIMITSWITCH_H
+#define LIMITSWITCH_H
 
 #include "Sensors/Sensor.h"
 #include "Types/PinDef.h"
@@ -22,3 +23,5 @@ class LimitSwitch : public Sensor {
          */
         bool pressed();
 };
+
+#endif

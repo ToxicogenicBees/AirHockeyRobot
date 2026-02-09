@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TABLE_H
+#define TABLE_H
 
 #include <opencv2/opencv.hpp>
 #include <thread>
@@ -38,3 +39,5 @@ class Table {
          */
         static void setPuckTargets(bool state);
 };
+
+#endif

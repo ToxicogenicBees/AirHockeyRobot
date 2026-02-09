@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DISTANCESENSOR_H
+#define DISTANCESENSOR_H
 
 #include "Sensors/Sensor.h"
 #include "Types/PinDef.h"
@@ -30,3 +31,5 @@ class DistanceSensor : public Sensor {
          */
         double distance();
 };
+
+#endif

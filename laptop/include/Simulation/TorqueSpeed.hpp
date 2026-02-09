@@ -1,6 +1,5 @@
-#pragma once
-
-#include <iostream>
+#ifndef TORQUE_SPEED_HPP
+#define TORQUE_SPEED_HPP
 
 /*
     Link to stepper motor's torque-speed curve:
@@ -69,3 +68,5 @@ double TorqueSpeed::getTorque(double rpm) {
     // Return torque in N * m
     return n_cm / 100.0;
 }
+
+#endif

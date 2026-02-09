@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PINDEF_H
+#define PINDEF_H
 
 #include <Arduino.h>
 #include <stdint.h>
@@ -58,3 +59,5 @@ struct PinDef {
      */
     operator bool() const;
 };
+
+#endif

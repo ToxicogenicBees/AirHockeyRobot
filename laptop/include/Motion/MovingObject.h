@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MOVING_OBJECT_H
+#define MOVING_OBJECT_H
 
 #include "Types/Point2.hpp"
 #include "Constants.h"
@@ -53,3 +54,5 @@ class MovingObject {
          */
         Point2<double> velocity();
 };
+
+#endif

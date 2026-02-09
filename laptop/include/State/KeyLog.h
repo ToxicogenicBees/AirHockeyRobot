@@ -1,4 +1,5 @@
-#pragma once
+#ifndef KEYLOG_H
+#define KEYLOG_H
 
 #include <functional>
 #include <thread>
@@ -21,3 +22,5 @@ class KeyLog {
         static void disconnect(char key);
 
 };
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GRAPH_H
+#define GRAPH_H
 
 #include <opencv2/opencv.hpp>
 #include <limits>
@@ -209,3 +210,5 @@ class Graph {
          */
         Range range() const { return _range; }
 };
+
+#endif

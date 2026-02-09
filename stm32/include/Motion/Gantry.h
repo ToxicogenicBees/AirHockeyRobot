@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GANTRY_H
+#define GANTRY_H
 
 #include "Motion/Driver/HighPowerStepperDriver.h"
 #include "Types/Point2.hpp"
@@ -36,3 +37,5 @@ class Gantry {
          */
         static void setTarget(const Point2<double>& target);
 };
+
+#endif

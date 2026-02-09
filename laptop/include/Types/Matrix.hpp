@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MATRIX_HPP
+#define MATRIX_HPP
 
 #include <initializer_list>
 #include <stdexcept>
@@ -888,3 +889,5 @@ Matrix<T> Matrix<T>::inverse() const {
 
     return adjoint() / determinant();
 }
+
+#endif

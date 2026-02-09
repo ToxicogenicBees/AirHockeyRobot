@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TEMPERATURESENSOR_H
+#define TEMPERATURESENSOR_H
 
 #include "Sensors/Sensor.h"
 #include "Types/PinDef.h"
@@ -49,3 +50,5 @@ class TemperatureSensor : public Sensor {
          */
         void init() override;
 };
+
+#endif
