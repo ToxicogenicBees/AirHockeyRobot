@@ -15,7 +15,7 @@
   Libraries
 ************/
 
-#include "Comms/SerialLink.hpp"
+#include "Comms/WinUSBLink.hpp"
 #include "Simulation/Table.h"
 #include "State/StateTracker.h"
 #include "State/KeyLog.h"
@@ -63,8 +63,7 @@ void PUCK_TRACKING() {
 // Communication with the microcontroller
 void RECEIVE_PACKETS() {
     while (true) {
-        Packet packet = SerialLink::read();
-        HANDLE_PACKET(packet);
+        WinUSBLink::process();
     }
 }
 
@@ -81,7 +80,7 @@ void MALLET_CONTROL() {
         Packet packet(Action::MALLET_POSITION);
         packet << target;
 
-        SerialLink::buffer(packet);
+        WinUSBLink::buffer(packet);
     }
 }
 
@@ -92,10 +91,10 @@ void MALLET_CONTROL() {
 
 bool INIT_MAIN() {
     try {
-        StateTracker::init();   // Initialize state tracker
-        Puck::initTracking();   // Initialize the puck tracking
-        SerialLink::init();     // Initialize serial comms
-        KeyLog::init();         // Initialize key tracking
+        StateTracker::init();               // Initialize state tracker
+        Puck::initTracking();               // Initialize the puck tracking
+        WinUSBLink::init(HANDLE_PACKET);    // Initialize serial comms
+        KeyLog::init();                     // Initialize key tracking
     }
 
     catch(const std::exception& e) {

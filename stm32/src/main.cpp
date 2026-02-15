@@ -1,7 +1,7 @@
 #include "Sensors/TemperatureSensor.h"
 #include "Sensors/DistanceSensor.h"
 #include "Sensors/LimitSwitch.h"
-#include "Comms/SerialLink.hpp"
+#include "Comms/STMLink.hpp"
 #include "Motion/Motor.h"
 #include "PinOut.h"
 #include "Types/Point2.hpp"
@@ -17,9 +17,13 @@ LimitSwitch limitR(limR);
 LimitSwitch limitB(limB);
 LimitSwitch limitT(limT);
 
+void HANDLE_PACKETS(const Packet& packet) {
+
+}
+
 void setup() {
     // Initialize Serial output
-    SerialLink::init();
+    STMLink::init(HANDLE_PACKETS);
 
     // Initialize ADC converter precision
     analogReadResolution(12);
@@ -43,11 +47,12 @@ Point2<double> distanceBuffer[bufferSize];
 bool runDebug = false;
 
 void loop() {
-    Packet packet(Action::MALLET_POSITION);
-
+    // Process packets if available
+    STMLink::process();
+    
     // Read ambient temp
     double ambient_temp = temp.temperature();
-
+    
     // Calibrate distance sensor
     DistanceSensor::calibrate(ambient_temp);
     double x = dist_x.distance();
@@ -78,9 +83,9 @@ void loop() {
     } else {
         Point2<double> position(x, y);
         Point2<double> avgPos;
-
+        
         distanceBuffer[step++ % bufferSize] = position;
-
+        
         // if average positions and send to laptop over serial
         for (int i = 0; i < bufferSize; i++) {
             avgPos.x += distanceBuffer[i].x;
@@ -88,11 +93,10 @@ void loop() {
         }
         avgPos.x /= bufferSize;
         avgPos.y /= bufferSize;
-
+        
+        Packet packet(Action::MALLET_POSITION);
         packet << position;
-
-        // packet = SerialLink::read();    
-        SerialLink::send(packet);
+        STMLink::buffer(packet);
     }
     
     delay(15);
