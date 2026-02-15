@@ -21,8 +21,10 @@ enum class Action {
     MALLET_POSITION,    // Contains mallet position data
     E_STOP,             // E-Stop triggered event
     
+    VALID_COUNT,        // Sentinal value for valid packet types
+
     TERMINATE,          // Marks end of one-side communication
-    COUNT               // Sentinal value
+    INVALID,            // Invalid packet (e.g. failed to open COM port)
 };
 
 class Packet {
@@ -32,8 +34,6 @@ class Packet {
         bool _finalized = false;                    // If the packet is finalized or not
 
     public:
-        friend class SerialLink;
-
         /***
          * @brief Creates a packet with the desired action type
          * 
@@ -103,7 +103,7 @@ class Packet {
             for (size_t i = 0; i < _data.size() - 1; i++)
                 calc_crc += _data[i];
                 
-            return calc_crc == crc();
+            return (crc() == calc_crc) && (action() != Action::INVALID);
         }
 
         /**
@@ -138,6 +138,10 @@ class Packet {
          */
         uint8_t crc() const {
             return _data[_data.size() - 1];
+        }
+
+        std::vector<uint8_t> data() const {
+            return _data;
         }
 
         /**

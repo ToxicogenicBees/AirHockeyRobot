@@ -1,12 +1,12 @@
-#ifndef PACKET_BUFFER_HPP
-#define PACKET_BUFFER_HPP
+#ifndef PACKETBUFFER_HPP
+#define PACKETBUFFER_HPP
 
 #include "Comms/Packet.hpp"
 
 class PacketBuffer {
     private:
-        static const size_t _SIZE =                          // Number of different packet types (ignoring TERMINATE)
-            static_cast<size_t>(Action::COUNT) - 1;
+        static const size_t _SIZE =                          // Number of valid packet types
+            static_cast<size_t>(Action::VALID_COUNT);
         Packet* _packets[_SIZE];                             // Array of packet references
 
     public:
