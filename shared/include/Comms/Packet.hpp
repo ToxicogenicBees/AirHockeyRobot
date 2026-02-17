@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <cstring>
 #include <vector>
+#include <iostream>
+#include <iomanip>
 
 /*
     Packet structure:
@@ -42,7 +44,6 @@ class Packet {
         Packet(Action action = Action::TERMINATE) {
             _data.resize(2);
 
-            _data[0] = 2;                   // Length
             _data[1] = (uint8_t) action;    // Action
             
             resetRead();
@@ -56,7 +57,7 @@ class Packet {
          */
         Packet(const std::vector<uint8_t>& bytes, bool finalized = true) {
             _finalized = finalized;
-            _data = bytes;
+            _data = std::vector<uint8_t>(bytes.begin(), bytes.begin() + bytes[0]);
 
             resetRead();
         }
@@ -140,8 +141,23 @@ class Packet {
             return _data[_data.size() - 1];
         }
 
-        std::vector<uint8_t> data() const {
-            return _data;
+        /**
+         * @brief Returns the packet's finalized state
+         * 
+         * @return The packet's finalized state
+         */
+        bool finalized() const {
+            return _finalized;
+        }
+
+        /**
+         * @brief Returns the packet's byte data
+         * 
+         * @return The packet's byte data
+         */
+        
+        const uint8_t* data() const {
+            return _data.data();
         }
 
         /**
@@ -199,6 +215,21 @@ class Packet {
             _read_iter = iter + sizeof(T);
             return value;
         }
-};
+
+        /***
+         * @brief Overloaded insertion operator
+         * 
+         * @param o         A reference to an output stream
+         * @param packet    The packet being output to the stream
+         * 
+         * @result A reference to the output stream being output to
+         */
+        friend std::ostream& operator<<(std::ostream& o, const Packet& packet) {
+            o << std::hex;
+            for (const uint8_t byte : packet._data)
+                o << (int)byte << " ";
+            return o;
+        }
+    };
 
 #endif

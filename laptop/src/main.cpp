@@ -15,16 +15,20 @@
   Libraries
 ************/
 
-#include "Comms/WinUSBLink.hpp"
+#include "Comms/SerialLink.hpp"
 #include "Simulation/Table.h"
 #include "State/StateTracker.h"
 #include "State/KeyLog.h"
 #include "Motion/Mallet.h"
 #include "Motion/Puck.h"
+#include "Constants.h"
 
 #include <algorithm>
+#include <iostream>
 #include <thread>
 #include <mutex>
+
+#include <chrono>
 
 
 /********************
@@ -39,7 +43,6 @@ void HANDLE_PACKET(Packet& packet) {
         case Action::MALLET_POSITION: {
             Point2<double> p = packet.read<Point2<double>>();
             Mallet::moveTo(p);
-            std::cout << p;
             break;
         }
             
@@ -61,9 +64,11 @@ void PUCK_TRACKING() {
 }
 
 // Communication with the microcontroller
+bool firstSend = true;
 void RECEIVE_PACKETS() {
     while (true) {
-        WinUSBLink::process();
+        SerialLink::process(firstSend);
+        firstSend = false;
     }
 }
 
@@ -80,7 +85,7 @@ void MALLET_CONTROL() {
         Packet packet(Action::MALLET_POSITION);
         packet << target;
 
-        WinUSBLink::buffer(packet);
+        SerialLink::buffer(packet);
     }
 }
 
@@ -92,9 +97,16 @@ void MALLET_CONTROL() {
 bool INIT_MAIN() {
     try {
         StateTracker::init();               // Initialize state tracker
+        std::clog << "Initialized state tracker\n";
+
         Puck::initTracking();               // Initialize the puck tracking
-        WinUSBLink::init(HANDLE_PACKET);    // Initialize serial comms
-        KeyLog::init();                     // Initialize key tracking
+        std::clog << "Initialized puck tracker\n";
+
+        SerialLink::init(HANDLE_PACKET);    // Initialize serial comms
+        std::clog << "Initialized serial link on " << Constants::Comms::COM_PORT << '\n';
+
+        // End of initialization
+        std::clog << '\n';
     }
 
     catch(const std::exception& e) {
@@ -112,7 +124,7 @@ bool INIT_MAIN() {
 
 int main() {
     // Initialize
-    if (!INIT_MAIN()) return -1;
+    if (!INIT_MAIN()) return 1;
 
     // Create threads
     std::thread receive_packets(RECEIVE_PACKETS);
@@ -123,6 +135,10 @@ int main() {
     receive_packets.detach();
     mallet_control.detach();
     puck_tracking.detach();
+
+    Packet packet(Action::MALLET_POSITION);
+    packet << Point2<double>(20, 40);
+    SerialLink::buffer(packet);
     
     // Yield main
     while (1) {

@@ -1,7 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <thread>
 
-#include "Comms/WinUSBLink.hpp"
+#include "Comms/SerialLink.hpp"
 #include "Simulation/Table.h"
 #include "Motion/Mallet.h"
 #include "Motion/Puck.h"
@@ -34,12 +34,12 @@ void HANDLE_PACKET(Packet& packet) {
 
 // Communication with the microcontroller
 void RECEIVE_PACKETS() {
-    WinUSBLink::process();
+    SerialLink::process();
 }
 
 bool INIT_MAIN() {
     try {
-        WinUSBLink::init(HANDLE_PACKET);     // Initialize serial comms
+        SerialLink::init(HANDLE_PACKET);     // Initialize serial comms
     }
 
     catch(const std::exception& e) {

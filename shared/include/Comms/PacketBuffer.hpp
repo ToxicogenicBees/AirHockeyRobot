@@ -2,24 +2,24 @@
 #define PACKETBUFFER_HPP
 
 #include "Comms/Packet.hpp"
+#include <ostream>
 
 class PacketBuffer {
     private:
+        using iterator = Packet**;
+        using const_iterator = const iterator;
+        
         static const size_t _SIZE =                          // Number of valid packet types
             static_cast<size_t>(Action::VALID_COUNT);
         Packet* _packets[_SIZE];                             // Array of packet references
 
     public:
-        using iterator = Packet**;
-        using const_iterator = const iterator;
-
         /***
          * @brief Creates a new PacketBuffer
          */
         PacketBuffer() {
-            for (size_t i = 0; i < _SIZE; ++i) {
+            for (size_t i = 0; i < _SIZE; ++i)
                 _packets[i] = nullptr;
-            }
         }
 
         /***
