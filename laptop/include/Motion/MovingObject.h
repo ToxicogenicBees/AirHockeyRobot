@@ -2,6 +2,7 @@
 #define MOVING_OBJECT_H
 
 #include "Types/Point2.hpp"
+#include "Types/Timer.hpp"
 #include "Constants.h"
 
 #include <chrono>
@@ -9,15 +10,9 @@
 
 class MovingObject {
     private:
-        using Clock = std::chrono::high_resolution_clock;
-        using SampleTime = std::chrono::time_point<Clock>;
-
         Point2<double> _pos = {0.0, 0.0}, _vel = {0.0, 0.0};    // Position and velocity of the object
-        SampleTime _prev_sample = Clock::now();                 // Last sample time for the moving object
         std::mutex _access_locational_data;                     // Mutex lock to guard access to position/velocity data
-
-        // Gets time difference since last call, in microseconds
-        int64_t _micsec();
+        Timer _timer;                                           // Microsecond timer
 
     public:
         MovingObject() = default;
