@@ -39,7 +39,7 @@ class SerialLink {
             COMSTAT comStat = {0};
             if (!ClearCommError(_h_serial, &errors, &comStat)) {
                 std::cerr << "ClearCommError failed, error: " << GetLastError() << "\n";
-                return {Action::INVALID};
+                return {Action::Invalid};
             }
 
             // Store all incoming bytes
@@ -49,21 +49,21 @@ class SerialLink {
                 DWORD bytes_read = 0;
                 if (!ReadFile(_h_serial, buffer.data(), bytes_available, &bytes_read, nullptr)) {
                     std::cerr << "Serial read failed, error: " << GetLastError() << "\n";
-                    return {Action::INVALID};
+                    return {Action::Invalid};
                 }
                 _rx_buffer.insert(_rx_buffer.end(), buffer.begin(), buffer.begin() + bytes_read);
             }
 
             // Check if incoming bytes are long enough to form a valid packet
             if (!_rx_buffer.size() || _rx_buffer.size() < _rx_buffer[0])
-                return {Action::INVALID};
+                return {Action::Invalid};
 
             // Fetch packet
             Packet packet(_rx_buffer);
 
             // Validate packet
             if (!packet.isValid())
-                return {Action::INVALID};
+                return {Action::Invalid};
             
             // Return packet
             _rx_buffer.erase(_rx_buffer.begin(), _rx_buffer.begin() + packet.length());
@@ -123,12 +123,12 @@ class SerialLink {
             while (!receivedTermination) {
                 packet = _receivePacket();
 
-                if (packet.action() != Action::INVALID) {
+                if (packet.action() != Action::Invalid) {
                     // Store in buffer
                     _receive_buffer.insert(packet);
 
                     // If this was the last packet
-                    if (packet.action() == Action::TERMINATE) {
+                    if (packet.action() == Action::Terminate) {
                         // Process all packets
                         for (auto p : _receive_buffer) {
                             if (p) {
@@ -160,7 +160,7 @@ class SerialLink {
                 
 
                 // Send sentinal packet
-                Packet terminate(Action::TERMINATE);
+                Packet terminate(Action::Terminate);
                 terminate.finalize();
                 DWORD bytesWritten;
                 WriteFile(_h_serial, terminate.data(), terminate.length(), &bytesWritten, nullptr);

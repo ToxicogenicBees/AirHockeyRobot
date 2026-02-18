@@ -40,7 +40,7 @@ void HANDLE_PACKET(Packet& packet) {
     packet.resetRead();
 
     switch(action) {
-        case Action::MALLET_POSITION: {
+        case Action::MalletPosition: {
             Point2<double> p = packet.read<Point2<double>>();
             Mallet::moveTo(p);
             break;
@@ -82,7 +82,7 @@ void MALLET_CONTROL() {
         Point2<double> target = Mallet::chooseTarget(timestamps);
 
         // Send target out to gantry
-        Packet packet(Action::MALLET_POSITION);
+        Packet packet(Action::MalletPosition);
         packet << target;
 
         SerialLink::buffer(packet);
@@ -136,7 +136,7 @@ int main() {
     mallet_control.detach();
     puck_tracking.detach();
 
-    Packet packet(Action::MALLET_POSITION);
+    Packet packet(Action::MalletPosition);
     packet << Point2<double>(20, 40);
     SerialLink::buffer(packet);
     

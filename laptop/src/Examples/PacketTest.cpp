@@ -6,7 +6,7 @@
 Point2<double> point(20.6, 10.5);
 
 int main() {
-    Packet packet(Action::MALLET_POSITION);
+    Packet packet(Action::MalletPosition);
     packet << point;
     packet.finalize();
 

@@ -34,14 +34,14 @@ class SerialLink {
 
             // Check if incoming bytes are long enough to form a valid packet
             if (!_rx_buffer.size() || _rx_buffer.size() < _rx_buffer[0])
-                return {Action::INVALID};
+                return {Action::Invalid};
 
             // Fetch packet
             Packet packet(_rx_buffer);
 
             // Validate packet
             if (!packet.isValid())
-                return {Action::INVALID};
+                return {Action::Invalid};
             
             // Return packet
             _rx_buffer.erase(_rx_buffer.begin(), _rx_buffer.begin() + packet.length());
@@ -70,12 +70,12 @@ class SerialLink {
             do {
                 packet = _receivePacket();
 
-                if (packet.action() != Action::INVALID) {
+                if (packet.action() != Action::Invalid) {
                     // Store in buffer
                     _receive_buffer.insert(packet);
 
                     // If this was the last packet
-                    if (packet.action() == Action::TERMINATE) {
+                    if (packet.action() == Action::Terminate) {
                         // Process all packets
                         for (auto p : _receive_buffer) {
                             if (p) {
@@ -87,7 +87,7 @@ class SerialLink {
                     }
                 }
 
-            } while (packet.action() != Action::INVALID);
+            } while (packet.action() != Action::Invalid);
 
             if (receivedTermination) {
                 // Send buffered packets
@@ -100,7 +100,7 @@ class SerialLink {
                 _send_buffer.clear();
 
                 // Send sentinal packet
-                Packet terminate(Action::TERMINATE);
+                Packet terminate(Action::Terminate);
                 terminate.finalize();
                 Serial.write(terminate.data(), terminate.length());
             }

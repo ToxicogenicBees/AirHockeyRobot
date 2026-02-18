@@ -18,7 +18,7 @@ void HANDLE_PACKET(Packet& packet) {
     packet.resetRead();
 
     switch(action) {
-        case Action::MALLET_POSITION: {
+        case Action::MalletPosition: {
             Point2<double> p = packet.read<Point2<double>>();
             p.x = ((p.x - X_OFFSET) / MAX_X_MALLET) * Constants::Table::SIZE.x;
             p.y = ((p.y - Y_OFFSET) / MAX_Y_MALLET) * Constants::Table::SIZE.y/2;

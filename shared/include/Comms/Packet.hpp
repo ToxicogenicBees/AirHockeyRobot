@@ -20,13 +20,13 @@
 */
 
 enum class Action {
-    MALLET_POSITION,    // Contains mallet position data
-    E_STOP,             // E-Stop triggered event
+    MalletPosition,     // Contains mallet position data
+    EStop,              // E-Stop triggered event
     
     VALID_COUNT,        // Sentinal value for valid packet types
 
-    TERMINATE,          // Marks end of one-side communication
-    INVALID,            // Invalid packet (e.g. failed to open COM port)
+    Terminate,          // Marks end of one-side communication
+    Invalid,            // Invalid packet (e.g. failed to open COM port)
 };
 
 class Packet {
@@ -41,7 +41,7 @@ class Packet {
          * 
          * @param action    The desired action
          */
-        Packet(Action action = Action::TERMINATE) {
+        Packet(Action action = Action::Terminate) {
             _data.resize(2);
 
             _data[1] = (uint8_t) action;    // Action
@@ -104,7 +104,7 @@ class Packet {
             for (size_t i = 0; i < _data.size() - 1; i++)
                 calc_crc += _data[i];
                 
-            return (crc() == calc_crc) && (action() != Action::INVALID);
+            return (crc() == calc_crc) && (action() != Action::Invalid);
         }
 
         /**
