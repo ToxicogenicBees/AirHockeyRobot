@@ -32,7 +32,7 @@ class PacketBuffer {
             Action action = packet.action();
 
             // Ignore any control packet types
-            if (action < Action::Terminate) {
+            if (action < Action::VALID_COUNT) {
                 size_t index = (size_t)(action);
                 if (_packets[index])
                     delete _packets[index];
