@@ -3,6 +3,7 @@
 
 #include "Comms/PacketBuffer.hpp"
 #include "Comms/Packet.hpp"
+#include "Types/Timer.hpp"
 #include "Constants.h"
 
 #include <windows.h>
@@ -11,8 +12,6 @@
 #include <stdint.h>
 #include <vector>
 #include <mutex>
-
-#include <iomanip>
 
 class SerialLink {
     private:
@@ -31,6 +30,9 @@ class SerialLink {
 
         // Packet handler
         static processor _callback;
+
+        // Communication timer
+        static Timer _timer;
 
         // Receive a packet from the link
         static Packet _receivePacket() {
@@ -84,7 +86,7 @@ class SerialLink {
                 0,
                 nullptr);
             if (_h_serial == INVALID_HANDLE_VALUE) {
-                std::cout << "Error code: " << GetLastError() << "\n";
+                std::cerr << "Error code: " << GetLastError() << "\n";
                 throw std::runtime_error("Failed to open COM port.");
             }
 
@@ -106,6 +108,9 @@ class SerialLink {
 
             // Clear both the TX and RX buffer
             PurgeComm(_h_serial, PURGE_RXCLEAR | PURGE_TXCLEAR); //purge both tx and rx buffer
+
+            // Reset timer
+            _timer.reset();
         }
 
         static void buffer(const Packet& packet) {
@@ -120,7 +125,7 @@ class SerialLink {
             bool receivedTermination = forceDumpBuffer;
             Packet packet;
 
-            while (!receivedTermination) {
+            while (!receivedTermination && _timer.delta() < Constants::Comms::TIMEOUT) {
                 packet = _receivePacket();
 
                 if (packet.action() != Action::Invalid) {
@@ -152,12 +157,24 @@ class SerialLink {
 
                             DWORD bytesWritten;
                             WriteFile(_h_serial, p->data(), p->length(), &bytesWritten, nullptr);
-                            std::clog << "SENT: " << *p << '\n';
                         }
                     }
                     _send_buffer.clear();
                 }
                 
+                // Send sentinal packet
+                Packet terminate(Action::Terminate);
+                terminate.finalize();
+                DWORD bytesWritten;
+                WriteFile(_h_serial, terminate.data(), terminate.length(), &bytesWritten, nullptr);
+
+                // Reset timer
+                _timer.reset();
+            }
+
+            else if (_timer.delta() >= Constants::Comms::TIMEOUT) {
+                // Reset incoming buffer
+                _rx_buffer.clear();
 
                 // Send sentinal packet
                 Packet terminate(Action::Terminate);
@@ -165,7 +182,8 @@ class SerialLink {
                 DWORD bytesWritten;
                 WriteFile(_h_serial, terminate.data(), terminate.length(), &bytesWritten, nullptr);
 
-                std::clog << "SENT: " << terminate << '\n';
+                // Reset timer
+                _timer.reset();
             }
         }
 };
@@ -176,5 +194,6 @@ PacketBuffer SerialLink::_receive_buffer;
 PacketBuffer SerialLink::_send_buffer;
 std::mutex SerialLink::_send_guard;
 SerialLink::processor SerialLink::_callback;
+Timer SerialLink::_timer;
 
 #endif

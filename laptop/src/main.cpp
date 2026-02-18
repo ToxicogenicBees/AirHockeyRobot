@@ -28,8 +28,6 @@
 #include <thread>
 #include <mutex>
 
-#include <chrono>
-
 
 /********************
   Packet Management
@@ -84,7 +82,6 @@ void MALLET_CONTROL() {
         // Send target out to gantry
         Packet packet(Action::MalletPosition);
         packet << target;
-
         SerialLink::buffer(packet);
     }
 }
@@ -137,7 +134,8 @@ int main() {
     puck_tracking.detach();
 
     Packet packet(Action::MalletPosition);
-    packet << Point2<double>(20, 40);
+    Point2<double> p(20, 40);
+    packet << p;
     SerialLink::buffer(packet);
     
     // Yield main

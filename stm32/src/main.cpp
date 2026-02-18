@@ -101,7 +101,4 @@ void loop() {
         packet << position;
         SerialLink::buffer(packet);
     }
-
-    // Process packets if available
-    SerialLink::process();
 }

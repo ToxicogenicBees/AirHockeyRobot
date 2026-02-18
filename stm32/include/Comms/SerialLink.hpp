@@ -3,9 +3,8 @@
 
 #include "Comms/PacketBuffer.hpp"
 #include "Comms/Packet.hpp"
+#include "Types/Timer.hpp"
 #include "Constants.h"
-
-#include "Types/PinDef.h"
 
 #include <Arduino.h>
 #include <functional>
@@ -25,6 +24,9 @@ class SerialLink {
 
         // Packet handler
         static processor _callback;
+
+        // Communication timer
+        static Timer _timer;
 
         // Receive a packet from the link
         static Packet _receivePacket() {
@@ -56,6 +58,9 @@ class SerialLink {
             // Initialize serial link
             Serial.begin(Constants::Comms::BAUD_RATE);
             while (!Serial);
+
+            // Reset timer
+            _timer.reset();
         }
 
         static void buffer(const Packet& packet) {
@@ -87,7 +92,7 @@ class SerialLink {
                     }
                 }
 
-            } while (packet.action() != Action::Invalid);
+            } while (packet.action() != Action::Invalid && _timer.delta() < Constants::Comms::TIMEOUT);
 
             if (receivedTermination) {
                 // Send buffered packets
@@ -103,6 +108,17 @@ class SerialLink {
                 Packet terminate(Action::Terminate);
                 terminate.finalize();
                 Serial.write(terminate.data(), terminate.length());
+
+                // Reset timer
+                _timer.reset();
+            }
+
+            else if (_timer.delta() >= Constants::Comms::TIMEOUT) {
+                // Reset incoming buffer
+                _rx_buffer.clear();
+
+                // Reset timer
+                _timer.reset(); 
             }
         }
 };
@@ -111,5 +127,6 @@ std::vector<uint8_t> SerialLink::_rx_buffer;
 PacketBuffer SerialLink::_receive_buffer;
 PacketBuffer SerialLink::_send_buffer;
 SerialLink::processor SerialLink::_callback;
+Timer SerialLink::_timer;
 
 #endif
