@@ -46,8 +46,8 @@ public:
   void setChipSelectPin(uint8_t pin)
   {
     csPin = pin;
-    digitalWrite(csPin, LOW);
     pinMode(csPin, OUTPUT);
+    digitalWrite(csPin, LOW);
   }
 
   /// Reads the register at the given address and returns its raw value.
@@ -92,7 +92,7 @@ public:
 
 private:
 
-  SPISettings settings = SPISettings(500000, MSBFIRST, SPI_MODE0);
+  SPISettings settings = SPISettings(100000, MSBFIRST, SPI_MODE0);
 
   uint16_t transfer(uint16_t value)
   {

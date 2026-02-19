@@ -16,8 +16,10 @@ PinDef dist_x_trig(A5, OUTPUT);
 PinDef dist_x_echo(A4, INPUT);
 PinDef dist_y_trig(D2, OUTPUT);
 PinDef dist_y_echo(D3, INPUT);
-PinDef limB(D4, INPUT_PULLUP);
-PinDef limT(D5, INPUT_PULLUP);
-PinDef limL(D6, INPUT_PULLUP);
-PinDef limR(D7, INPUT_PULLUP);
+
+PinDef lim_b(D4, INPUT_PULLUP);
+PinDef lim_t(D5, INPUT_PULLUP);
+PinDef lim_l(D6, INPUT_PULLUP);
+PinDef lim_r(D7, INPUT_PULLUP);
+
 PinDef temp_read(A0, INPUT_ANALOG);

@@ -32,3 +32,11 @@ void Motor::step() {
     delayMicroseconds(2); 
     _step->write(LOW);
 }
+
+void Motor::stepHigh() {
+    _step->write(HIGH);
+}
+
+void Motor::stepLow() {
+    _step->write(LOW);
+}
