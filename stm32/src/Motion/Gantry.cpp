@@ -1,10 +1,18 @@
 #include "Motion/Gantry.h"
 
+const float Gantry::_DRIVE_PULLEY_RADIUS = 28; // 28 mm
+const float Gantry::_STEP_CONVERSION_CONST = Motor::MICROSTEPS_PER_REV / (2*PI * _DRIVE_PULLEY_RADIUS);  // for converting delta X or Y to steps
+
 Motor Gantry::_left(motor_l_step, motor_l_dir, motor_l_scs);
 Motor Gantry::_right(motor_r_step, motor_r_dir, motor_r_scs);
 
-const float Gantry::_DRIVE_PULLEY_RADIUS = 28; // 28 mm
-const float Gantry::_STEP_CONVERSION_CONST = Motor::MICROSTEPS_PER_REV / (2*PI * _DRIVE_PULLEY_RADIUS);  // for converting delta X or Y to steps
+Point2<double> Gantry::_position;
+
+double Gantry::_accel_percent;
+double Gantry::_decel_percent;
+double Gantry::_min_rpm;
+double Gantry::_max_rpm;
+
 
 void Gantry::init() {
     // Initialize motors
