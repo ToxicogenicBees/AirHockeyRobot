@@ -20,7 +20,8 @@
 */
 
 enum class Action {
-    MalletPosition,     // Contains mallet position data
+    VelocityProfile,    // Gantry velocity profile data
+    MalletPosition,     // Mallet position data
     EStop,              // E-Stop triggered event
     
     VALID_COUNT,        // Sentinal value for valid packet types
