@@ -1,9 +1,9 @@
 #include "Sensors/TemperatureSensor.h"
 #include "Sensors/DistanceSensor.h"
 #include "Sensors/LimitSwitch.h"
-#include "Comms/SerialLink.hpp"
-#include "Motion/Motor.h"
+#include "Motion/Gantry.h"
 #include "PinOut.h"
+#include "Comms/SerialLink.hpp"
 #include "Types/Point2.hpp"
 
 #include <Arduino.h>
@@ -28,7 +28,19 @@ void HANDLE_PACKET(Packet& packet) {
     packet.resetRead();
 
     switch(action) {
-        // Process packets here
+        case Action::VelocityProfile: {
+            const double min_rpm = packet.read<uint8_t>() / 127.0;
+            const double max_rpm = packet.read<uint8_t>() / 127.0;
+            const double accel_percent = packet.read<uint8_t>() / 127.0;
+            const double decel_percent = packet.read<uint8_t>() / 127.0;
+
+            Gantry::setVelocityProfile(min_rpm, max_rpm, accel_percent, decel_percent);
+        }
+
+        case Action::MalletPosition: {
+            const auto target = packet.read<Point2<double>>();
+            Gantry::goToPointInStraightLine(target);
+        }
     }
 }
 
