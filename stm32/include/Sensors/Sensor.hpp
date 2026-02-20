@@ -14,7 +14,6 @@ class Sensor {
         /***
          * @brief Create a new sensor
          * 
-         * @param num_pins  The total number of pins related to the sensor
          * @param ...       Variadic list of pointers to PinDef objects
          */
         Sensor(...);
@@ -28,9 +27,8 @@ class Sensor {
 template <size_t N>
 Sensor<N>::Sensor(...) {
     va_list args;
-    va_start(args, N);
+    va_start(args, (int)N);
 
-    _pins.reserve(num_pins);
     for (size_t i = 0; i < N; ++i)
         _pins[i] = va_arg(args, PinDef*);
 
