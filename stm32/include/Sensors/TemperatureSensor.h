@@ -11,11 +11,8 @@ class TemperatureSensor : public Sensor<1> {
         // TMP6131LPGM thermistor
         // Transfer function for temperature vs. Vsense voltage
         // is given in the TI Thermistor design tool
-        static constexpr double _THRM_A0 = -2.885698e2;
-        static constexpr double _THRM_A1 = 1.556236e2;
-        static constexpr double _THRM_A2 = 7.191258e1;
-        static constexpr double _THRM_A3 = -5.134061e1;
-        static constexpr double _THRM_A4 = 1.244030e1;
+        static constexpr double _THRM[5]
+            = { -2.885698e2, 1.556236e2, 7.191258e1, -5.134061e1, 1.244030e1 };
 
         // ADC convertion ratio
         static constexpr double _ADC_BIAS = 3.3f / 4095;
