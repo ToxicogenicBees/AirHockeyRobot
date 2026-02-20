@@ -1,12 +1,12 @@
 #ifndef LIMITSWITCH_H
 #define LIMITSWITCH_H
 
-#include "Sensors/Sensor.h"
+#include "Sensors/Sensor.hpp"
 #include "Types/PinDef.h"
 
 #include <stdint.h>
 
-class LimitSwitch : public Sensor {
+class LimitSwitch : public Sensor<1> {
     public:
         /**
          * @brief Create a new limit switch

@@ -1,7 +1,7 @@
 #include "Sensors/LimitSwitch.h"
 
-LimitSwitch::LimitSwitch(PinDef& pin) : Sensor(1, &pin) {}
+LimitSwitch::LimitSwitch(PinDef& pin) : Sensor(&pin) {}
 
 bool LimitSwitch::pressed() {
-    return !_PINS[0]->read();
+    return !_pins[0]->read();
 }

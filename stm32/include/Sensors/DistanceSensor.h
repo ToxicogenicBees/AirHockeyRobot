@@ -1,12 +1,12 @@
 #ifndef DISTANCESENSOR_H
 #define DISTANCESENSOR_H
 
-#include "Sensors/Sensor.h"
+#include "Sensors/Sensor.hpp"
 #include "Types/PinDef.h"
 
 #include <stdint.h>
 
-class DistanceSensor : public Sensor {
+class DistanceSensor : public Sensor<2> {
     private:
         static double _speed_of_sound;
 

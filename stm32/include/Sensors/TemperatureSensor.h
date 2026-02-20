@@ -1,12 +1,12 @@
 #ifndef TEMPERATURESENSOR_H
 #define TEMPERATURESENSOR_H
 
-#include "Sensors/Sensor.h"
+#include "Sensors/Sensor.hpp"
 #include "Types/PinDef.h"
 
 #include <stdint.h>
 
-class TemperatureSensor : public Sensor {
+class TemperatureSensor : public Sensor<1> {
     private:
         // TMP6131LPGM thermistor
         // Transfer function for temperature vs. Vsense voltage

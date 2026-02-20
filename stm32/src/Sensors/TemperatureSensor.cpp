@@ -2,10 +2,10 @@
 
 #include <cmath>
 
-TemperatureSensor::TemperatureSensor(PinDef& read) : Sensor(1, &read) {}
+TemperatureSensor::TemperatureSensor(PinDef& read) : Sensor<1>(&read) {}
 
 double TemperatureSensor::_sample() {
-    uint16_t adc_read = _PINS[0]->readAnalog();     // STM32 has 12-bit ADC, 3.3 logic
+    uint16_t adc_read = _pins[0]->readAnalog();     // STM32 has 12-bit ADC, 3.3 logic
     double v_sense = _ADC_BIAS * adc_read;           // Voltage over the thermistor
 
     // 4th order regression to get temperature
