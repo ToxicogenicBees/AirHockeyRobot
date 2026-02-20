@@ -19,14 +19,14 @@ struct PinDef {
     /**
      * @brief Reads the current (digital) state of the pin
      * 
-     * @return The current state of the pin
+     * @return The current (digital) state of the pin
      */
-    bool read() const;
+    uint8_t read() const;
 
     /**
-     * @brief Reads the current analog state of the pin
+     * @brief Reads the current (analog) state of the pin
      * 
-     * @return The current state of the pin
+     * @return The current (analog) state of the pin
      */
     uint32_t readAnalog() const;
 
@@ -35,7 +35,7 @@ struct PinDef {
      * 
      * @param state The desired state
      */
-    void write(bool state);
+    void write(uint8_t state);
 
     /**
      * @brief Writes the desired state to the pin
@@ -55,9 +55,9 @@ struct PinDef {
     void init();
 
     /**
-     * @brief Returns this->read() when converted to boolean
+     * @brief Returns this->read() when converted to uint8_t
      */
-    operator bool() const;
+    operator uint8_t() const;
 };
 
 #endif
