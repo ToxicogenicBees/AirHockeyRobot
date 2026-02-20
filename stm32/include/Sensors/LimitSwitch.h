@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-class LimitSwitch : public Sensor<1> {
+class LimitSwitch : public Sensor {
     public:
         /**
          * @brief Create a new limit switch

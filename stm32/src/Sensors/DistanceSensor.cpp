@@ -14,11 +14,11 @@ void DistanceSensor::calibrate(double temperature) {
 }
 
 double DistanceSensor::distance() {
-    _pins[TRIG]->write(false);
+    _pins[TRIG]->write(LOW);
     delayMicroseconds(2);
-    _pins[TRIG]->write(true);
+    _pins[TRIG]->write(HIGH);
     delayMicroseconds(10);
-    _pins[TRIG]->write(false);
+    _pins[TRIG]->write(LOW);
 
     uint32_t duration = pulseIn(_pins[ECHO]->PIN, HIGH);
     // delayMicroseconds(100000);

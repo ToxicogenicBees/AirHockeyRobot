@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-class TemperatureSensor : public Sensor<1> {
+class TemperatureSensor : public Sensor {
     private:
         // TMP6131LPGM thermistor
         // Transfer function for temperature vs. Vsense voltage

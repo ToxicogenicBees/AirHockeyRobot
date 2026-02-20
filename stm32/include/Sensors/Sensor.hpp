@@ -5,40 +5,28 @@
 
 #include <array>
 
-template <size_t N>
 class Sensor {
     protected:
-        std::array<PinDef*, N> _pins;
+        std::vector<PinDef*> _pins;
 
     public:
         /***
          * @brief Create a new sensor
          * 
-         * @param ...       Variadic list of pointers to PinDef objects
+         * @param args  Variadic list of pointers to PinDef objects
          */
-        Sensor(...);
+        template <typename... Args>
+        Sensor(Args... args) {
+            _pins = {args...};
+        }
 
         /**
          * @brief Initialize a sensor and it's pins
          */
-        virtual void init();
+        virtual void init() {
+            for (auto pin : _pins)
+                pin->init();
+        }
 };
-
-template <size_t N>
-Sensor<N>::Sensor(...) {
-    va_list args;
-    va_start(args, (int)N);
-
-    for (size_t i = 0; i < N; ++i)
-        _pins[i] = va_arg(args, PinDef*);
-
-    va_end(args);
-}
-
-template <size_t N>
-void Sensor<N>::init() {
-    for (auto pin : _pins)
-        pin->init();
-}
 
 #endif

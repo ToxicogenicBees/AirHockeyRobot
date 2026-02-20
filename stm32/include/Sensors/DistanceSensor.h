@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-class DistanceSensor : public Sensor<2> {
+class DistanceSensor : public Sensor {
     private:
         static double _speed_of_sound;
 
