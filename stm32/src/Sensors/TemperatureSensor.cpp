@@ -1,5 +1,7 @@
 #include "Sensors/TemperatureSensor.h"
 
+#include <cmath>
+
 TemperatureSensor::TemperatureSensor(PinDef& read) : Sensor(&read) {}
 
 double TemperatureSensor::_sample() {
