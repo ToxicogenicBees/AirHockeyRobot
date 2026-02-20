@@ -1,4 +1,5 @@
 #include "Motion/Gantry.h"
+#include "Pinout.h"
 
 const float Gantry::_DRIVE_PULLEY_RADIUS = 28; // 28 mm
 const float Gantry::_STEP_CONVERSION_CONST = Motor::MICROSTEPS_PER_REV / (2*PI * _DRIVE_PULLEY_RADIUS);  // for converting delta X or Y to steps
@@ -12,7 +13,6 @@ double Gantry::_accel_percent;
 double Gantry::_decel_percent;
 double Gantry::_min_rpm;
 double Gantry::_max_rpm;
-
 
 void Gantry::init() {
     // Initialize motors

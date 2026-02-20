@@ -1,15 +1,11 @@
 #ifndef GANTRY_H
 #define GANTRY_H
 
-#include "Motion/Driver/HighPowerStepperDriver.h"
 #include "Types/Point2.hpp"
 #include "Motion/Motor.h"
 #include "Types/PinDef.h"
-#include "Pinout.h"
 
-#include "Arduino.h"
-#include <stdint.h>
-#include <numeric>
+#include <Arduino.h>
 
 class Gantry {
     private:
