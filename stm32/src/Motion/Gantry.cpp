@@ -79,8 +79,6 @@ void Gantry::_runStraighLine(int steps_a, int steps_b) {
     int e2 = 0;
     int steps_completed_a = 0;
     int steps_completed_b = 0;
-    bool stepA = false; // if equals 1 then step both
-    bool stepB = false; // if equals 1 then step both
 
     for (int i = 0; i < total_steps_larger; i++) {
         if (abs(steps_completed_a) >= abs(steps_a) || abs(steps_completed_b) >= abs(steps_b))
