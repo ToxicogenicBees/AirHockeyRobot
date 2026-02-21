@@ -7,7 +7,7 @@ namespace {
 
 double DistanceSensor::_speed_of_sound = 0.343;
 
-DistanceSensor::DistanceSensor(PinDef& trig, PinDef& echo) : Sensor(&trig, &echo) {}
+DistanceSensor::DistanceSensor(PinDef& trig, PinDef& echo) : Sensor(trig, echo) {}
 
 void DistanceSensor::calibrate(double temperature) {
     _speed_of_sound = 331.4e-3 + 0.6e-3 * temperature;

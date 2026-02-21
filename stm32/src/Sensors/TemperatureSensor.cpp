@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-TemperatureSensor::TemperatureSensor(PinDef& read) : Sensor(&read) {}
+TemperatureSensor::TemperatureSensor(PinDef& read) : Sensor(read) {}
 
 double TemperatureSensor::_sample() {
     // STM32 has 12-bit ADC, 3.3 logic
