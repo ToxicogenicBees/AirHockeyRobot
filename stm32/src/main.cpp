@@ -29,10 +29,10 @@ void HANDLE_PACKET(Packet& packet) {
 
     switch(action) {
         case Action::VelocityProfile: {
-            const double min_rpm = packet.read<uint8_t>() / 127.0;
-            const double max_rpm = packet.read<uint8_t>() / 127.0;
-            const double accel_percent = packet.read<uint8_t>() / 127.0;
-            const double decel_percent = packet.read<uint8_t>() / 127.0;
+            const double min_rpm = (double)packet.read<uint16_t>();
+            const double max_rpm = (double)packet.read<uint16_t>();
+            const double accel_percent = packet.read<uint8_t>() / 255.0;
+            const double decel_percent = packet.read<uint8_t>() / 255.0;
 
             Gantry::setVelocityProfile(min_rpm, max_rpm, accel_percent, decel_percent);
         }
