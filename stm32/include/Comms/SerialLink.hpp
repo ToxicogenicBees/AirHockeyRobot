@@ -92,7 +92,7 @@ class SerialLink {
                     }
                 }
 
-            } while (packet.action() != Action::Invalid && _timer.delta() < Constants::Comms::TIMEOUT);
+            } while (packet.action() != Action::Invalid && _timer.delta<std::chrono::seconds>() < Constants::Comms::TIMEOUT);
 
             if (receivedTermination) {
                 // Send buffered packets
@@ -113,7 +113,7 @@ class SerialLink {
                 _timer.reset();
             }
 
-            else if (_timer.delta() >= Constants::Comms::TIMEOUT) {
+            else if (_timer.delta<std::chrono::seconds>() >= Constants::Comms::TIMEOUT) {
                 // Reset incoming buffer
                 _rx_buffer.clear();
 
