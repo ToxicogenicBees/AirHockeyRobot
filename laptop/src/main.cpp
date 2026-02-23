@@ -23,6 +23,8 @@
 #include "Motion/Puck.h"
 #include "Constants.h"
 
+#include <windows.h>
+
 #include <algorithm>
 #include <iostream>
 #include <thread>
@@ -40,7 +42,11 @@ void HANDLE_PACKET(Packet& packet) {
     switch(action) {
         case Action::MalletPosition: {
             Point2<double> p = packet.read<Point2<double>>();
+            p /= 25.4; // mm to inches
+            p += Constants::Mallet::LIMIT_BL;
+
             Mallet::moveTo(p);
+            std::clog << p << "\n";
             break;
         }
             
@@ -72,17 +78,29 @@ void RECEIVE_PACKETS() {
 
 // Mallet control
 void MALLET_CONTROL() {
-    while (true) {
-        // Get puck trajectory
-        std::vector<Point3<double>> timestamps = Puck::estimateTrajectory();
+    Timer timer;
 
-        // Get mallet's target location
-        Point2<double> target = Mallet::chooseTarget(timestamps);
+    while (true) {
+        // send velocity profile settings
+        Packet velPacket(Action::VelocityProfile);
+        velPacket << uint16_t(15);  // min_rpm
+        velPacket << uint16_t(15);  // max_rpm
+        velPacket << uint8_t(25);  // accel_percent
+        velPacket << uint8_t(10);  // decel_percent
+        SerialLink::buffer(velPacket);
+
+        // // Get puck trajectory
+        // std::vector<Point3<double>> timestamps = Puck::estimateTrajectory();
+
+        // // Get mallet's target location
+        // Point2<double> target = Mallet::chooseTarget(timestamps);
 
         // Send target out to gantry
         Packet packet(Action::MalletPosition);
-        packet << target;
+        packet << Point2<double>{150, 150};
         SerialLink::buffer(packet);
+
+        // std::clog << "Sending Mallet Commands\n";
     }
 }
 
@@ -93,11 +111,11 @@ void MALLET_CONTROL() {
 
 bool INIT_MAIN() {
     try {
-        StateTracker::init();               // Initialize state tracker
-        std::clog << "Initialized state tracker\n";
+        // StateTracker::init();               // Initialize state tracker
+        // std::clog << "Initialized state tracker\n";
 
-        Puck::initTracking();               // Initialize the puck tracking
-        std::clog << "Initialized puck tracker\n";
+        // Puck::initTracking();               // Initialize the puck tracking
+        // std::clog << "Initialized puck tracker\n";
 
         SerialLink::init(HANDLE_PACKET);    // Initialize serial comms
         std::clog << "Initialized serial link on " << Constants::Comms::COM_PORT << '\n';
@@ -126,17 +144,12 @@ int main() {
     // Create threads
     std::thread receive_packets(RECEIVE_PACKETS);
     std::thread mallet_control(MALLET_CONTROL);
-    std::thread puck_tracking(PUCK_TRACKING);
+    // std::thread puck_tracking(PUCK_TRACKING);
 
     // Run threads async
     receive_packets.detach();
     mallet_control.detach();
-    puck_tracking.detach();
-
-    Packet packet(Action::MalletPosition);
-    Point2<double> p(20, 40);
-    packet << p;
-    SerialLink::buffer(packet);
+    // puck_tracking.detach();
     
     // Yield main
     while (1) {

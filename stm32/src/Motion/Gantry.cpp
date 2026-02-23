@@ -16,8 +16,13 @@ double Gantry::_max_rpm;
 
 void Gantry::init() {
     // Initialize motors
-    _left.init();
     _right.init();
+    delay(100);
+    _left.init();
+}
+
+void Gantry::setPosition(const Point2<double>& pos) {
+    _position = pos;
 }
 
 void Gantry::setVelocityProfile(double min_rpm, double max_rpm, double accel_percent, double decel_percent) {
@@ -43,21 +48,26 @@ Point2<int> Gantry::_calculateMotorSteps(const Point2<double>& target) {
     float dx = target.x - _position.x;
     float dy = target.y - _position.y;
 
-    // first calculate steps for x movement 
-    // (common-mode input with both motors stepping same direction)
-    float sax = _STEP_CONVERSION_CONST * dx;
-    float sbx = sax;
+    // // first calculate steps for x movement 
+    // // (common-mode input with both motors stepping same direction)
+    // float sax = _STEP_CONVERSION_CONST * dx;
+    // float sbx = sax;
 
-    // then calculate steps for y movement
-    // (differntial mode input with the motors stepping in opposite directions)
-    float say = _STEP_CONVERSION_CONST * dy;
-    float sby = -say;
+    // // then calculate steps for y movement
+    // // (differntial mode input with the motors stepping in opposite directions)
+    // float say = _STEP_CONVERSION_CONST * dy;
+    // float sby = -say;
 
-    // finally superimpose the x and y movements by summing the steps
-    float sa = sax + say;
-    float sb = sbx + sby;
+    // // finally superimpose the x and y movements by summing the steps
+    // float sa = sax + say;
+    // float sb = sbx + sby;
 
-    return {(int)sa, (int)sb};
+    // return {(int)sa, (int)sb};
+
+    return {
+        (int) (_STEP_CONVERSION_CONST * (dx + dy)),
+        (int) (_STEP_CONVERSION_CONST * (dx - dy))
+    };
 }
 
 void Gantry::_runStraighLine(int steps_a, int steps_b) {
@@ -71,7 +81,7 @@ void Gantry::_runStraighLine(int steps_a, int steps_b) {
         decel_steps = total_steps_larger / 2;
     }
 
-    float currentRpm;
+    float current_rpm;
 
     int dx = steps_a;
     int dy = -steps_b;
@@ -81,24 +91,21 @@ void Gantry::_runStraighLine(int steps_a, int steps_b) {
     int steps_completed_b = 0;
 
     for (int i = 0; i < total_steps_larger; i++) {
-        if (abs(steps_completed_a) >= abs(steps_a) || abs(steps_completed_b) >= abs(steps_b))
-            break;
-
         // 1. Acceleration Phase
         if (i < accel_steps) {
-            currentRpm = _mapFloat(i, 0, accel_steps, _min_rpm, _max_rpm);
+            current_rpm = _mapFloat(i, 0, accel_steps, _min_rpm, _max_rpm);
         } 
         // 2. Deceleration Phase
         else if (i >= (total_steps_larger - decel_steps)) {
             // Map from end of move back down to min speed
-            currentRpm = _mapFloat(i, (total_steps_larger - decel_steps), total_steps_larger, _max_rpm, _min_rpm);
+            current_rpm = _mapFloat(i, (total_steps_larger - decel_steps), total_steps_larger, _max_rpm, _min_rpm);
         } 
         // 3. Cruise Phase
         else {
-            currentRpm = _max_rpm;
+            current_rpm = _max_rpm;
         }
 
-        uint16_t currentPeriodUs = _calculateStepPeriod(currentRpm);
+        uint16_t current_period_us = _calculateStepPeriod(current_rpm);
         /*    
             // --- Safety Check ---
             if (digitalRead(LimitXMinPin) == LOW || digitalRead(LimitXMaxPin) == LOW ||
@@ -126,7 +133,7 @@ void Gantry::_runStraighLine(int steps_a, int steps_b) {
         _left.stepLow();
         _right.stepLow();
 
-        delayMicroseconds(currentPeriodUs);
+        delayMicroseconds(current_period_us);
     }
 }
 
@@ -134,7 +141,9 @@ void Gantry::goToPointInStraightLine(const Point2<double>& target) {
     Point2<int> steps = _calculateMotorSteps(target);
 
     _left.setDir(steps.x < 0);
-    _right.setDir(steps.y > 0);
+    _right.setDir(steps.y < 0);
 
-    _runStraighLine(steps.x, steps.y);
+    _runStraighLine(abs(steps.x), abs(steps.y));
+
+    _position = target;
 }

@@ -10,7 +10,6 @@
 // SPI Pins
 extern PinDef miso;
 extern PinDef mosi;
-extern PinDef sclk;
 
 // Left motor pins
 extern PinDef motor_l_step;
