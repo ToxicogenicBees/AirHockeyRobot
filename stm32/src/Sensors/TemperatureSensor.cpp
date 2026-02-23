@@ -51,12 +51,7 @@ void TemperatureSensor::init() {
     Sensor::init();
 
     // Fill the buffer with readings
-    _prev_avg = 0;
-
-    for (size_t i = 0; i < _SAMPLES; i++) {
-        _buffer[i] = _sample();
-        _prev_avg += _buffer[i];
-    }
-
-    _prev_avg /= _SAMPLES;
+    _prev_avg = _sample();
+    for (size_t i = 0; i < _SAMPLES; i++)
+        _buffer[i] = _prev_avg;
 }
