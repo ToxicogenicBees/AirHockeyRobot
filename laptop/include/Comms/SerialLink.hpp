@@ -125,7 +125,7 @@ class SerialLink {
             bool receivedTermination = forceDumpBuffer;
             Packet packet;
 
-            while (!receivedTermination && _timer.delta() < Constants::Comms::TIMEOUT) {
+            while (!receivedTermination && _timer.delta<std::chrono::seconds>() < Constants::Comms::TIMEOUT) {
                 packet = _receivePacket();
 
                 if (packet.action() != Action::Invalid) {
