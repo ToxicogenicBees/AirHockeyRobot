@@ -145,5 +145,5 @@ void Gantry::goToPointInStraightLine(const Point2<double>& target) {
 
     _runStraighLine(abs(steps.x), abs(steps.y));
 
-    _position = target;
+    _position = target;  // assume mallet made it to the desired position (open loop control)
 }

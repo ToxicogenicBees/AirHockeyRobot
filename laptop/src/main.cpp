@@ -34,7 +34,7 @@
 /********************
   Packet Management
 ********************/
-
+bool microReady = false;
 void HANDLE_PACKET(Packet& packet) {
     Action action = packet.action();
     packet.resetRead();
@@ -46,7 +46,9 @@ void HANDLE_PACKET(Packet& packet) {
             p += Constants::Mallet::LIMIT_BL;
 
             Mallet::moveTo(p);
-            std::clog << p << "\n";
+
+            microReady = true;
+            // std::clog << p << "\n";
             break;
         }
             
@@ -78,15 +80,19 @@ void RECEIVE_PACKETS() {
 
 // Mallet control
 void MALLET_CONTROL() {
-    Timer timer;
+    float counter = 0;
 
     while (true) {
+        if (!microReady) {
+            continue;
+        }
+        microReady = false;
         // send velocity profile settings
         Packet velPacket(Action::VelocityProfile);
-        velPacket << uint16_t(15);  // min_rpm
-        velPacket << uint16_t(15);  // max_rpm
-        velPacket << uint8_t(25);  // accel_percent
-        velPacket << uint8_t(10);  // decel_percent
+        velPacket << uint16_t(25);  // min_rpm
+        velPacket << uint16_t(25);  // max_rpm
+        velPacket << uint8_t(0);  // accel_percent
+        velPacket << uint8_t(0);  // decel_percent
         SerialLink::buffer(velPacket);
 
         // // Get puck trajectory
@@ -95,10 +101,23 @@ void MALLET_CONTROL() {
         // // Get mallet's target location
         // Point2<double> target = Mallet::chooseTarget(timestamps);
 
-        // Send target out to gantry
+        // counter += 1;
+        // Packet packet(Action::MalletPosition);
+        // packet << (Constants::Mallet::HOME * 25.4 + Point2<double>{15 * float(counter%2), 15 * float(counter%2)});
+        // SerialLink::buffer(packet);
+
+
+        // // Send target out to gantry to draw circle
+        double speed = 0.01;
+        double radius = 90;
+        counter += speed * 3.14;
+        Point2<double> rot(std::cos(counter), std::sin(counter));
         Packet packet(Action::MalletPosition);
-        packet << Point2<double>{150, 150};
+        packet << (Constants::Mallet::HOME * 25.4 + radius * rot);
         SerialLink::buffer(packet);
+
+        // // Mallet::moveTo(Constants::Mallet::HOME * 25.4 + radius * rot);
+        // std::clog << Constants::Mallet::HOME * 25.4 + radius * rot << "\n";
 
         // std::clog << "Sending Mallet Commands\n";
     }
