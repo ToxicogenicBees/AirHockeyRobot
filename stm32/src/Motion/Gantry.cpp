@@ -9,6 +9,17 @@ Motor Gantry::_right(motor_r_step, motor_r_dir, motor_r_scs);
 
 Point2<double> Gantry::_position;
 
+Point2<double> Gantry::_current_target;
+Point2<int> Gantry::_total_steps_to_target;
+int _total_steps_larger = 0;
+int _step_counter = 0;
+int _accel_steps = 0;
+int _decel_steps = 0;
+double _current_rpm = 0;
+Point2<int> _d = {0, 0};
+int _err = 0;
+uint16_t _current_period_us = 0;
+
 double Gantry::_accel_percent;
 double Gantry::_decel_percent;
 double Gantry::_min_rpm;
@@ -72,8 +83,8 @@ Point2<int> Gantry::_calculateMotorSteps(const Point2<double>& target) {
 
 void Gantry::_runStraighLine(int steps_a, int steps_b) {
     uint32_t total_steps_larger = steps_a > steps_b ? steps_a : steps_b;
-    uint32_t accel_steps = total_steps_larger * _accel_percent;
-    uint32_t decel_steps = total_steps_larger * _decel_percent;
+    static uint32_t accel_steps = total_steps_larger * _accel_percent;
+    static uint32_t decel_steps = total_steps_larger * _decel_percent;
     
     // Ensure cruise phase exists
     if (accel_steps + decel_steps > total_steps_larger) {
@@ -81,7 +92,7 @@ void Gantry::_runStraighLine(int steps_a, int steps_b) {
         decel_steps = total_steps_larger / 2;
     }
 
-    float current_rpm;
+    static float current_rpm;
 
     int dx = steps_a;
     int dy = -steps_b;
@@ -90,7 +101,7 @@ void Gantry::_runStraighLine(int steps_a, int steps_b) {
     int steps_completed_a = 0;
     int steps_completed_b = 0;
 
-    for (int i = 0; i < total_steps_larger; i++) {
+    // for (int i = 0; i < total_steps_larger; i++) {
         // 1. Acceleration Phase
         if (i < accel_steps) {
             current_rpm = _mapFloat(i, 0, accel_steps, _min_rpm, _max_rpm);
@@ -134,7 +145,61 @@ void Gantry::_runStraighLine(int steps_a, int steps_b) {
         _right.stepLow();
 
         delayMicroseconds(current_period_us);
+    // }
+}
+
+void Gantry::setUpStraightLineMovement(const Point2<double>& target) {
+    _current_target = target;
+    _total_steps_to_target = _calculateMotorSteps(_current_target);
+    _total_steps_larger = abs(_total_steps_to_target.x) > abs(_total_steps_to_target.y) ? abs(_total_steps_to_target.x) : abs(_total_steps_to_target.y);
+    _step_counter = 0;
+
+    _accel_steps = _total_steps_larger * _accel_percent;
+    _decel_steps = _total_steps_larger * _decel_percent;
+    
+    // Ensure cruise phase exists
+    if (_accel_steps + _decel_steps > _total_steps_larger) {
+        _accel_steps = _total_steps_larger / 2;
+        _decel_steps = _total_steps_larger / 2;
     }
+
+    Point2<int> _d = {abs(_total_steps_to_target.x), -abs(_total_steps_to_target.y)};
+    int _err = _d.x + _d.y;
+}
+
+void Gantry::incrementStraightLineMovement() {
+    ++_step_counter;
+    _current_period_us = _calculateStepPeriod(_current_rpm);
+
+    if (_step_counter < _accel_steps) {
+        _current_rpm = _mapFloat(_step_counter, 0, _accel_steps, _min_rpm, _max_rpm);
+    } 
+    // 2. Deceleration Phase
+    else if (_step_counter >= (_total_steps_larger - _decel_steps)) {
+        // Map from end of move back down to min speed
+        _current_rpm = _mapFloat(_step_counter, (_total_steps_larger - _decel_steps), _total_steps_larger, _max_rpm, _min_rpm);
+    } 
+    // 3. Cruise Phase
+    else {
+        _current_rpm = _max_rpm;
+    }
+
+    // Bresenham's line plotting algorithm
+    if (2*_err >= _d.y) {
+        _err += _d.y;
+        _left.stepHigh();
+    } /* e_xy+e_x > 0 */
+        
+    if (2*_err <= _d.x) {
+        _err += _d.x;
+        _right.stepHigh();
+    } /* e_xy+e_y < 0 */
+
+    delayMicroseconds(2);
+    _left.stepLow();
+    _right.stepLow();
+
+    delayMicroseconds(_current_period_us);
 }
 
 void Gantry::goToPointInStraightLine(const Point2<double>& target) {
@@ -143,7 +208,9 @@ void Gantry::goToPointInStraightLine(const Point2<double>& target) {
     _left.setDir(steps.x < 0);
     _right.setDir(steps.y < 0);
 
+    // run one step of straight line movement each call while keeping track of 
+    // current assumed mallet position
     _runStraighLine(abs(steps.x), abs(steps.y));
 
-    _position = target;  // assume mallet made it to the desired position (open loop control)
+    // _position = target;  // assume mallet made it to the desired position (open loop control)
 }

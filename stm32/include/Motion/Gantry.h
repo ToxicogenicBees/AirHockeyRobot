@@ -25,7 +25,18 @@ class Gantry {
         static Motor _left;
         static Motor _right;
 
-        static Point2<double> _position;
+        static Point2<double> _position;  // stores the current position of the mallet
+
+        static Point2<double> _current_target;  // set to the last position the gantry was instructed to move the mallet to
+        static Point2<int> _total_steps_to_target;  // stores the steps needed and direction for left and right motors
+        static int _total_steps_larger;  // stores absolute value of the larger amount of steps the left or right motor needs to take
+        static int _step_counter;   // count up to _total_steps_larger each time complete a step
+        static int _accel_steps;
+        static int _decel_steps;
+        static double _current_rpm;
+        static Point2<int> _d;
+        static int _err;
+        static uint16_t _current_period_us;
 
         static double _accel_percent;
         static double _decel_percent;
@@ -33,6 +44,16 @@ class Gantry {
         static double _max_rpm;
 
         /**
+         * @brief 
+         */
+        static float _mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
+
+        /**
+         * @brief Takes rpm returns unit [microseconds / microstep]
+         */
+        static uint16_t _calculateStepPeriod(double rpm);
+
+         /**
          * @brief Input a target point and reuturns the required steps from the left
          *          and right motors to reach that point.
          */
@@ -45,16 +66,6 @@ class Gantry {
          *          to control the timing of the pulses to each motor.
          */
         static void _runStraighLine(int steps_a, int steps_b);
-
-        /**
-         * @brief 
-         */
-        static float _mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
-
-        /**
-         * @brief Takes rpm returns unit [microseconds / microstep]
-         */
-        static uint16_t _calculateStepPeriod(double rpm);
 
     public:
         /**
@@ -114,6 +125,24 @@ class Gantry {
          * @return The max RPM
          */
         static double getMaxRPM() { return _max_rpm; }
+
+        /**
+         * @brief Returns current step counter value
+         * 
+         * @return step counter value
+         */
+        static int getStepCount() { return _step_counter; }
+
+        /**
+         * @brief Returns total steps need to go for movement
+         * 
+         * @return left or right motor total steps needed, whichever is larger
+         */
+        static int getTotalSteps() { return _total_steps_larger; }
+
+        static void setUpStraightLineMovement(const Point2<double>& target);
+
+        static void incrementStraightLineMovement();
 };
 
 #endif
