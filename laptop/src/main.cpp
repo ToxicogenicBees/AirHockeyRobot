@@ -83,10 +83,10 @@ void MALLET_CONTROL() {
     float counter = 0;
 
     while (true) {
-        if (!microReady) {
-            continue;
-        }
-        microReady = false;
+        // if (!microReady) {
+        //     continue;
+        // }
+        // microReady = false;
         // send velocity profile settings
         Packet velPacket(Action::VelocityProfile);
         velPacket << uint16_t(25);  // min_rpm
@@ -103,7 +103,7 @@ void MALLET_CONTROL() {
 
         // counter += 1;
         // Packet packet(Action::MalletPosition);
-        // packet << (Constants::Mallet::HOME * 25.4 + Point2<double>{15 * float(counter%2), 15 * float(counter%2)});
+        // packet << (Constants::Mallet::HOME * 25.4 + Point2<double>{15, 15});
         // SerialLink::buffer(packet);
 
 
@@ -115,6 +115,9 @@ void MALLET_CONTROL() {
         Packet packet(Action::MalletPosition);
         packet << (Constants::Mallet::HOME * 25.4 + radius * rot);
         SerialLink::buffer(packet);
+
+        Sleep(1000);
+
 
         // // Mallet::moveTo(Constants::Mallet::HOME * 25.4 + radius * rot);
         // std::clog << Constants::Mallet::HOME * 25.4 + radius * rot << "\n";

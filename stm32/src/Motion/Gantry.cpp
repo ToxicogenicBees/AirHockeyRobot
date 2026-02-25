@@ -11,14 +11,14 @@ Point2<double> Gantry::_position;
 
 Point2<double> Gantry::_current_target;
 Point2<int> Gantry::_total_steps_to_target;
-int _total_steps_larger = 0;
-int _step_counter = 0;
-int _accel_steps = 0;
-int _decel_steps = 0;
-double _current_rpm = 0;
-Point2<int> _d = {0, 0};
-int _err = 0;
-uint16_t _current_period_us = 0;
+int Gantry::_total_steps_larger = 0;
+int Gantry::_step_counter = 0;
+int Gantry::_accel_steps = 0;
+int Gantry::_decel_steps = 0;
+double Gantry::_current_rpm = 0;
+Point2<int> Gantry::_d = {0, 0};
+int Gantry::_err = 0;
+uint16_t Gantry::_current_period_us = 0;
 
 double Gantry::_accel_percent;
 double Gantry::_decel_percent;
@@ -88,8 +88,7 @@ void Gantry::_runStraighLine(int steps_a, int steps_b) {
     
     // Ensure cruise phase exists
     if (accel_steps + decel_steps > total_steps_larger) {
-        accel_steps = total_steps_larger / 2;
-        decel_steps = total_steps_larger / 2;
+        accel_steps = decel_steps = total_steps_larger / 2;
     }
 
     static float current_rpm;
@@ -101,7 +100,7 @@ void Gantry::_runStraighLine(int steps_a, int steps_b) {
     int steps_completed_a = 0;
     int steps_completed_b = 0;
 
-    // for (int i = 0; i < total_steps_larger; i++) {
+    for (int i = 0; i < total_steps_larger; i++) {
         // 1. Acceleration Phase
         if (i < accel_steps) {
             current_rpm = _mapFloat(i, 0, accel_steps, _min_rpm, _max_rpm);
@@ -145,7 +144,7 @@ void Gantry::_runStraighLine(int steps_a, int steps_b) {
         _right.stepLow();
 
         delayMicroseconds(current_period_us);
-    // }
+    }
 }
 
 void Gantry::setUpStraightLineMovement(const Point2<double>& target) {
@@ -163,8 +162,8 @@ void Gantry::setUpStraightLineMovement(const Point2<double>& target) {
         _decel_steps = _total_steps_larger / 2;
     }
 
-    Point2<int> _d = {abs(_total_steps_to_target.x), -abs(_total_steps_to_target.y)};
-    int _err = _d.x + _d.y;
+    _d = {abs(_total_steps_to_target.x), -abs(_total_steps_to_target.y)};
+    _err = _d.x + _d.y;
 }
 
 void Gantry::incrementStraightLineMovement() {
@@ -185,14 +184,20 @@ void Gantry::incrementStraightLineMovement() {
     }
 
     // Bresenham's line plotting algorithm
-    if (2*_err >= _d.y) {
+    double e2 = 2 * _err;
+    double dA = 0;
+    double dB = 0;
+
+    if (e2 >= _d.y) {
         _err += _d.y;
         _left.stepHigh();
+        dA = (_left.getDir() ? 1 : -1) * 2*PI/Motor::MICROSTEPS_PER_REV * _DRIVE_PULLEY_RADIUS;
     } /* e_xy+e_x > 0 */
         
-    if (2*_err <= _d.x) {
+    if (e2 <= _d.x) {
         _err += _d.x;
         _right.stepHigh();
+        dB = (_right.getDir() ? -1 : 1) * 2*PI/Motor::MICROSTEPS_PER_REV * _DRIVE_PULLEY_RADIUS;
     } /* e_xy+e_y < 0 */
 
     delayMicroseconds(2);
@@ -200,6 +205,10 @@ void Gantry::incrementStraightLineMovement() {
     _right.stepLow();
 
     delayMicroseconds(_current_period_us);
+
+    // update current assumed position (open-loop control)
+    _position.x += 0.5 * (dA + dB);
+    _position.y += 0.5 * (dA - dB);
 }
 
 void Gantry::goToPointInStraightLine(const Point2<double>& target) {

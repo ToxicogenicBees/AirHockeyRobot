@@ -40,11 +40,8 @@ void HANDLE_PACKET(Packet& packet) {
 
         case Action::MalletPosition: {
             // const auto target = packet.read<Point2<double>>();
-            currentTarget = packet.read<Point2<double>>();
+            const auto currentTarget = packet.read<Point2<double>>();
             Gantry::setUpStraightLineMovement(currentTarget);
-
-            moving = true;
-            stepCounter = 0;
             break;
         }
     }
@@ -86,14 +83,12 @@ void loop() {
     while (Gantry::getStepCount() < Gantry::getTotalSteps()) {
         // Process serial data
         SerialLink::process();
-
-        uint32_t total_steps_larger = abs(steps.x) > abs(steps.y) ? abs(steps.x) : abs(steps.y);
         
-        if (stepCounter++ < total_steps_larger) {
-            Gantry::_runStraighLine(abs(steps.x), abs(steps.y));
-        } else {
-            moving = false;
-        }
+        Gantry::incrementStraightLineMovement();
+
+        Packet packet(Action::MalletPosition);
+        packet << Gantry::getPosition();
+        SerialLink::buffer(packet);  
     }
 
     // Calibrate distance sensor
@@ -118,8 +113,8 @@ void loop() {
         avg_pos += distance_buffer[i]; 
     avg_pos /= BUFFER_SIZE;
     
-    // Buffer mallet position for the laptop
-    Packet packet(Action::MalletPosition);
-    packet << avg_pos;
-    SerialLink::buffer(packet);  
+    // // Buffer mallet position for the laptop
+    // Packet packet(Action::MalletPosition);
+    // packet << avg_pos;
+    // SerialLink::buffer(packet);  
 }

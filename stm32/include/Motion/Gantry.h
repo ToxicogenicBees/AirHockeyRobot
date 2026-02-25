@@ -93,6 +93,11 @@ class Gantry {
         static void setPosition(const Point2<double>& pos);
 
         /**
+         * @brief Set position of gantry.
+         */
+        static Point2<double> getPosition() {return _position;}
+
+        /**
          * @brief Runs the motor commands to goto a point in a straight line.
          *        Used the velocity profile defined when last called setVelocityProfile.
          */

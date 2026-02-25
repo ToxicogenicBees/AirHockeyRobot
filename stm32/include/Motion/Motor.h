@@ -12,7 +12,6 @@ class Motor {
         PinDef* _scs;
 
     public:
-
         // Motor config
         static const uint16_t FULL_STEPS_PER_REV = 200;
         static const uint16_t MICROSTEP_SETTING = 8;
@@ -33,6 +32,11 @@ class Motor {
          * @param dir       The desired direction
          */
         void setDir(bool dir);
+
+        /*
+          * @return dir
+         */
+        uint8_t getDir() const { return _dir->read(); }
 
          /**
          * @brief Steps the motor in it's current direction
