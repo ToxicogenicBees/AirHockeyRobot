@@ -153,6 +153,9 @@ void Gantry::setUpStraightLineMovement(const Point2<double>& target) {
     _total_steps_larger = abs(_total_steps_to_target.x) > abs(_total_steps_to_target.y) ? abs(_total_steps_to_target.x) : abs(_total_steps_to_target.y);
     _step_counter = 0;
 
+    _left.setDir(_total_steps_to_target.x < 0);
+    _right.setDir(_total_steps_to_target.y < 0);
+
     _accel_steps = _total_steps_larger * _accel_percent;
     _decel_steps = _total_steps_larger * _decel_percent;
     
@@ -191,7 +194,7 @@ void Gantry::incrementStraightLineMovement() {
     if (e2 >= _d.y) {
         _err += _d.y;
         _left.stepHigh();
-        dA = (_left.getDir() ? 1 : -1) * 2*PI/Motor::MICROSTEPS_PER_REV * _DRIVE_PULLEY_RADIUS;
+        dA = (_left.getDir() ? -1 : 1) * 2*PI/Motor::MICROSTEPS_PER_REV * _DRIVE_PULLEY_RADIUS;
     } /* e_xy+e_x > 0 */
         
     if (e2 <= _d.x) {

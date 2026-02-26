@@ -67,8 +67,9 @@ void setup() {
     
     // Calibrate distance sensor
     Gantry::init();   
-    DistanceSensor::calibrate(temp.temperature());
-    Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
+    // DistanceSensor::calibrate(temp.temperature());
+    // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
+    Gantry::setPosition({250, 250}); 
 }
 
 bool moving = false;
@@ -92,26 +93,30 @@ void loop() {
     }
 
     // Calibrate distance sensor
-    DistanceSensor::calibrate(temp.temperature());
+    // DistanceSensor::calibrate(temp.temperature());
     // Gantry::setPosition({dist_x.distance(), dist_y.distance(),});
 
     // Process serial data
     SerialLink::process();
+
+    Packet packet(Action::MalletPosition);
+    packet << Gantry::getPosition();
+    SerialLink::buffer(packet);  
     
-    // Read distance
-    for (size_t i = 0; i < BUFFER_SIZE; ++i) {
-        //distance_buffer_index = (distance_buffer_index + 1) % BUFFER_SIZE;
-        distance_buffer[i] = {
-            dist_x.distance(),
-            dist_y.distance()
-        };
-    }
+    // // Read distance
+    // for (size_t i = 0; i < BUFFER_SIZE; ++i) {
+    //     //distance_buffer_index = (distance_buffer_index + 1) % BUFFER_SIZE;
+    //     distance_buffer[i] = {
+    //         dist_x.distance(),
+    //         dist_y.distance()
+    //     };
+    // }
     
-    // Calculate average distance
-    Point2<double> avg_pos;
-    for (int i = 0; i < BUFFER_SIZE; i++)
-        avg_pos += distance_buffer[i]; 
-    avg_pos /= BUFFER_SIZE;
+    // // Calculate average distance
+    // Point2<double> avg_pos;
+    // for (int i = 0; i < BUFFER_SIZE; i++)
+    //     avg_pos += distance_buffer[i]; 
+    // avg_pos /= BUFFER_SIZE;
     
     // // Buffer mallet position for the laptop
     // Packet packet(Action::MalletPosition);

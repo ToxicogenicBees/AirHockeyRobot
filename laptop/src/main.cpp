@@ -103,7 +103,7 @@ void MALLET_CONTROL() {
 
         // counter += 1;
         // Packet packet(Action::MalletPosition);
-        // packet << (Constants::Mallet::HOME * 25.4 + Point2<double>{15, 15});
+        // packet << (Constants::Mallet::HOME * 25.4 + Point2<double>{counter%2 * 10, counter%2 * 15});
         // SerialLink::buffer(packet);
 
 
@@ -116,7 +116,7 @@ void MALLET_CONTROL() {
         packet << (Constants::Mallet::HOME * 25.4 + radius * rot);
         SerialLink::buffer(packet);
 
-        Sleep(1000);
+        Sleep(25);
 
 
         // // Mallet::moveTo(Constants::Mallet::HOME * 25.4 + radius * rot);
