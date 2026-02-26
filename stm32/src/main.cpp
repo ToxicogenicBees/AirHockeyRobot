@@ -50,6 +50,8 @@ void HANDLE_PACKET(Packet& packet) {
 void setup() {
     // Initialize Serial output
     SerialLink::init(HANDLE_PACKET);
+
+    // Serial.println(SystemCoreClock);  // gets the current core clock speed, this reported 180MHz
     
     // Initialize ADC converter precision
     analogReadResolution(12);
