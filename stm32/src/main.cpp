@@ -42,7 +42,7 @@ void HANDLE_PACKET(Packet& packet) {
             // const auto target = packet.read<Point2<double>>();
             const auto currentTarget = packet.read<Point2<double>>();
             Gantry::setUpStraightLineMovement(currentTarget);
-            Gantry::startStraightLineMovement();
+            Gantry::startOrContiueStraightLineMovement();
             break;
         }
     }
@@ -70,14 +70,10 @@ void setup() {
     
     // Calibrate distance sensor
     Gantry::init();   
-    // DistanceSensor::calibrate(temp.temperature());
-    // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
+    // // DistanceSensor::calibrate(temp.temperature());
+    // // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
     Gantry::setPosition({250, 250}); 
 }
-
-bool moving = false;
-Point2<double> currentTarget;
-int stepCounter = 0;
 
 void loop() {
     // Calibrate distance sensor

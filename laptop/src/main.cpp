@@ -81,11 +81,9 @@ void RECEIVE_PACKETS() {
 // Mallet control
 void MALLET_CONTROL() {
     float counter = 0;
+    Point2<double> targetPosition;
 
     while (true) {
-        // if (!microReady) {
-        //     continue;
-        // }
         // microReady = false;
         // send velocity profile settings
         Packet velPacket(Action::VelocityProfile);
@@ -113,12 +111,23 @@ void MALLET_CONTROL() {
         counter += speed * 3.14;
         Point2<double> rot(std::cos(counter), std::sin(counter));
         Packet packet(Action::MalletPosition);
-        packet << (Constants::Mallet::HOME * 25.4 + radius * rot);
+        targetPosition = (Constants::Mallet::HOME * 25.4 + radius * rot);
+        packet << targetPosition;
         SerialLink::buffer(packet);
 
-        Sleep(50);
+        // wait until mallet gets there before sending next packet (feedback)
+        int timeout = 0;
+        for(;;) {
+            Sleep(0.1);
+            ++timeout;
+            if (abs(Mallet::position().x - targetPosition.x) < 10 && abs(Mallet::position().y - targetPosition.y) < 10) {
+                break;
+            }
 
-
+            if (timeout > 50000)
+                break;
+        }
+        
         // // Mallet::moveTo(Constants::Mallet::HOME * 25.4 + radius * rot);
         // std::clog << Constants::Mallet::HOME * 25.4 + radius * rot << "\n";
 

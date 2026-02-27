@@ -150,7 +150,7 @@ class Gantry {
 
         static void setUpStraightLineMovement(const Point2<double>& target);
 
-        static void startStraightLineMovement();
+        static void startOrContiueStraightLineMovement();
 
         static void incrementStraightLineMovement();
 

@@ -35,6 +35,7 @@ void Gantry::init() {
     _left.init();
 
     // Initializze hardware timer for motor step signal
+    // https://github.com/stm32duino/Arduino_Core_STM32/wiki/HardwareTimer-library
     _increment_straight_line_movement_timer = new HardwareTimer(TIM3);  
     _increment_straight_line_movement_timer->setMode(1, TIMER_OUTPUT_DISABLED, 0);  // no pin output, only for interrupt
     _increment_straight_line_movement_timer->pause();
@@ -166,11 +167,6 @@ void Gantry::_runStraighLine(int steps_a, int steps_b) {
 }
 
 void Gantry::setUpStraightLineMovement(const Point2<double>& target) {
-    _pull_down_motor_step_pins_timer->pause();
-    _pull_down_motor_step_pins_timer->setCount(0);
-    _increment_straight_line_movement_timer->pause();
-    _increment_straight_line_movement_timer->setCount(0);
-
     _current_target = target;
     _total_steps_to_target = _calculateMotorSteps(_current_target);
     _total_steps_larger = abs(_total_steps_to_target.x) > abs(_total_steps_to_target.y) ? abs(_total_steps_to_target.x) : abs(_total_steps_to_target.y);
@@ -192,12 +188,10 @@ void Gantry::setUpStraightLineMovement(const Point2<double>& target) {
     _err = _d.x + _d.y;
 }
 
-void Gantry::startStraightLineMovement() {
-    if (_current_period_us == 0) {
+void Gantry::startOrContiueStraightLineMovement() {
+    // To check if paused:
+    if (_increment_straight_line_movement_timer->getCount() == 0) {
         incrementStraightLineMovement();
-    } else {
-        _increment_straight_line_movement_timer->setOverflow(_current_period_us, MICROSEC_FORMAT);
-        _increment_straight_line_movement_timer->resume();
     }
 }
 
@@ -235,6 +229,8 @@ void Gantry::incrementStraightLineMovement() {
         dB = (_right.getDir() ? -1 : 1) * 2*PI/Motor::MICROSTEPS_PER_REV * _DRIVE_PULLEY_RADIUS;
     } /* e_xy+e_y < 0 */
 
+    _increment_straight_line_movement_timer->pause();
+
     _pull_down_motor_step_pins_timer->setOverflow(2, MICROSEC_FORMAT);
     _pull_down_motor_step_pins_timer->setCount(0);
     _pull_down_motor_step_pins_timer->resume();
@@ -251,12 +247,15 @@ void Gantry::pullDownMotorStepPinsAndRestartIncrementTimer() {
     _pull_down_motor_step_pins_timer->pause();
     _pull_down_motor_step_pins_timer->setCount(0);
 
-    _increment_straight_line_movement_timer->pause();
-
     if (getStepCount() < getTotalSteps()) { // set timer to trigger next step after _current_period_us
         _increment_straight_line_movement_timer->setOverflow(_current_period_us, MICROSEC_FORMAT);
         _increment_straight_line_movement_timer->setCount(0);
         _increment_straight_line_movement_timer->resume();
+    } else {
+        _increment_straight_line_movement_timer->setCount(0);
+        _increment_straight_line_movement_timer->pause();
+        _pull_down_motor_step_pins_timer->setCount(0);
+        _pull_down_motor_step_pins_timer->pause();
     }
 }
 
