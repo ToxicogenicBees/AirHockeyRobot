@@ -89,8 +89,8 @@ void MALLET_CONTROL() {
         // microReady = false;
         // send velocity profile settings
         Packet velPacket(Action::VelocityProfile);
-        velPacket << uint16_t(25);  // min_rpm
-        velPacket << uint16_t(25);  // max_rpm
+        velPacket << uint16_t(100);  // min_rpm
+        velPacket << uint16_t(100);  // max_rpm
         velPacket << uint8_t(0);  // accel_percent
         velPacket << uint8_t(0);  // decel_percent
         SerialLink::buffer(velPacket);
@@ -116,7 +116,7 @@ void MALLET_CONTROL() {
         packet << (Constants::Mallet::HOME * 25.4 + radius * rot);
         SerialLink::buffer(packet);
 
-        Sleep(25);
+        Sleep(50);
 
 
         // // Mallet::moveTo(Constants::Mallet::HOME * 25.4 + radius * rot);

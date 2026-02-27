@@ -193,8 +193,12 @@ void Gantry::setUpStraightLineMovement(const Point2<double>& target) {
 }
 
 void Gantry::startStraightLineMovement() {
-    _increment_straight_line_movement_timer->setOverflow(_current_period_us, MICROSEC_FORMAT);
-    _increment_straight_line_movement_timer->resume();
+    if (_current_period_us == 0) {
+        incrementStraightLineMovement();
+    } else {
+        _increment_straight_line_movement_timer->setOverflow(_current_period_us, MICROSEC_FORMAT);
+        _increment_straight_line_movement_timer->resume();
+    }
 }
 
 void Gantry::incrementStraightLineMovement() {
