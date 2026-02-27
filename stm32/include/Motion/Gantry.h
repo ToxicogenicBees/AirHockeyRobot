@@ -43,6 +43,9 @@ class Gantry {
         static double _min_rpm;
         static double _max_rpm;
 
+        static HardwareTimer *_increment_straight_line_movement_timer;
+        static HardwareTimer *_pull_down_motor_step_pins_timer;
+
         /**
          * @brief 
          */
@@ -147,7 +150,17 @@ class Gantry {
 
         static void setUpStraightLineMovement(const Point2<double>& target);
 
+        static void startStraightLineMovement();
+
         static void incrementStraightLineMovement();
+
+        /**
+         * @brief Should be triggered as interrupt by timer 2 microseconds after
+         *          pulling step pins high in incrementStraightLineMovement function.
+         *          After pulling pins low will restart timer for incrementStraightLineMovement
+         *          if there are more steps to complete. 
+         */
+        static void pullDownMotorStepPinsAndRestartIncrementTimer();
 };
 
 #endif

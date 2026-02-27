@@ -42,6 +42,7 @@ void HANDLE_PACKET(Packet& packet) {
             // const auto target = packet.read<Point2<double>>();
             const auto currentTarget = packet.read<Point2<double>>();
             Gantry::setUpStraightLineMovement(currentTarget);
+            Gantry::startStraightLineMovement();
             break;
         }
     }
@@ -79,21 +80,6 @@ Point2<double> currentTarget;
 int stepCounter = 0;
 
 void loop() {
-    // allow step pulses to keep happening in between reading packets
-    // sent by the laptop
-    // this could allow for the laptop to request course correction 
-    // in the middle of a straight-line movement
-    while (Gantry::getStepCount() < Gantry::getTotalSteps()) {
-        // Process serial data
-        SerialLink::process();
-        
-        Gantry::incrementStraightLineMovement();
-
-        Packet packet(Action::MalletPosition);
-        packet << Gantry::getPosition();
-        SerialLink::buffer(packet);  
-    }
-
     // Calibrate distance sensor
     // DistanceSensor::calibrate(temp.temperature());
     // Gantry::setPosition({dist_x.distance(), dist_y.distance(),});
