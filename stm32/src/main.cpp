@@ -5,6 +5,7 @@
 #include "PinOut.h"
 #include "Comms/SerialLink.hpp"
 #include "Types/Point2.hpp"
+#include "Types/VelocityProfile.hpp"
 
 #include <Arduino.h>
 
@@ -29,20 +30,15 @@ void HANDLE_PACKET(Packet& packet) {
 
     switch(action) {
         case Action::VelocityProfile: {
-            const double min_rpm = packet.read<uint16_t>();
-            const double max_rpm = packet.read<uint16_t>();
-            const double accel_percent = packet.read<uint8_t>() / 255.0;
-            const double decel_percent = packet.read<uint8_t>() / 255.0;
-
-            Gantry::setVelocityProfile(min_rpm, max_rpm, accel_percent, decel_percent);
+            const auto profile = packet.read<VelocityProfile>();
+            Gantry::setVelocityProfile(profile);
             break;
         }
 
         case Action::MalletPosition: {
-            // const auto target = packet.read<Point2<double>>();
-            const auto currentTarget = packet.read<Point2<double>>();
-            Gantry::setUpStraightLineMovement(currentTarget);
-            Gantry::startOrContiueStraightLineMovement();
+            const auto target = packet.read<Point2<double>>();
+            Gantry::initMotion(target);
+            Gantry::startMotion();
             break;
         }
 
@@ -79,7 +75,7 @@ void HANDLE_PACKET(Packet& packet) {
 
         case Action::MalletHome: {
             // run mallet homing routine using limit switches
-            Gantry::runHomingRoutine();
+            Gantry::home();
             break;
         }
     }
@@ -107,13 +103,13 @@ void setup() {
     
     // Calibrate distance sensor
     Gantry::init();   
-    // // DistanceSensor::calibrate(temp.temperature());
-    // // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
+    // DistanceSensor::calibrate(temp.temperature());
+    // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
     Gantry::setPosition({250, 250}); 
 }
 
 void loop() {
-    // Calibrate distance sensor
+    // // Calibrate distance sensor
     // DistanceSensor::calibrate(temp.temperature());
     // Gantry::setPosition({dist_x.distance(), dist_y.distance(),});
 
