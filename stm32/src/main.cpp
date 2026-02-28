@@ -45,6 +45,43 @@ void HANDLE_PACKET(Packet& packet) {
             Gantry::startOrContiueStraightLineMovement();
             break;
         }
+
+        case Action::DistanceSensorRead: {
+            // read distance sensors
+            DistanceSensor::calibrate(temp.temperature());
+
+            // Calculate average distance
+            Point2<double> avg_pos;
+            for (int i = 0; i < BUFFER_SIZE; i++)
+                avg_pos += {dist_x.distance(), dist_y.distance()}; 
+            avg_pos /= BUFFER_SIZE;
+
+            // If delta distance lower than DIST_TOLERANCE_LOW than assume ok and don't edit Gantry position.
+            // If delta distance greater than DIST_TOLERANCE_LOW away but smaller than 
+            // DIST_TOLERANCE_HIGH from the current assumed mallet position, then set 
+            // mallet position to the weighted average between sensed position and assumed. 
+            // Otherwise distance sensor readings are bad, or the mallet
+            // assumed position is way off, so request a mallet homing routine
+            // using limit switches.
+            Point2<double> delta = {abs(avg_pos.x - Gantry::getPosition().x), abs(avg_pos.y - Gantry::getPosition().y)};
+
+            if (delta.x > Gantry::DIST_TOLERANCE_LOW || delta.y > Gantry::DIST_TOLERANCE_LOW) {
+                if (delta.x < Gantry::DIST_TOLERANCE_HIGH && delta.y < Gantry::DIST_TOLERANCE_HIGH) {
+                    // set to weighted average between assumed position and sensed position 
+                    Gantry::setPosition(0.8*avg_pos +  0.2*Gantry::getPosition());
+                } else {
+                    Packet packet(Action::MalletHome);
+                    SerialLink::buffer(packet); 
+                }
+            }
+            break;
+        }
+
+        case Action::MalletHome: {
+            // run mallet homing routine using limit switches
+            Gantry::runHomingRoutine();
+            break;
+        }
     }
 }
 
