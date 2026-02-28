@@ -81,16 +81,14 @@ void RECEIVE_PACKETS() {
 // Mallet control
 void MALLET_CONTROL() {
     float counter = 0;
+    Point2<double> targetPosition;
 
     while (true) {
-        if (!microReady) {
-            continue;
-        }
-        microReady = false;
+        // microReady = false;
         // send velocity profile settings
         Packet velPacket(Action::VelocityProfile);
-        velPacket << uint16_t(25);  // min_rpm
-        velPacket << uint16_t(25);  // max_rpm
+        velPacket << uint16_t(100);  // min_rpm
+        velPacket << uint16_t(100);  // max_rpm
         velPacket << uint8_t(0);  // accel_percent
         velPacket << uint8_t(0);  // decel_percent
         SerialLink::buffer(velPacket);
@@ -103,7 +101,7 @@ void MALLET_CONTROL() {
 
         // counter += 1;
         // Packet packet(Action::MalletPosition);
-        // packet << (Constants::Mallet::HOME * 25.4 + Point2<double>{15 * float(counter%2), 15 * float(counter%2)});
+        // packet << (Constants::Mallet::HOME * 25.4 + Point2<double>{counter%2 * 10, counter%2 * 15});
         // SerialLink::buffer(packet);
 
 
@@ -113,9 +111,25 @@ void MALLET_CONTROL() {
         counter += speed * 3.14;
         Point2<double> rot(std::cos(counter), std::sin(counter));
         Packet packet(Action::MalletPosition);
-        packet << (Constants::Mallet::HOME * 25.4 + radius * rot);
+        targetPosition = (Constants::Mallet::HOME * 25.4 + radius * rot);
+        packet << targetPosition;
         SerialLink::buffer(packet);
 
+        // wait until mallet gets there before sending next packet (feedback)
+        int timeout = 0;
+        for(;;) {
+            Sleep(1);
+            ++timeout;
+            if (abs((Mallet::position().x-1.59375)*25.4 - targetPosition.x) < 5 && abs((Mallet::position().y-3.0)*25.4 - targetPosition.y) < 5) {
+                break;
+            }
+
+            std::clog << Mallet::position() * 25.4 << " " << targetPosition << "\n";
+
+            if (timeout > 500)
+                break;
+        }
+        
         // // Mallet::moveTo(Constants::Mallet::HOME * 25.4 + radius * rot);
         // std::clog << Constants::Mallet::HOME * 25.4 + radius * rot << "\n";
 

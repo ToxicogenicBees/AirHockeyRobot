@@ -3,22 +3,54 @@
 
 const float Gantry::_DRIVE_PULLEY_RADIUS = 28; // 28 mm
 const float Gantry::_STEP_CONVERSION_CONST = Motor::MICROSTEPS_PER_REV / (2*PI * _DRIVE_PULLEY_RADIUS);  // for converting delta X or Y to steps
-
+const double Gantry::DIST_TOLERANCE_LOW = 2.5; // mm
+const double Gantry::DIST_TOLERANCE_HIGH = 30; // mm
+        
 Motor Gantry::_left(motor_l_step, motor_l_dir, motor_l_scs);
 Motor Gantry::_right(motor_r_step, motor_r_dir, motor_r_scs);
 
 Point2<double> Gantry::_position;
+
+Point2<double> Gantry::_current_target;
+Point2<int> Gantry::_total_steps_to_target;
+int Gantry::_total_steps_larger = 0;
+int Gantry::_step_counter = 0;
+int Gantry::_accel_steps = 0;
+int Gantry::_decel_steps = 0;
+double Gantry::_current_rpm = 0;
+Point2<int> Gantry::_d = {0, 0};
+int Gantry::_err = 0;
+uint16_t Gantry::_current_period_us = 0;
 
 double Gantry::_accel_percent;
 double Gantry::_decel_percent;
 double Gantry::_min_rpm;
 double Gantry::_max_rpm;
 
+HardwareTimer *Gantry::_increment_straight_line_movement_timer = nullptr;   // initialized in Gantry::init
+HardwareTimer *Gantry::_pull_down_motor_step_pins_timer = nullptr;  // initialized in Gantry::init
+
 void Gantry::init() {
     // Initialize motors
     _right.init();
     delay(100);
     _left.init();
+
+    // Initializze hardware timer for motor step signal
+    // https://github.com/stm32duino/Arduino_Core_STM32/wiki/HardwareTimer-library
+    _increment_straight_line_movement_timer = new HardwareTimer(TIM3);  
+    _increment_straight_line_movement_timer->setMode(1, TIMER_OUTPUT_DISABLED, 0);  // no pin output, only for interrupt
+    _increment_straight_line_movement_timer->pause();
+    _increment_straight_line_movement_timer->attachInterrupt(Gantry::_incrementStraightLineMovement);
+    _increment_straight_line_movement_timer->setOverflow(10000, MICROSEC_FORMAT); // 10000 microseconds
+    _increment_straight_line_movement_timer->setCount(0);
+
+    _pull_down_motor_step_pins_timer = new HardwareTimer(TIM4);  
+    _pull_down_motor_step_pins_timer->setMode(1, TIMER_OUTPUT_DISABLED, 0);  // no pin output, only for interrupt
+    _pull_down_motor_step_pins_timer->pause();
+    _pull_down_motor_step_pins_timer->attachInterrupt(Gantry::_pullDownMotorStepPinsAndRestartIncrementTimer);
+    _pull_down_motor_step_pins_timer->setOverflow(10000, MICROSEC_FORMAT); // 10000 microseconds
+    _pull_down_motor_step_pins_timer->setCount(0);
 }
 
 void Gantry::setPosition(const Point2<double>& pos) {
@@ -70,80 +102,99 @@ Point2<int> Gantry::_calculateMotorSteps(const Point2<double>& target) {
     };
 }
 
-void Gantry::_runStraighLine(int steps_a, int steps_b) {
-    uint32_t total_steps_larger = steps_a > steps_b ? steps_a : steps_b;
-    uint32_t accel_steps = total_steps_larger * _accel_percent;
-    uint32_t decel_steps = total_steps_larger * _decel_percent;
+void Gantry::setUpStraightLineMovement(const Point2<double>& target) {
+    _current_target = target;
+    _total_steps_to_target = _calculateMotorSteps(_current_target);
+    _total_steps_larger = abs(_total_steps_to_target.x) > abs(_total_steps_to_target.y) ? abs(_total_steps_to_target.x) : abs(_total_steps_to_target.y);
+    _step_counter = 0;
+
+    _left.setDir(_total_steps_to_target.x < 0);
+    _right.setDir(_total_steps_to_target.y < 0);
+
+    _accel_steps = _total_steps_larger * _accel_percent;
+    _decel_steps = _total_steps_larger * _decel_percent;
     
     // Ensure cruise phase exists
-    if (accel_steps + decel_steps > total_steps_larger) {
-        accel_steps = total_steps_larger / 2;
-        decel_steps = total_steps_larger / 2;
+    if (_accel_steps + _decel_steps > _total_steps_larger) {
+        _accel_steps = _total_steps_larger / 2;
+        _decel_steps = _total_steps_larger / 2;
     }
 
-    float current_rpm;
+    _d = {abs(_total_steps_to_target.x), -abs(_total_steps_to_target.y)};
+    _err = _d.x + _d.y;
+}
 
-    int dx = steps_a;
-    int dy = -steps_b;
-    int err = dx + dy;
-    int e2 = 0;
-    int steps_completed_a = 0;
-    int steps_completed_b = 0;
-
-    for (int i = 0; i < total_steps_larger; i++) {
-        // 1. Acceleration Phase
-        if (i < accel_steps) {
-            current_rpm = _mapFloat(i, 0, accel_steps, _min_rpm, _max_rpm);
-        } 
-        // 2. Deceleration Phase
-        else if (i >= (total_steps_larger - decel_steps)) {
-            // Map from end of move back down to min speed
-            current_rpm = _mapFloat(i, (total_steps_larger - decel_steps), total_steps_larger, _max_rpm, _min_rpm);
-        } 
-        // 3. Cruise Phase
-        else {
-            current_rpm = _max_rpm;
-        }
-
-        uint16_t current_period_us = _calculateStepPeriod(current_rpm);
-        /*    
-            // --- Safety Check ---
-            if (digitalRead(LimitXMinPin) == LOW || digitalRead(LimitXMaxPin) == LOW ||
-                digitalRead(LimitYMinPin) == LOW || digitalRead(LimitYMaxPin) == LOW) {
-                Serial.println("!!! LIMIT HIT !!!");
-                return; 
-            }
-        */
-
-        e2 = 2*err;
-
-        if (e2 >= dy) {
-            err += dy;
-            steps_completed_a++;
-            _left.stepHigh();
-        } /* e_xy+e_x > 0 */
-            
-        if (e2 <= dx) {
-            err += dx;
-            steps_completed_b++;
-            _right.stepHigh();
-        } /* e_xy+e_y < 0 */
-
-        delayMicroseconds(2);
-        _left.stepLow();
-        _right.stepLow();
-
-        delayMicroseconds(current_period_us);
+void Gantry::startOrContiueStraightLineMovement() {
+    // To check if paused:
+    if (_increment_straight_line_movement_timer->getCount() == 0) {
+        _incrementStraightLineMovement();
     }
 }
 
-void Gantry::goToPointInStraightLine(const Point2<double>& target) {
-    Point2<int> steps = _calculateMotorSteps(target);
+void Gantry::_incrementStraightLineMovement() {
+    ++_step_counter;
+    _current_period_us = _calculateStepPeriod(_current_rpm);
 
-    _left.setDir(steps.x < 0);
-    _right.setDir(steps.y < 0);
+    if (_step_counter < _accel_steps) {
+        _current_rpm = _mapFloat(_step_counter, 0, _accel_steps, _min_rpm, _max_rpm);
+    } 
+    // 2. Deceleration Phase
+    else if (_step_counter >= (_total_steps_larger - _decel_steps)) {
+        // Map from end of move back down to min speed
+        _current_rpm = _mapFloat(_step_counter, (_total_steps_larger - _decel_steps), _total_steps_larger, _max_rpm, _min_rpm);
+    } 
+    // 3. Cruise Phase
+    else {
+        _current_rpm = _max_rpm;
+    }
 
-    _runStraighLine(abs(steps.x), abs(steps.y));
+    // Bresenham's line plotting algorithm
+    double e2 = 2 * _err;
+    double dA = 0;
+    double dB = 0;
 
-    _position = target;  // assume mallet made it to the desired position (open loop control)
+    if (e2 >= _d.y) {
+        _err += _d.y;
+        _left.stepHigh();
+        dA = (_left.getDir() ? -1 : 1) * 2*PI/Motor::MICROSTEPS_PER_REV * _DRIVE_PULLEY_RADIUS;
+    } /* e_xy+e_x > 0 */
+        
+    if (e2 <= _d.x) {
+        _err += _d.x;
+        _right.stepHigh();
+        dB = (_right.getDir() ? -1 : 1) * 2*PI/Motor::MICROSTEPS_PER_REV * _DRIVE_PULLEY_RADIUS;
+    } /* e_xy+e_y < 0 */
+
+    _increment_straight_line_movement_timer->pause();
+
+    _pull_down_motor_step_pins_timer->setOverflow(2, MICROSEC_FORMAT);
+    _pull_down_motor_step_pins_timer->setCount(0);
+    _pull_down_motor_step_pins_timer->resume();
+
+    // update current assumed position (open-loop control)
+    _position.x += 0.5 * (dA + dB);
+    _position.y += 0.5 * (dA - dB);
+}
+
+void Gantry::_pullDownMotorStepPinsAndRestartIncrementTimer() {
+    _left.stepLow();
+    _right.stepLow();
+
+    _pull_down_motor_step_pins_timer->pause();
+    _pull_down_motor_step_pins_timer->setCount(0);
+
+    if (getStepCount() < getTotalSteps()) { // set timer to trigger next step after _current_period_us
+        _increment_straight_line_movement_timer->setOverflow(_current_period_us, MICROSEC_FORMAT);
+        _increment_straight_line_movement_timer->setCount(0);
+        _increment_straight_line_movement_timer->resume();
+    } else {
+        _increment_straight_line_movement_timer->pause();
+        _increment_straight_line_movement_timer->setCount(0);
+        _pull_down_motor_step_pins_timer->pause();
+        _pull_down_motor_step_pins_timer->setCount(0);
+    }
+}
+
+void Gantry::runHomingRoutine() {
+    // dummy function
 }

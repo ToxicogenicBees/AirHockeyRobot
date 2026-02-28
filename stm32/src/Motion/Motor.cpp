@@ -9,6 +9,7 @@ Motor::Motor(PinDef& step, PinDef& dir, PinDef& scs) {
 void Motor::init() {
     // Initialize pins
     _step->init();
+    stepLow();
     _dir->init();
     _driver.setChipSelectPin(_scs->PIN);
     
