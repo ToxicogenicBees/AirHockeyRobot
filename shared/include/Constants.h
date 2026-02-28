@@ -6,7 +6,7 @@
 namespace Constants {
     namespace Comms {
         constexpr uint32_t BAUD_RATE = 115200;          // Baud rate for USB serial communication
-        constexpr char COM_PORT[] = "\\\\.\\COM5";      // Desired COM port
+        constexpr char COM_PORT[] = "\\\\.\\COM4";      // Desired COM port
         constexpr int64_t TIMEOUT = 10;                 // Timeout in seconds
     }
     
@@ -27,7 +27,7 @@ namespace Constants {
         constexpr double RADIUS = 2.0;                  // Radius in inches
 
         const Point2<double> LIMIT_BL                   // Bottom-left limit of mallet motion
-            = {2.5, 3.0};
+            = {1.59375, 3.0};
         const Point2<double> LIMIT_TR                   // Top-right limit of mallet motion
             = {Table::SIZE.x - 2.5, 25.0};
     }

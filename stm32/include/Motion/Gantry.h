@@ -12,6 +12,16 @@ class Gantry {
         static const float _DRIVE_PULLEY_RADIUS;
         static const float _STEP_CONVERSION_CONST;
 
+         /*
+            Motor pairs and their motion:
+
+            | LEFT    RIGHT   RESULT |
+            |------------------------|
+            | CW      CW      LEFT   |
+            | CW      CCW     DOWN   |
+            | CCW     CW      UP     |
+            | CCW     CCW     RIGHT  |
+        */
         static Motor _left;
         static Motor _right;
 
@@ -65,6 +75,11 @@ class Gantry {
             double accel_percent, 
             double decel_percent
         );
+
+        /**
+         * @brief Set position of gantry.
+         */
+        static void setPosition(const Point2<double>& pos);
 
         /**
          * @brief Runs the motor commands to goto a point in a straight line.

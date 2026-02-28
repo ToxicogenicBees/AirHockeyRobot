@@ -29,17 +29,19 @@ void HANDLE_PACKET(Packet& packet) {
 
     switch(action) {
         case Action::VelocityProfile: {
-            const double min_rpm = (double)packet.read<uint16_t>();
-            const double max_rpm = (double)packet.read<uint16_t>();
+            const double min_rpm = packet.read<uint16_t>();
+            const double max_rpm = packet.read<uint16_t>();
             const double accel_percent = packet.read<uint8_t>() / 255.0;
             const double decel_percent = packet.read<uint8_t>() / 255.0;
 
             Gantry::setVelocityProfile(min_rpm, max_rpm, accel_percent, decel_percent);
+            break;
         }
 
         case Action::MalletPosition: {
             const auto target = packet.read<Point2<double>>();
             Gantry::goToPointInStraightLine(target);
+            break;
         }
     }
 }
@@ -47,10 +49,10 @@ void HANDLE_PACKET(Packet& packet) {
 void setup() {
     // Initialize Serial output
     SerialLink::init(HANDLE_PACKET);
-
+    
     // Initialize ADC converter precision
     analogReadResolution(12);
-
+    
     // Initialize sensors
     dist_x.init();
     dist_y.init();
@@ -59,21 +61,31 @@ void setup() {
     limit_b.init();
     limit_t.init();
     temp.init();
+
+    delay(100);
+    
+    // Calibrate distance sensor
+    Gantry::init();   
+    DistanceSensor::calibrate(temp.temperature());
+    Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
 }
 
 void loop() {
-    // Process serial data
-    SerialLink::process();
-
     // Calibrate distance sensor
     DistanceSensor::calibrate(temp.temperature());
+    // Gantry::setPosition({dist_x.distance(), dist_y.distance(),});
+
+    // Process serial data
+    SerialLink::process();
     
     // Read distance
-    distance_buffer_index = (distance_buffer_index + 1) % BUFFER_SIZE;
-    distance_buffer[distance_buffer_index] = {
-        dist_x.distance(),
-        dist_y.distance()
-    };
+    for (size_t i = 0; i < BUFFER_SIZE; ++i) {
+        //distance_buffer_index = (distance_buffer_index + 1) % BUFFER_SIZE;
+        distance_buffer[i] = {
+            dist_x.distance(),
+            dist_y.distance()
+        };
+    }
     
     // Calculate average distance
     Point2<double> avg_pos;

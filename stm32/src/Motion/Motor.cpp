@@ -10,11 +10,11 @@ void Motor::init() {
     // Initialize pins
     _step->init();
     _dir->init();
+    _driver.setChipSelectPin(_scs->PIN);
     
     // Initialize driver (auto initializes SCS pin)
-    delay(10);
+    delay(100);
 
-    _driver.setChipSelectPin(_scs->PIN);
     _driver.resetSettings();
     _driver.clearStatus();
     _driver.setDecayMode(HPSDDecayMode::AutoMixed);
