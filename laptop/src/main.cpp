@@ -118,13 +118,15 @@ void MALLET_CONTROL() {
         // wait until mallet gets there before sending next packet (feedback)
         int timeout = 0;
         for(;;) {
-            Sleep(0.1);
+            Sleep(1);
             ++timeout;
-            if (abs(Mallet::position().x - targetPosition.x) < 10 && abs(Mallet::position().y - targetPosition.y) < 10) {
+            if (abs((Mallet::position().x-1.59375)*25.4 - targetPosition.x) < 5 && abs((Mallet::position().y-3.0)*25.4 - targetPosition.y) < 5) {
                 break;
             }
 
-            if (timeout > 50000)
+            std::clog << Mallet::position() * 25.4 << " " << targetPosition << "\n";
+
+            if (timeout > 500)
                 break;
         }
         
