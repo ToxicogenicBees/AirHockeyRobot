@@ -63,32 +63,27 @@ class Gantry {
         static Point2<int> _calculateMotorSteps(const Point2<double>& target);
 
         /**
-         * @brief Called from goToPointInStraightLine. Runs the motors with the 
-         *          defined number of steps for the left (A) and right (B) motors.
-         *          Uses Bresenham's line algorithm along with the set velocity profile
-         *          to control the timing of the pulses to each motor.
+         * @brief Called as callback ISR from _increment_straight_line_movement_timer.
+         *          Steps one or both motors as decided by Bresenham's line algorithm.
+         *          Updates the current assumed position of the gantry controlled mallet.
+         *          Updates the current step period in accordance with the velocity profile.
          */
-        static void _runStraighLine(int steps_a, int steps_b);
+        static void _incrementStraightLineMovement();
+
+        /**
+         * @brief Should be triggered as interrupt by timer 2 microseconds after
+         *          pulling step pins high in incrementStraightLineMovement function.
+         *          2 microseconds is the pulse width specified by our motor driver chip.
+         *          After pulling pins low will restart timer for incrementStraightLineMovement
+         *          with overflow set to current step period if there are more steps to complete. 
+         */
+        static void _pullDownMotorStepPinsAndRestartIncrementTimer();
 
     public:
         /**
          * @brief Initializes the gantry, its motors, and its pins
          */
         static void init();
-
-        /**
-         * @brief Set how the velocity should change over the course of a movement.
-         *        The parameters are:
-         *        starting rpm minRPM, maximum rpm maxRPM, (maximum 800 rpm)
-         *        percent of the movement to accelerate accelPercent (value from 0 to 1)
-         *        percent of the movement to decelerate decelPercent (value from 0 to 1).
-         */
-        static void setVelocityProfile(
-            double min_rpm, 
-            double max_rpm, 
-            double accel_percent, 
-            double decel_percent
-        );
 
         /**
          * @brief Set position of gantry.
@@ -99,12 +94,6 @@ class Gantry {
          * @brief Set position of gantry.
          */
         static Point2<double> getPosition() {return _position;}
-
-        /**
-         * @brief Runs the motor commands to goto a point in a straight line.
-         *        Used the velocity profile defined when last called setVelocityProfile.
-         */
-        static void goToPointInStraightLine(const Point2<double>& target);
 
         /**
          * @brief Returns the acceleration percent
@@ -148,19 +137,33 @@ class Gantry {
          */
         static int getTotalSteps() { return _total_steps_larger; }
 
-        static void setUpStraightLineMovement(const Point2<double>& target);
-
-        static void startOrContiueStraightLineMovement();
-
-        static void incrementStraightLineMovement();
+        /**
+         * @brief Set how the velocity should change over the course of a movement.
+         *        The parameters are:
+         *        starting rpm minRPM, maximum rpm maxRPM, (maximum 800 rpm)
+         *        percent of the movement to accelerate accelPercent (value from 0 to 1)
+         *        percent of the movement to decelerate decelPercent (value from 0 to 1).
+         */
+        static void setVelocityProfile(
+            double min_rpm, 
+            double max_rpm, 
+            double accel_percent, 
+            double decel_percent
+        );
 
         /**
-         * @brief Should be triggered as interrupt by timer 2 microseconds after
-         *          pulling step pins high in incrementStraightLineMovement function.
-         *          After pulling pins low will restart timer for incrementStraightLineMovement
-         *          if there are more steps to complete. 
+         * @brief Call first when receive movement command to a point. Initilizes the proper
+         *          variables for a straight line movement using Bresenham's line algorithm.
+         *          Calculates steps required and direction for left and right motor. Uses 
+         *          set velocity profile from prior call to setVelocityProfile().
          */
-        static void pullDownMotorStepPinsAndRestartIncrementTimer();
+        static void setUpStraightLineMovement(const Point2<double>& target);
+
+        /**
+         * @brief Resumes _incrementStraightLineMovement hardware timer if needed.
+         *          Call after setUpStraightLineMovement().
+         */
+        static void startOrContiueStraightLineMovement();
 };
 
 #endif
