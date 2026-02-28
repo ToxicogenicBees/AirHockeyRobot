@@ -252,10 +252,10 @@ void Gantry::pullDownMotorStepPinsAndRestartIncrementTimer() {
         _increment_straight_line_movement_timer->setCount(0);
         _increment_straight_line_movement_timer->resume();
     } else {
-        _increment_straight_line_movement_timer->setCount(0);
         _increment_straight_line_movement_timer->pause();
-        _pull_down_motor_step_pins_timer->setCount(0);
+        _increment_straight_line_movement_timer->setCount(0);
         _pull_down_motor_step_pins_timer->pause();
+        _pull_down_motor_step_pins_timer->setCount(0);
     }
 }
 
