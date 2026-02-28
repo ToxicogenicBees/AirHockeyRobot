@@ -15,6 +15,7 @@
   Libraries
 ************/
 
+#include "Types/VelocityProfile.hpp"
 #include "Comms/SerialLink.hpp"
 #include "Simulation/Table.h"
 #include "State/StateTracker.h"
@@ -34,7 +35,7 @@
 /********************
   Packet Management
 ********************/
-bool microReady = false;
+
 void HANDLE_PACKET(Packet& packet) {
     Action action = packet.action();
     packet.resetRead();
@@ -46,8 +47,6 @@ void HANDLE_PACKET(Packet& packet) {
             p += Constants::Mallet::LIMIT_BL;
 
             Mallet::moveTo(p);
-
-            microReady = true;
             // std::clog << p << "\n";
             break;
         }
@@ -80,18 +79,16 @@ void RECEIVE_PACKETS() {
 
 // Mallet control
 void MALLET_CONTROL() {
-    float counter = 0;
+    double counter = 0;
     Point2<double> targetPosition;
 
     while (true) {
-        // microReady = false;
         // send velocity profile settings
-        Packet velPacket(Action::VelocityProfile);
-        velPacket << uint16_t(100);  // min_rpm
-        velPacket << uint16_t(100);  // max_rpm
-        velPacket << uint8_t(0);  // accel_percent
-        velPacket << uint8_t(0);  // decel_percent
-        SerialLink::buffer(velPacket);
+        VelocityProfile profile(0, 0, 100, 100);
+
+        Packet velPocity_packet(Action::VelocityProfile);
+        velPocity_packet << profile;
+        SerialLink::buffer(velPocity_packet);
 
         // // Get puck trajectory
         // std::vector<Point3<double>> timestamps = Puck::estimateTrajectory();
@@ -105,7 +102,7 @@ void MALLET_CONTROL() {
         // SerialLink::buffer(packet);
 
 
-        // // Send target out to gantry to draw circle
+        // Send target out to gantry to draw circle
         double speed = 0.01;
         double radius = 90;
         counter += speed * 3.14;
@@ -117,7 +114,7 @@ void MALLET_CONTROL() {
 
         // wait until mallet gets there before sending next packet (feedback)
         int timeout = 0;
-        for(;;) {
+        while (true) {
             Sleep(1);
             ++timeout;
             if (abs((Mallet::position().x-1.59375)*25.4 - targetPosition.x) < 5 && abs((Mallet::position().y-3.0)*25.4 - targetPosition.y) < 5) {
