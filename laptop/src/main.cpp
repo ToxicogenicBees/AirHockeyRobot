@@ -93,18 +93,24 @@ void MALLET_CONTROL() {
         // // Get puck trajectory
         // std::vector<Point3<double>> timestamps = Puck::estimateTrajectory();
 
-        // // Get mallet's target location
+        // Get mallet's target location
         // Point2<double> target = Mallet::chooseTarget(timestamps);
 
         // counter += 1;
         // Packet packet(Action::MalletPosition);
-        // packet << (Constants::Mallet::HOME * 25.4 + Point2<double>{counter%2 * 10, counter%2 * 15});
+        // targetPosition = (Constants::Mallet::HOME * 25.4 + Point2<double>{double(counter%2 * 100), double(counter%2 * 150)});
+        // packet << targetPosition;
         // SerialLink::buffer(packet);
 
+        // send mallet to test point
+        // Packet packet(Action::MalletPosition);
+        // targetPosition = {250, 0};
+        // packet << targetPosition;
+        // SerialLink::buffer(packet);
 
         // Send target out to gantry to draw circle
         double speed = 0.01;
-        double radius = 90;
+        double radius = 150;
         counter += speed * 3.14;
         Point2<double> rot(std::cos(counter), std::sin(counter));
         Packet packet(Action::MalletPosition);
@@ -112,20 +118,32 @@ void MALLET_CONTROL() {
         packet << targetPosition;
         SerialLink::buffer(packet);
 
+        // std::clog << "Target: " << targetPosition << "\n";
+
         // wait until mallet gets there before sending next packet (feedback)
         int timeout = 0;
         while (true) {
-            Sleep(1);
-            ++timeout;
-            if (abs((Mallet::position().x-1.59375)*25.4 - targetPosition.x) < 5 && abs((Mallet::position().y-3.0)*25.4 - targetPosition.y) < 5) {
+            Point2<double> temp = (Mallet::position()-Constants::Mallet::LIMIT_BL)*25.4;
+            if (abs(temp.x - targetPosition.x) < 5 && abs(temp.y - targetPosition.y) < 5) {
                 break;
             }
 
-            std::clog << Mallet::position() * 25.4 << " " << targetPosition << "\n";
+            Sleep(1);
+            ++timeout;
+
+            // std::clog << temp << " " << targetPosition << "\n";
 
             if (timeout > 500)
                 break;
         }
+
+        // for (int i = 0; i < 10e8; i++) {
+        //     timeout += targetPosition.x;
+        // }
+        // std::clog << timeout;
+
+        // Point2<double> temp = (Mallet::position()-Constants::Mallet::LIMIT_BL)*25.4;
+        // std::clog << temp << " " << targetPosition << "\n";
         
         // // Mallet::moveTo(Constants::Mallet::HOME * 25.4 + radius * rot);
         // std::clog << Constants::Mallet::HOME * 25.4 + radius * rot << "\n";
