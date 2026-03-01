@@ -133,8 +133,8 @@ void Gantry::_stepMotion() {
     double d_b = 0;
 
     auto step = [](Motor& motor) {
-        _left.stepHigh();
-        return (_left.getDir() ? -1 : 1) * 2 * PI / Motor::MICROSTEPS_PER_REV * _DRIVE_PULLEY_RADIUS;
+        motor.stepHigh();
+        return (motor.getDir() ? -1 : 1) * 2 * PI / Motor::MICROSTEPS_PER_REV * _DRIVE_PULLEY_RADIUS;
     };
 
     if (e2 >= _d.y) {
