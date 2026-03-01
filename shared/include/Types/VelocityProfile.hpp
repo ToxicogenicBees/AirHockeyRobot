@@ -15,14 +15,14 @@ class VelocityProfile {
         /**
          * @brief Create a new velocity profile
          * 
-         * @param accel_percent The acceleration percent
-         * @param decel_percent The deceleration percent
+         * @param accel_percent The acceleration percent value from 0 to 1.
+         * @param decel_percent The deceleration percent value from 0 to 1.
          * @param min_rpm       The minimum RPM
          * @param max_rpm       The maximum RPM
          */
         VelocityProfile(double accel_percent, double decel_percent, uint16_t min_rpm, uint16_t max_rpm) {
-            _accel_percent = (uint8_t) accel_percent;
-            _decel_percent = (uint8_t) decel_percent;
+            _accel_percent = (uint8_t) (accel_percent * std::numeric_limits<uint8_t>::max());
+            _decel_percent = (uint8_t) (decel_percent * std::numeric_limits<uint8_t>::max());
             _min_rpm = min_rpm;
             _max_rpm = max_rpm;
         }
@@ -38,7 +38,7 @@ class VelocityProfile {
          * @return The acceleration percent
          */
         double getAccelPercent() const {
-            return _accel_percent / std::numeric_limits<uint8_t>::max();
+            return (double)(_accel_percent) / std::numeric_limits<uint8_t>::max();
         }
 
         /**
@@ -47,7 +47,7 @@ class VelocityProfile {
          * @return The deceleration percent
          */
         double getDecelPercent() const {
-            return _decel_percent / std::numeric_limits<uint8_t>::max();
+            return (double)(_decel_percent) / std::numeric_limits<uint8_t>::max();
         }
 
         /**

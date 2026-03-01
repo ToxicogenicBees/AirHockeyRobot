@@ -103,6 +103,7 @@ void setup() {
     
     // Calibrate distance sensor
     Gantry::init();   
+    Gantry::setVelocityProfile(VelocityProfile(0, 0, 100, 100));
     // DistanceSensor::calibrate(temp.temperature());
     // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
     Gantry::setPosition({250, 250}); 

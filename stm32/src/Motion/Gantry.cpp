@@ -112,7 +112,6 @@ void Gantry::startMotion() {
 
 void Gantry::_stepMotion() {
     ++_step_counter;
-    _current_period_us = _calculateStepPeriod(_current_rpm);
 
     if (_step_counter < _accel_steps) {
         _current_rpm = _mapDouble(_step_counter, 0, _accel_steps, _profile.getMinRPM(), _profile.getMaxRPM());
@@ -126,6 +125,8 @@ void Gantry::_stepMotion() {
     else {
         _current_rpm = _profile.getMaxRPM();
     }
+
+    _current_period_us = _calculateStepPeriod(_current_rpm);
 
     // Bresenham's line plotting algorithm
     double e2 = 2 * _err;
