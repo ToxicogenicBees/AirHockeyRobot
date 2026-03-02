@@ -52,6 +52,26 @@ void HANDLE_PACKET(Packet& packet) {
             // std::clog << p << "\n";
             break;
         }
+
+        case Action::LimitSwitches: {
+            uint8_t pressed = packet.read<uint8_t>();
+
+            // check for which limit switches pressed
+            if (pressed & Constants::LimitSwitch::LEFT_PRESSED) {
+                // left was pressed, decide what movements invalid
+            }
+            if (pressed & Constants::LimitSwitch::RIGHT_PRESSED) {
+                // right was pressed, decide what movements invalid
+            }
+            if (pressed & Constants::LimitSwitch::BOTTOM_PRESSED) {
+                // bottom was pressed, decide what movements invalid
+            }
+            if (pressed & Constants::LimitSwitch::TOP_PRESSED) {
+                // top was pressed, decide what movements invalid
+            }
+
+            break;
+        }
             
         default:
             break;
