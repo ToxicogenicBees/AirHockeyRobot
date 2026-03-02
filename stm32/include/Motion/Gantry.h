@@ -100,7 +100,7 @@ class Gantry {
         static void setPosition(const Point2<double>& pos);
 
         /**
-         * @brief Set position of gantry.
+         * @brief Get position of gantry.
          */
         static Point2<double> getPosition() { return _position; }
 
