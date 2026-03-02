@@ -23,6 +23,7 @@ LimitSwitch limit_l(lim_l);
 LimitSwitch limit_r(lim_r);
 LimitSwitch limit_b(lim_b);
 LimitSwitch limit_t(lim_t);
+uint8_t pressedSwitches = 0; // stores any limit switches pressed
 
 void HANDLE_PACKET(Packet& packet) {
     Action action = packet.action();
@@ -120,6 +121,39 @@ void loop() {
     Packet packet(Action::MalletPosition);
     packet << Gantry::getPosition();
     SerialLink::buffer(packet);  
+
+    // Check if any limit switch is pressed
+    // If so, stop movement and let laptop know
+    pressedSwitches = 0;
+    if (limit_l.pressed()) {
+        Gantry::pauseMotion();
+        pressedSwitches |= Constants::LimitSwitch::LEFT_PRESSED;
+        Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_BL.x * 25.4, Gantry::getPosition().y});
+    }
+
+    if (limit_r.pressed()) {
+        Gantry::pauseMotion();
+        pressedSwitches |= Constants::LimitSwitch::RIGHT_PRESSED;
+        Gantry::setPosition(Point2<double> {(Constants::Table::SIZE.x - Constants::Mallet::LIMIT_BL.x) * 25.4, Gantry::getPosition().y});
+    }
+
+    if (limit_b.pressed()) {
+        Gantry::pauseMotion();
+        pressedSwitches |= Constants::LimitSwitch::BOTTOM_PRESSED;
+        Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_BL.y * 25.4});
+    }
+
+    if (limit_t.pressed()) {
+        Gantry::pauseMotion();
+        pressedSwitches |= Constants::LimitSwitch::TOP_PRESSED;
+        Gantry::setPosition(Point2<double> {Gantry::getPosition().x, (Constants::Table::SIZE.y - Constants::Mallet::LIMIT_BL.y) * 25.4});
+    }
+
+    if (pressedSwitches) {
+        Packet packet(Action::LimitSwitches);
+        packet << pressedSwitches;
+        SerialLink::buffer(packet);  
+    }
     
     // // Read distance
     // for (size_t i = 0; i < BUFFER_SIZE; ++i) {

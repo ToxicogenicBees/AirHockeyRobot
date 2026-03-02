@@ -26,8 +26,8 @@ uint16_t Gantry::_current_period_us = 0;
 
 VelocityProfile Gantry::_profile;
 
-HardwareTimer* Gantry::_start_motors = nullptr; // initialized in Gantry::init
-HardwareTimer* Gantry::_stop_motors = nullptr;  // initialized in Gantry::init
+HardwareTimer* Gantry::_step_period_timer = nullptr; // initialized in Gantry::init
+HardwareTimer* Gantry::_step_intermission_timer = nullptr;  // initialized in Gantry::init
 
 void Gantry::init() {
     // Initialize motors
@@ -46,8 +46,8 @@ void Gantry::init() {
         hardware_timer->setCount(0);
     };
 
-    init_timer(_start_motors, TIM3, Gantry::_stepMotion);
-    init_timer(_stop_motors, TIM4, Gantry::_stopMotion);
+    init_timer(_step_period_timer, TIM3, _stepMotion);
+    init_timer(_step_intermission_timer, TIM4, _stepIntermission);
 }
 
 void Gantry::setPosition(const Point2<double>& pos) {
@@ -105,7 +105,7 @@ void Gantry::initMotion(const Point2<double>& target) {
 
 void Gantry::startMotion() {
     // To check if paused:
-    if (_start_motors->getCount() == 0) {
+    if (_step_period_timer->getCount() == 0) {
         _stepMotion();
     }
 }
@@ -148,36 +148,43 @@ void Gantry::_stepMotion() {
         d_b = step(_right);
     } /* e_xy+e_y < 0 */
 
-    _start_motors->pause();
+    _step_period_timer->pause();
 
-    _stop_motors->setOverflow(2, MICROSEC_FORMAT);
-    _stop_motors->setCount(0);
-    _stop_motors->resume();
+    _step_intermission_timer->setOverflow(2, MICROSEC_FORMAT);
+    _step_intermission_timer->setCount(0);
+    _step_intermission_timer->resume();
 
     // update current assumed position (open-loop control)
     _position.x += 0.5 * (d_a + d_b);
     _position.y += 0.5 * (d_a - d_b);
 }
 
-void Gantry::_stopMotion() {
+void Gantry::_stepIntermission() {
     _left.stepLow();
     _right.stepLow();
 
-    _stop_motors->pause();
-    _stop_motors->setCount(0);
+    _step_intermission_timer->pause();
+    _step_intermission_timer->setCount(0);
 
     if (getStepCount() < getTotalSteps()) { // set timer to trigger next step after _current_period_us
-        _start_motors->setOverflow(_current_period_us, MICROSEC_FORMAT);
-        _start_motors->setCount(0);
-        _start_motors->resume();
+        _step_period_timer->setOverflow(_current_period_us, MICROSEC_FORMAT);
+        _step_period_timer->setCount(0);
+        _step_period_timer->resume();
     } else {
-        _start_motors->pause();
-        _start_motors->setCount(0);
-        _stop_motors->pause();
-        _stop_motors->setCount(0);
+        _step_period_timer->pause();
+        _step_period_timer->setCount(0);
+        _step_intermission_timer->pause();
+        _step_intermission_timer->setCount(0);
     }
 }
 
 void Gantry::home() {
     // dummy function
+}
+
+void Gantry::pauseMotion() {
+    _step_period_timer->pause();
+    _step_period_timer->setCount(0);
+    _step_intermission_timer->pause();
+    _step_intermission_timer->setCount(0);
 }
