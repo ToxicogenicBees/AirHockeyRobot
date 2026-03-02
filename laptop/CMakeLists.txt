@@ -35,6 +35,7 @@ set(malletSensorFeedbackVisualizer_SOURCES
     src/Simulation/Table.cpp
     src/Motion/Mallet.cpp
     src/Motion/Puck.cpp
+    src/Motion/PuckTracker.cpp
 )
 
 set(PacketTest_SOURCES
@@ -47,6 +48,7 @@ set(PhysicsSim_SOURCES
     src/Simulation/Table.cpp
     src/Motion/Mallet.cpp
     src/Motion/Puck.cpp
+    src/Motion/PuckTracker.cpp
 )
 
 set(OpenCVTest_SOURCES
@@ -66,6 +68,7 @@ set(main_SOURCES
     src/Simulation/Table.cpp
     src/Motion/Mallet.cpp
     src/Motion/Puck.cpp
+    src/Motion/PuckTracker.cpp
 )
 
 # --- Function to create executables with common includes and OpenCV ---
