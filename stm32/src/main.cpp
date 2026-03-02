@@ -134,7 +134,7 @@ void loop() {
     if (limit_r.pressed()) {
         Gantry::pauseMotion();
         pressedSwitches |= Constants::LimitSwitch::RIGHT_PRESSED;
-        Gantry::setPosition(Point2<double> {(Constants::Table::SIZE.x - Constants::Mallet::LIMIT_BL.x) * 25.4, Gantry::getPosition().y});
+        Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_TR.x * 25.4, Gantry::getPosition().y});
     }
 
     if (limit_b.pressed()) {
@@ -146,7 +146,7 @@ void loop() {
     if (limit_t.pressed()) {
         Gantry::pauseMotion();
         pressedSwitches |= Constants::LimitSwitch::TOP_PRESSED;
-        Gantry::setPosition(Point2<double> {Gantry::getPosition().x, (Constants::Table::SIZE.y - Constants::Mallet::LIMIT_BL.y) * 25.4});
+        Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_TR.y * 25.4});
     }
 
     if (pressedSwitches) {
