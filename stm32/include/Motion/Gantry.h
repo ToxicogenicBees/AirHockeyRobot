@@ -49,8 +49,8 @@ class Gantry {
         static VelocityProfile _profile;
 
         // Timers
-        static HardwareTimer* _start_motors;
-        static HardwareTimer* _stop_motors;
+        static HardwareTimer* _step_period_timer;
+        static HardwareTimer* _step_intermission_timer;
 
         /**
          * @brief 
@@ -70,7 +70,7 @@ class Gantry {
 
         /**
          * @brief Called as callback ISR from _start_motors.
-         *          Steps one or both motors as decided by Bresenham's line algorithm.
+         *          Steps one or both motors once as decided by Bresenham's line algorithm.
          *          Updates the current assumed position of the gantry controlled mallet.
          *          Updates the current step period in accordance with the velocity profile.
          */
@@ -78,12 +78,12 @@ class Gantry {
 
         /**
          * @brief Should be triggered as interrupt by timer 2 microseconds after
-         *          pulling step pins high in incrementStraightLineMovement function.
+         *          pulling step pins high in _stepMotion function.
          *          2 microseconds is the pulse width specified by our motor driver chip.
-         *          After pulling pins low will restart timer for incrementStraightLineMovement
+         *          After pulling pins low will restart timer for _stepMotion
          *          with overflow set to current step period if there are more steps to complete. 
          */
-        static void _stopMotion();
+        static void _stepIntermission();
 
     public:
         static const double DIST_TOLERANCE_LOW;
@@ -147,6 +147,12 @@ class Gantry {
          *          Call after initMotion().
          */
         static void startMotion();
+
+        /**
+         * @brief Can be called to pause stepping motion e.g
+         *          when a limit switch is triggered.
+         */
+        static void pauseMotion();
 
         /**
          * @brief Laptop can request to run this homing routine.

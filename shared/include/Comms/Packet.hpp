@@ -24,6 +24,7 @@ enum class Action {
     MalletPosition,     // Mallet position data
     DistanceSensorRead, // Triggers distance sensor read on micro side
     MalletHome,         // Requests to perform homing routine with limit switches
+    LimitSwitches,      // Holds an uint8_t with the bits set according to limit switches pressed.
     EStop,              // E-Stop triggered event
     
     VALID_COUNT,        // Sentinal value for valid packet types

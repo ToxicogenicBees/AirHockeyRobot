@@ -37,6 +37,13 @@ namespace Constants {
         constexpr double SPEED = 137.795276;            // Estimated puck speed (inch/sec)
         constexpr double RADIUS = 1.25;                 // Radius in inches
     }
+
+    namespace LimitSwitch {
+        const uint8_t LEFT_PRESSED = 0b00000001;
+        const uint8_t RIGHT_PRESSED = 0b00000010;
+        const uint8_t BOTTOM_PRESSED = 0b00000100;
+        const uint8_t TOP_PRESSED = 0b00001000;
+    }
     
     // General
     constexpr int64_t SAMPLE_PERIOD = 1e6 / 100;        // Camera sample period (microseconds)
