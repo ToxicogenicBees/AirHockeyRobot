@@ -10,21 +10,8 @@
 class Puck {
     private:
         static MovingObject _puck;  // Moving object used for the puck
-        static bool _initialized;   // Initialized flag
 
     public:
-        /***
-         * @brief Initializes the tracking system as a whole
-         * 
-         * @param show_debug    Enables debug output to console (false by default)
-         */
-        static int initTracking(bool show_debug = false);
-
-        /***
-         * @brief Tracks the location of the puck on the table, and runs any required internal states
-         */
-        static void locate();
-
         /***
          * @brief Calculates a vector of trajectory (x-position, y-position, time-of-arrival) timestamps of the
          *        puck's path across the table from its current spot to the back wall, or an empty vector if it's moving
@@ -82,13 +69,6 @@ class Puck {
          * @return The velocity of the object, in inches/sec
          */
         static Point2<double> velocity();
-
-        /**
-         * @brief Returns whether the camera tracking is initialized or not
-         * 
-         * @return Whether the camera tracking is initialized or not
-         */
-        static bool initialized() { return _initialized; }
 };
 
 #endif
