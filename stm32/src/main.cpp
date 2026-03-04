@@ -142,6 +142,9 @@ void loop() {
     // if (limit_b.pressed()) {
     //     Gantry::pauseMotion();
     //     pressedSwitches |= Constants::LimitSwitch::BOTTOM_PRESSED;
+    //     // Packet packet(Action::LimitSwitches);
+    //     // packet << limit_b.pressed();
+    //     // SerialLink::buffer(packet); 
     //     Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_BL.y * 25.4});
     // }
 

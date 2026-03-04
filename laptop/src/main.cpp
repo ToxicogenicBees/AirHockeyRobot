@@ -54,21 +54,28 @@ void HANDLE_PACKET(Packet& packet) {
         }
 
         case Action::LimitSwitches: {
-            uint8_t pressed = packet.read<uint8_t>();
+            // uint8_t pressed = packet.read<uint8_t>();
+
+                std::clog <<  packet.read<double>() << "\n";
 
             // check for which limit switches pressed
-            if (pressed & Constants::LimitSwitch::LEFT_PRESSED) {
-                // left was pressed, decide what movements invalid
-            }
-            if (pressed & Constants::LimitSwitch::RIGHT_PRESSED) {
-                // right was pressed, decide what movements invalid
-            }
-            if (pressed & Constants::LimitSwitch::BOTTOM_PRESSED) {
-                // bottom was pressed, decide what movements invalid
-            }
-            if (pressed & Constants::LimitSwitch::TOP_PRESSED) {
-                // top was pressed, decide what movements invalid
-            }
+            // if (pressed & Constants::LimitSwitch::LEFT_PRESSED) {
+            //     // left was pressed, decide what movements invalid
+            //     std::clog << "Left Pressed\n";
+            // }
+            // if (pressed & Constants::LimitSwitch::RIGHT_PRESSED) {
+            //     // right was pressed, decide what movements invalid
+            //     std::clog << "Right Pressed\n";
+            // }
+            // if (pressed & Constants::LimitSwitch::BOTTOM_PRESSED) {
+            //     // bottom was pressed, decide what movements invalid
+            //     // std::clog << "Bottom Pressed\n";
+            //     // std::clog <<  packet.read<Point2<double>>() << "\n";
+            // }
+            // if (pressed & Constants::LimitSwitch::TOP_PRESSED) {
+            //     // top was pressed, decide what movements invalid
+            //     std::clog << "Top Pressed\n";
+            // }
 
             break;
         }
@@ -173,12 +180,12 @@ void MALLET_CONTROL() {
 bool INIT_MAIN() {
     try {
         // Initialize state tracker
-        StateTracker::init();
-        std::clog << "Initialized state tracker\n";
+        // StateTracker::init();
+        // std::clog << "Initialized state tracker\n";
 
-        // Initialize puck tracker
-        puck_tracker.init();
-        std::clog << "Initialized puck tracker\n";
+        // // Initialize puck tracker
+        // puck_tracker.init();
+        // std::clog << "Initialized puck tracker\n";
 
         // Initialize serial comms
         SerialLink::init(HANDLE_PACKET);
@@ -209,16 +216,16 @@ int main() {
 
     // Create threads
     std::thread receive_packets(RECEIVE_PACKETS);
-    std::thread mallet_control(MALLET_CONTROL);
+    // std::thread mallet_control(MALLET_CONTROL);
 
     // Run threads async
     receive_packets.detach();
-    mallet_control.detach();
+    // mallet_control.detach();
     
     // Yield main
     while (1) {
         // Puck tracking
-        puck_tracker.captureFrame();
+        // puck_tracker.captureFrame();
 
         // Visualizers
         puck_tracker.displayFrame();
