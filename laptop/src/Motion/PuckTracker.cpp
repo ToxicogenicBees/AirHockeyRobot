@@ -3,7 +3,9 @@
 #include <iostream>
 #include <cassert>
 
-PuckTracker::PuckTracker(int device_id, int api_id): _DEVICE_ID(device_id), _API_ID(api_id) {
+PuckTracker::PuckTracker(int device_id, int api_id): _DEVICE_ID(device_id), _API_ID(api_id) {}
+
+void PuckTracker::init() {
     // Open selected camera using selected API
     _capture.open(_DEVICE_ID, _API_ID);
     // Check if we succeeded
@@ -19,15 +21,25 @@ PuckTracker::PuckTracker(int device_id, int api_id): _DEVICE_ID(device_id), _API
     // Set the camera's frames per second (fps)
     _capture.set(cv::CAP_PROP_FPS, 100);
 
-    // Set exposure to prevent the camera from auto adjusting
-    _capture.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.25);
-    _capture.set(cv::CAP_PROP_AUTO_EXPOSURE, -6);
+    // Set camera to auto adjust exposure
+    _capture.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.75);
 
     // Set filtering range
     filterForYellow();
-}
 
-PuckTracker::PuckTracker(): _DEVICE_ID(-1), _API_ID(-1) {}
+    // Debugging log
+    /*
+        int frame_width = (int)_capture.get(cv::CAP_PROP_FRAME_WIDTH);
+        int frame_height = (int)_capture.get(cv::CAP_PROP_FRAME_HEIGHT);
+        std::clog << "Frame size: " << Point2<int>(frame_width, frame_height) << "\n";
+
+        double fps = _capture.get(cv::CAP_PROP_FPS);
+        std::clog << "FPS: " << fps << "\n";
+
+        double exposure = _capture.get(cv::CAP_PROP_EXPOSURE);
+        std::clog << "Exposure: " << exposure << "\n";
+    */
+}
 
 void PuckTracker::captureFrame() {
     // Wait for a new frame from camera and store it into 'frame'
@@ -46,12 +58,13 @@ void PuckTracker::captureFrame() {
     cv::inRange(_frame_hsv, _min, _max, _frame_threshold);
 
     // Filter image to show only specific colors from orignal image
+    _frame_filtered = cv::Mat();
     cv::bitwise_and(_frame, _frame, _frame_filtered, _frame_threshold);
 
     // Find moments of the image
     cv::Moments m = cv::moments(_frame_threshold, true);
     cv::Point p(m.m10 / m.m00, m.m01 / m.m00);
-
+    
     // Convert the pixel value to inches
     Point2<double> inches(
         _INCHES_PER_PIXEL * (p.y - 45),
@@ -66,6 +79,11 @@ void PuckTracker::captureFrame() {
 }
 
 void PuckTracker::displayFrame() {
+    // Ignore if there's no data to display
+    if (_frame.empty()) {
+        return;
+    }
+
     // Show the image with a point mark at the centroid
     cv::circle(_frame_filtered, _prev_pixels, 5, {128, 0, 0}, -1);
     cv::circle(_frame, _prev_pixels, 5, {128, 0, 0}, -1);
@@ -73,7 +91,7 @@ void PuckTracker::displayFrame() {
     // Show live and wait for a key with timeout long enough to show images
     cv::imshow("Live", _frame);
     cv::imshow("Filtered", _frame_filtered);
-    cv::waitKey();
+    cv::waitKey(1);
 }
 
 void PuckTracker::setFilteringRange(const cv::Scalar& min, const cv::Scalar& max) {

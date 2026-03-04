@@ -18,10 +18,6 @@ class PuckTracker {
         int _DEVICE_ID;
         int _API_ID;
 
-        // Color filtering ranges (defaults to Yellow)
-        cv::Scalar _min;
-        cv::Scalar _max;
-
         // OpenCV frames
         cv::Mat _frame_threshold;
         cv::Mat _frame_filtered;
@@ -30,6 +26,10 @@ class PuckTracker {
 
         // OpenCV video capture
         cv::VideoCapture _capture;
+
+        // Color filtering ranges (defaults to Yellow)
+        cv::Scalar _min;
+        cv::Scalar _max;
 
         // Previous captures
         cv::Point _prev_pixels;
@@ -40,10 +40,7 @@ class PuckTracker {
          */
         PuckTracker(int device_id, int api_id);
 
-        /***
-         * @brief   Create an uninitialized puck tracker
-         */
-        PuckTracker();
+        void init();
 
         /***
          * @brief   Captures a frame from the tracker and updates the tracked puck position
@@ -54,7 +51,6 @@ class PuckTracker {
          * @brief   Displays the most recently captured frame on screen
          */
         void displayFrame();
-
 
         /***
          * @brief   Sets the camera filtering range
