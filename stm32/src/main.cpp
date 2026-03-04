@@ -66,6 +66,8 @@ void HANDLE_PACKET(Packet& packet) {
                 if (delta.x < Gantry::DIST_TOLERANCE_HIGH && delta.y < Gantry::DIST_TOLERANCE_HIGH) {
                     // set to weighted average between assumed position and sensed position 
                     Gantry::setPosition(0.8*avg_pos +  0.2*Gantry::getPosition());
+                    Packet packet(Action::DistanceSensorRead);
+                    SerialLink::buffer(packet); 
                 } else {
                     Packet packet(Action::MalletHome);
                     SerialLink::buffer(packet); 
@@ -105,9 +107,9 @@ void setup() {
     // Calibrate distance sensor
     Gantry::init();   
     Gantry::setVelocityProfile(VelocityProfile(0, 0, 100, 100));
-    // DistanceSensor::calibrate(temp.temperature());
-    // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
-    Gantry::setPosition({250, 250}); 
+    DistanceSensor::calibrate(temp.temperature());
+    Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
+    // Gantry::setPosition({250, 250}); 
 }
 
 void loop() {
@@ -124,36 +126,36 @@ void loop() {
 
     // Check if any limit switch is pressed
     // If so, stop movement and let laptop know
-    pressedSwitches = 0;
-    if (limit_l.pressed()) {
-        Gantry::pauseMotion();
-        pressedSwitches |= Constants::LimitSwitch::LEFT_PRESSED;
-        Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_BL.x * 25.4, Gantry::getPosition().y});
-    }
+    // pressedSwitches = 0;
+    // if (limit_l.pressed()) {
+    //     Gantry::pauseMotion();
+    //     pressedSwitches |= Constants::LimitSwitch::LEFT_PRESSED;
+    //     Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_BL.x * 25.4, Gantry::getPosition().y});
+    // }
 
-    if (limit_r.pressed()) {
-        Gantry::pauseMotion();
-        pressedSwitches |= Constants::LimitSwitch::RIGHT_PRESSED;
-        Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_TR.x * 25.4, Gantry::getPosition().y});
-    }
+    // if (limit_r.pressed()) {
+    //     Gantry::pauseMotion();
+    //     pressedSwitches |= Constants::LimitSwitch::RIGHT_PRESSED;
+    //     Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_TR.x * 25.4, Gantry::getPosition().y});
+    // }
 
-    if (limit_b.pressed()) {
-        Gantry::pauseMotion();
-        pressedSwitches |= Constants::LimitSwitch::BOTTOM_PRESSED;
-        Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_BL.y * 25.4});
-    }
+    // if (limit_b.pressed()) {
+    //     Gantry::pauseMotion();
+    //     pressedSwitches |= Constants::LimitSwitch::BOTTOM_PRESSED;
+    //     Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_BL.y * 25.4});
+    // }
 
-    if (limit_t.pressed()) {
-        Gantry::pauseMotion();
-        pressedSwitches |= Constants::LimitSwitch::TOP_PRESSED;
-        Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_TR.y * 25.4});
-    }
+    // if (limit_t.pressed()) {
+    //     Gantry::pauseMotion();
+    //     pressedSwitches |= Constants::LimitSwitch::TOP_PRESSED;
+    //     Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_TR.y * 25.4});
+    // }
 
-    if (pressedSwitches) {
-        Packet packet(Action::LimitSwitches);
-        packet << pressedSwitches;
-        SerialLink::buffer(packet);  
-    }
+    // if (pressedSwitches) {
+    //     Packet packet(Action::LimitSwitches);
+    //     packet << pressedSwitches;
+    //     SerialLink::buffer(packet);  
+    // }
     
     // // Read distance
     // for (size_t i = 0; i < BUFFER_SIZE; ++i) {

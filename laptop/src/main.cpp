@@ -72,6 +72,18 @@ void HANDLE_PACKET(Packet& packet) {
 
             break;
         }
+
+        case Action::DistanceSensorRead: {
+            std::clog << "Updated position with distance sensors.\n";
+
+            break;
+        }
+
+        case Action::MalletHome: {
+            std::clog << "Bad distance sensor read.\n";
+
+            break;
+        }
             
         default:
             break;
@@ -95,9 +107,20 @@ void RECEIVE_PACKETS() {
 
 // Mallet control
 void MALLET_CONTROL() {
+    // get initial position with distance sensors
+    Packet packet(Action::DistanceSensorRead);
+    SerialLink::buffer(packet);
+
+    Sleep(2000);
+
+    // Packet packet(Action::DistanceSensorRead);
+    SerialLink::buffer(packet);
+
+    Sleep(2000);
+
     while (true) {
         // send velocity profile settings
-        VelocityProfile profile(0, 0, 100, 100);
+        VelocityProfile profile(0, 0, 250, 250);
         Packet vel_packet(Action::VelocityProfile);
         vel_packet << profile;
         SerialLink::buffer(vel_packet);
@@ -106,8 +129,17 @@ void MALLET_CONTROL() {
         auto trajectory = Puck::estimateTrajectory();
         auto target = Mallet::chooseTarget(trajectory);
         Packet pos_packet(Action::MalletPosition);
-        pos_packet << target;
+        Point2<double> targetPosition = (25.4 * (target - Constants::Mallet::LIMIT_BL));
+        pos_packet << targetPosition;
         SerialLink::buffer(pos_packet);
+
+        // if already made it to the target point, then take
+        // distance sensor reading of mallet location
+        Point2<double> temp = (Mallet::position()-Constants::Mallet::LIMIT_BL)*25.4;  // in mm
+        if (abs(temp.x - targetPosition.x) < 5 && abs(temp.y - targetPosition.y) < 5) {
+            Packet packet(Action::DistanceSensorRead);
+            SerialLink::buffer(packet);
+        }
     }
 }
 
