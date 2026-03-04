@@ -32,7 +32,7 @@
 #include <thread>
 #include <mutex>
 
-PuckTracker puck_tracker;
+PuckTracker puck_tracker(0, cv::CAP_ANY);
 
 /********************
   Packet Management
@@ -83,94 +83,31 @@ void HANDLE_PACKET(Packet& packet) {
   Asynchronous Threads
 ***********************/
 
-// Camera image processing
-void PUCK_TRACKING() {
-    while (true) {
-        puck_tracker.captureFrame();
-    }
-}
-
 // Communication with the microcontroller
-bool firstSend = true;
 void RECEIVE_PACKETS() {
+    // Laptop initializes communication
+    SerialLink::process(true);
+
     while (true) {
-        SerialLink::process(firstSend);
-        firstSend = false;
+        SerialLink::process();
     }
 }
 
 // Mallet control
 void MALLET_CONTROL() {
-    double counter = 0;
-    Point2<double> targetPosition;
-
     while (true) {
         // send velocity profile settings
         VelocityProfile profile(0, 0, 100, 100);
+        Packet vel_packet(Action::VelocityProfile);
+        vel_packet << profile;
+        SerialLink::buffer(vel_packet);
 
-        Packet velPocity_packet(Action::VelocityProfile);
-        velPocity_packet << profile;
-        SerialLink::buffer(velPocity_packet);
-
-        // // Get puck trajectory
-        // std::vector<Point3<double>> timestamps = Puck::estimateTrajectory();
-
-        // Get mallet's target location
-        // Point2<double> target = Mallet::chooseTarget(timestamps);
-
-        // counter += 1;
-        // Packet packet(Action::MalletPosition);
-        // targetPosition = (Constants::Mallet::HOME * 25.4 + Point2<double>{double(counter%2 * 100), double(counter%2 * 150)});
-        // packet << targetPosition;
-        // SerialLink::buffer(packet);
-
-        // send mallet to test point
-        // Packet packet(Action::MalletPosition);
-        // targetPosition = {250, 0};
-        // packet << targetPosition;
-        // SerialLink::buffer(packet);
-
-        // Send target out to gantry to draw circle
-        double speed = 0.01;
-        double radius = 150;
-        counter += speed * 3.14;
-        Point2<double> rot(std::cos(counter), std::sin(counter));
-        Packet packet(Action::MalletPosition);
-        targetPosition = (Constants::Mallet::HOME * 25.4 + radius * rot);
-        packet << targetPosition;
-        SerialLink::buffer(packet);
-
-        // std::clog << "Target: " << targetPosition << "\n";
-
-        // wait until mallet gets there before sending next packet (feedback)
-        int timeout = 0;
-        while (true) {
-            Point2<double> temp = (Mallet::position()-Constants::Mallet::LIMIT_BL)*25.4;
-            if (abs(temp.x - targetPosition.x) < 5 && abs(temp.y - targetPosition.y) < 5) {
-                break;
-            }
-
-            Sleep(1);
-            ++timeout;
-
-            // std::clog << temp << " " << targetPosition << "\n";
-
-            if (timeout > 500)
-                break;
-        }
-
-        // for (int i = 0; i < 10e8; i++) {
-        //     timeout += targetPosition.x;
-        // }
-        // std::clog << timeout;
-
-        // Point2<double> temp = (Mallet::position()-Constants::Mallet::LIMIT_BL)*25.4;
-        // std::clog << temp << " " << targetPosition << "\n";
-        
-        // // Mallet::moveTo(Constants::Mallet::HOME * 25.4 + radius * rot);
-        // std::clog << Constants::Mallet::HOME * 25.4 + radius * rot << "\n";
-
-        // std::clog << "Sending Mallet Commands\n";
+        // Send target location
+        auto trajectory = Puck::estimateTrajectory();
+        auto target = Mallet::chooseTarget(trajectory);
+        Packet pos_packet(Action::MalletPosition);
+        pos_packet << target;
+        SerialLink::buffer(pos_packet);
     }
 }
 
@@ -181,19 +118,23 @@ void MALLET_CONTROL() {
 
 bool INIT_MAIN() {
     try {
-        // StateTracker::init();               // Initialize state tracker
-        // std::clog << "Initialized state tracker\n";
+        // Initialize state tracker
+        StateTracker::init();
+        std::clog << "Initialized state tracker\n";
 
-        puck_tracker = PuckTracker(0, cv::CAP_ANY);
+        // Initialize puck tracker
+        puck_tracker.init();
         std::clog << "Initialized puck tracker\n";
 
-        SerialLink::init(HANDLE_PACKET);    // Initialize serial comms
+        // Initialize serial comms
+        SerialLink::init(HANDLE_PACKET);
         std::clog << "Initialized serial link on " << Constants::Comms::COM_PORT << '\n';
 
         // End of initialization
         std::clog << '\n';
     }
 
+    // Handle errors gracefully
     catch(const std::exception& e) {
         std::cerr << e.what() << '\n';
         return false;
@@ -209,20 +150,23 @@ bool INIT_MAIN() {
 
 int main() {
     // Initialize
-    if (!INIT_MAIN()) return 1;
+    if (!INIT_MAIN())
+        return 1;
 
     // Create threads
     std::thread receive_packets(RECEIVE_PACKETS);
     std::thread mallet_control(MALLET_CONTROL);
-    std::thread puck_tracking(PUCK_TRACKING);
 
     // Run threads async
     receive_packets.detach();
     mallet_control.detach();
-    puck_tracking.detach();
     
     // Yield main
     while (1) {
+        // Puck tracking
+        puck_tracker.captureFrame();
+
+        // Visualizers
         puck_tracker.displayFrame();
         Table::render();
     }
