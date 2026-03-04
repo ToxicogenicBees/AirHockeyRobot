@@ -22,14 +22,16 @@ namespace Constants {
 
     namespace Mallet {
         const Point2<double> HOME = {13.25, 10.0};      // Homing location for the mallet
-        constexpr double SPEED = 98.4251969;            // Estimated mallet speed (inch/sec)
+        constexpr double SPEED = 80.4251969;            // Estimated mallet speed (inch/sec)
         constexpr double ACCEL = 1181.10236;            // Estimated mallet accelleration (inch/sec^2)
         constexpr double RADIUS = 2.0;                  // Radius in inches
+        constexpr double MAX_RPM = 750;
+        constexpr double MIN_RPM = 15;
 
         const Point2<double> LIMIT_BL                   // Bottom-left limit of mallet motion
             = {1.59375, 3.0};
         const Point2<double> LIMIT_TR                   // Top-right limit of mallet motion
-            = {Table::SIZE.x - 2.5, 25.0};
+            = {Table::SIZE.x - LIMIT_BL.x, 21.0};
     }
     
     namespace Puck {

@@ -5,7 +5,7 @@
 
 const double Gantry::_DRIVE_PULLEY_RADIUS = 28; // 28 mm
 const double Gantry::_STEP_CONVERSION_CONST = Motor::MICROSTEPS_PER_REV / (2*PI * _DRIVE_PULLEY_RADIUS);  // for converting delta X or Y to steps
-const double Gantry::DIST_TOLERANCE_LOW = 2.5; // mm
+const double Gantry::DIST_TOLERANCE_LOW = 5; // mm
 const double Gantry::DIST_TOLERANCE_HIGH = 100; // mm
         
 Motor Gantry::_left(motor_l_step, motor_l_dir, motor_l_scs);

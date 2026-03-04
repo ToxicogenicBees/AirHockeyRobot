@@ -72,6 +72,11 @@ void PuckTracker::captureFrame() {
     );
 
     // If the color is found, update the puck
+    // if puck only moves 1 or two pixels then ignore
+    auto dif = _prev_pixels - p;
+    if (dif.dot(dif) <= 4)
+        return;
+
     if (inches.x >= 0 && inches.y >= 0) {
         Puck::moveTo(inches);
         _prev_pixels = p;

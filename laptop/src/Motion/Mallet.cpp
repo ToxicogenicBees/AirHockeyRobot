@@ -45,22 +45,27 @@ Point2<double> Mallet::chooseTarget(const std::vector<Point3<double>>& timestamp
 
         // Parameters for choosing a target
         double reach_time = timeToReach(tp);
+
         double margin = t.z - reach_time;
+        if (margin < 0)
+            continue;
+
         double dist = (tp - pos).magnitude();
 
         // Weight targets by desire
+        // weight points that are closer to mallet higher
         double weight = 
-            0.6 * margin                                // Relative time between arrivals
-            + 0.6 / (1 + t.z)                           // Time the puck arrives
-            - 0.15 * dist / Constants::Mallet::SPEED;   // The distance from the puck's current location (normalized for time)
+            - 0.25 * margin;                                // Relative time between arrivals
+            // + 0.5 / (1 + sqrt(t.z))                           // Time the puck arrives
+            // + 0.75 / (1 + dist);   // The distance from the puck's current location (normalized for time)
 
         // Check if this weight is the best
         if (weight > best_weight) {
             best_weight = weight;
 
             best_target = {
-                std::clamp(tp.x, Constants::Mallet::LIMIT_BL.x, Constants::Mallet::LIMIT_TR.x),
-                std::clamp(tp.y, Constants::Mallet::LIMIT_BL.y, Constants::Mallet::LIMIT_TR.y)
+                std::clamp(tp.x, Constants::Mallet::LIMIT_BL.x + 1, Constants::Mallet::LIMIT_TR.x - 1),
+                std::clamp(tp.y, Constants::Mallet::LIMIT_BL.y + 1, Constants::Mallet::LIMIT_TR.y - 1)
             };
         }
     }

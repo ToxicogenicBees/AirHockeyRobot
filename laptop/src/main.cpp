@@ -119,15 +119,37 @@ void MALLET_CONTROL() {
     Sleep(2000);
 
     while (true) {
-        // send velocity profile settings
-        VelocityProfile profile(0, 0, 250, 250);
-        Packet vel_packet(Action::VelocityProfile);
-        vel_packet << profile;
-        SerialLink::buffer(vel_packet);
-
         // Send target location
         auto trajectory = Puck::estimateTrajectory();
         auto target = Mallet::chooseTarget(trajectory);
+
+        // vary speed based on how far away target is
+        // send velocity profile settings
+        double dist_mag = (Mallet::position() - target).magnitude();
+        if (dist_mag < 1) {
+            VelocityProfile profile(0, 0, 50, 50);
+            Packet vel_packet(Action::VelocityProfile);
+            vel_packet << profile;
+            SerialLink::buffer(vel_packet);
+        } else if (dist_mag < 2) {
+            VelocityProfile profile(0, 0, 150, 150);
+            Packet vel_packet(Action::VelocityProfile);
+            vel_packet << profile;
+            SerialLink::buffer(vel_packet);
+        } else if (dist_mag < 6) {
+            VelocityProfile profile(0, 0, 350, 350);
+            Packet vel_packet(Action::VelocityProfile);
+            vel_packet << profile;
+            SerialLink::buffer(vel_packet);
+        } else if (dist_mag < 15) {
+            VelocityProfile profile(0, 0, 600, 600);
+            Packet vel_packet(Action::VelocityProfile);
+            vel_packet << profile;
+            SerialLink::buffer(vel_packet);
+        }
+        
+
+
         Packet pos_packet(Action::MalletPosition);
         Point2<double> targetPosition = (25.4 * (target - Constants::Mallet::LIMIT_BL));
         pos_packet << targetPosition;
