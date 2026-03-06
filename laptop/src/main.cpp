@@ -125,14 +125,32 @@ void MALLET_CONTROL() {
 
     Sleep(2000);
 
+    Point2<double> prev_target;
+
     while (true) {
         // Send target location
         auto trajectory = Puck::estimateTrajectory();
         auto target = Mallet::chooseTarget(trajectory);
+        Point2<double> target_mm = (25.4 * (target - Constants::Mallet::LIMIT_BL));
+        double dist_mag = (Mallet::position() - target).magnitude();
+
+        // if already made it to the target point, then take
+        // distance sensor reading of mallet location
+        Point2<double> temp = (Mallet::position()-Constants::Mallet::LIMIT_BL)*25.4;  // in mm
+        if (dist_mag < 0.20) {
+            Packet packet(Action::DistanceSensorRead);
+            SerialLink::buffer(packet);
+        }
+
+        // if still close to the same target, don't resend movement commands
+        if ((target - prev_target).magnitude() < 1) {
+            continue;
+        }
+
+        prev_target = target;
 
         // vary speed based on how far away target is
         // send velocity profile settings
-        double dist_mag = (Mallet::position() - target).magnitude();
         if (dist_mag < 1) {
             VelocityProfile profile(0, 0, 50, 50);
             Packet vel_packet(Action::VelocityProfile);
@@ -143,32 +161,26 @@ void MALLET_CONTROL() {
             Packet vel_packet(Action::VelocityProfile);
             vel_packet << profile;
             SerialLink::buffer(vel_packet);
-        } else if (dist_mag < 6) {
-            VelocityProfile profile(0, 0, 350, 350);
+        } else if (dist_mag < 5) {
+            VelocityProfile profile(0.1, 0, 350, 500);
             Packet vel_packet(Action::VelocityProfile);
             vel_packet << profile;
             SerialLink::buffer(vel_packet);
         } else if (dist_mag < 15) {
-            VelocityProfile profile(0, 0, 600, 600);
+            VelocityProfile profile(0.15, 0, 500, 650);
             Packet vel_packet(Action::VelocityProfile);
             vel_packet << profile;
             SerialLink::buffer(vel_packet);
         }
-        
 
+        // VelocityProfile profile(0.1, 0, 350, 750);
+        // Packet vel_packet(Action::VelocityProfile);
+        // vel_packet << profile;
+        // SerialLink::buffer(vel_packet);
 
         Packet pos_packet(Action::MalletPosition);
-        Point2<double> targetPosition = (25.4 * (target - Constants::Mallet::LIMIT_BL));
-        pos_packet << targetPosition;
+        pos_packet << target_mm;
         SerialLink::buffer(pos_packet);
-
-        // if already made it to the target point, then take
-        // distance sensor reading of mallet location
-        Point2<double> temp = (Mallet::position()-Constants::Mallet::LIMIT_BL)*25.4;  // in mm
-        if (abs(temp.x - targetPosition.x) < 5 && abs(temp.y - targetPosition.y) < 5) {
-            Packet packet(Action::DistanceSensorRead);
-            SerialLink::buffer(packet);
-        }
     }
 }
 
@@ -180,12 +192,12 @@ void MALLET_CONTROL() {
 bool INIT_MAIN() {
     try {
         // Initialize state tracker
-        // StateTracker::init();
-        // std::clog << "Initialized state tracker\n";
+        StateTracker::init();
+        std::clog << "Initialized state tracker\n";
 
         // // Initialize puck tracker
-        // puck_tracker.init();
-        // std::clog << "Initialized puck tracker\n";
+        puck_tracker.init();
+        std::clog << "Initialized puck tracker\n";
 
         // Initialize serial comms
         SerialLink::init(HANDLE_PACKET);
@@ -216,16 +228,16 @@ int main() {
 
     // Create threads
     std::thread receive_packets(RECEIVE_PACKETS);
-    // std::thread mallet_control(MALLET_CONTROL);
+    std::thread mallet_control(MALLET_CONTROL);
 
     // Run threads async
     receive_packets.detach();
-    // mallet_control.detach();
+    mallet_control.detach();
     
     // Yield main
     while (1) {
         // Puck tracking
-        // puck_tracker.captureFrame();
+        puck_tracker.captureFrame();
 
         // Visualizers
         puck_tracker.displayFrame();

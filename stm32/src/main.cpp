@@ -8,9 +8,10 @@
 #include "Types/VelocityProfile.hpp"
 
 #include <Arduino.h>
+#include <algorithm>
 
-// Distances buffer
-constexpr uint8_t BUFFER_SIZE = 10;
+// Distances buffer, make odd so can easily get median of samples
+constexpr uint8_t BUFFER_SIZE = 11;
 
 Point2<double> distance_buffer[BUFFER_SIZE];
 size_t distance_buffer_index = 0;
@@ -47,11 +48,21 @@ void HANDLE_PACKET(Packet& packet) {
             // read distance sensors
             DistanceSensor::calibrate(temp.temperature());
 
-            // Calculate average distance
-            Point2<double> avg_pos;
-            for (int i = 0; i < BUFFER_SIZE; i++)
-                avg_pos += {dist_x.distance(), dist_y.distance()}; 
-            avg_pos /= BUFFER_SIZE;
+            // Calculate the median of a bulk distance sensor read
+            // median will get rid of noise better compared to taking average (mean)
+            auto median = [](DistanceSensor& sensor) {
+                double samples[BUFFER_SIZE];
+                for (int i = 0; i < BUFFER_SIZE; ++i)
+                    samples[i] = sensor.distance();
+
+                std::sort(samples, (samples + BUFFER_SIZE));
+                return samples[BUFFER_SIZE / 2];
+            };
+
+            // Fetch median distance
+            Point2<double> median_distance(
+                median(dist_x), median(dist_y)
+            );
 
             // If delta distance lower than DIST_TOLERANCE_LOW than assume ok and don't edit Gantry position.
             // If delta distance greater than DIST_TOLERANCE_LOW away but smaller than 
@@ -60,12 +71,12 @@ void HANDLE_PACKET(Packet& packet) {
             // Otherwise distance sensor readings are bad, or the mallet
             // assumed position is way off, so request a mallet homing routine
             // using limit switches.
-            Point2<double> delta = {abs(avg_pos.x - Gantry::getPosition().x), abs(avg_pos.y - Gantry::getPosition().y)};
+            double delta = (median_distance - Gantry::getPosition()).magnitude();
 
-            if (delta.x > Gantry::DIST_TOLERANCE_LOW || delta.y > Gantry::DIST_TOLERANCE_LOW) {
-                if (delta.x < Gantry::DIST_TOLERANCE_HIGH && delta.y < Gantry::DIST_TOLERANCE_HIGH) {
+            if (delta > Gantry::DIST_TOLERANCE_LOW) {
+                if (delta < Gantry::DIST_TOLERANCE_HIGH) {
                     // set to weighted average between assumed position and sensed position 
-                    Gantry::setPosition(0.8*avg_pos +  0.2*Gantry::getPosition());
+                    Gantry::setPosition(0.8*median_distance +  0.2*Gantry::getPosition());
                     Packet packet(Action::DistanceSensorRead);
                     SerialLink::buffer(packet); 
                 } else {
