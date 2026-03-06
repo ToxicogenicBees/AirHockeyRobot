@@ -143,7 +143,7 @@ void MALLET_CONTROL() {
         }
 
         // if still close to the same target, don't resend movement commands
-        if ((target - prev_target).magnitude() < 1) {
+        if ((target - prev_target).magnitude() < 0.25) {
             continue;
         }
 
