@@ -1,9 +1,10 @@
 #include "Motion/Motor.h"
 
-Motor::Motor(PinDef& step, PinDef& dir, PinDef& scs) {
+Motor::Motor(PinDef& step, PinDef& dir, PinDef& scs, PinDef& fault) {
     _step = &step;
     _dir = &dir;
     _scs = &scs;
+    _fault = &fault;
 }
 
 void Motor::init() {
@@ -12,6 +13,10 @@ void Motor::init() {
     stepLow();
     _dir->init();
     _driver.setChipSelectPin(_scs->PIN);
+    _fault->init();
+
+    // attach fault interupt service routine
+    attachInterrupt(_fault->PIN, [this](){_faultISR();}, FALLING);
     
     // Initialize driver (auto initializes SCS pin)
     delay(100);
@@ -22,6 +27,10 @@ void Motor::init() {
     _driver.setCurrentMilliamps36v4(4000); 
     _driver.setStepMode((HPSDStepMode) MICROSTEP_SETTING);
     _driver.enableDriver();
+}
+
+void Motor::_faultISR() {
+    // dummy function
 }
 
 void Motor::setDir(bool dir) {

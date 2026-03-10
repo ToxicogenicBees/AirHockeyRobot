@@ -10,6 +10,12 @@ class Motor {
         PinDef* _step;
         PinDef* _dir;
         PinDef* _scs;
+        PinDef* _fault;
+
+        /**
+         * @brief Fault ISR responds to fault condition from motor driver;
+         */
+        void _faultISR();
 
     public:
         // Motor config
@@ -23,8 +29,9 @@ class Motor {
          * @param step      Step pin
          * @param dir       Direction pin
          * @param scs       Chip select pin
+         * @param fault       Chip select pin
          */
-        Motor(PinDef& step, PinDef& dir, PinDef& scs);
+        Motor(PinDef& step, PinDef& dir, PinDef& scs, PinDef& fault);
 
         /**
          * @brief Sets the motor's target direction
