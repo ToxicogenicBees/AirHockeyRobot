@@ -6,10 +6,15 @@ PinDef mosi(D11, OUTPUT);
 PinDef motor_l_step(A2, OUTPUT);
 PinDef motor_l_dir(A3, OUTPUT);
 PinDef motor_l_scs(A1, OUTPUT);
+PinDef motor_l_fault(PB12, OUTPUT);
 
 PinDef motor_r_step(D9, OUTPUT);
 PinDef motor_r_dir(D8, OUTPUT);
 PinDef motor_r_scs(D10, OUTPUT);
+PinDef motor_r_fault(PA10, OUTPUT);
+
+PinDef motor_sleep(PB3, OUTPUT);
+PinDef motor_enable(PB6, OUTPUT);
 
 PinDef dist_x_trig(A5, OUTPUT);
 PinDef dist_x_echo(A4, INPUT);

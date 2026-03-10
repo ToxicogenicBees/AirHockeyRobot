@@ -92,3 +92,7 @@ Point2<double> Mallet::position() {
 Point2<double> Mallet::velocity() {
     return _mallet.velocity();
 }
+
+// double Mallet::goThroughPointAtVelocity(const Point2<double>& vel) {
+//     _mallet.velocity();
+// }

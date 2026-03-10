@@ -15,12 +15,17 @@ extern PinDef mosi;
 extern PinDef motor_l_step;
 extern PinDef motor_l_dir;
 extern PinDef motor_l_scs;
+extern PinDef motor_l_fault;
 
 // Right motor pins
 extern PinDef motor_r_step;
 extern PinDef motor_r_dir;
 extern PinDef motor_r_scs;
+extern PinDef motor_r_fault;
 
+// Motor pins common to both motors
+extern PinDef motor_sleep;
+extern PinDef motor_enable;
 
 /**********
   Sensors  

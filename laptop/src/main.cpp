@@ -167,7 +167,7 @@ void MALLET_CONTROL() {
             vel_packet << profile;
             SerialLink::buffer(vel_packet);
         } else if (dist_mag < 15) {
-            VelocityProfile profile(0.15, 0, 500, 650);
+            VelocityProfile profile(0.15, 0.01, 500, 650);
             Packet vel_packet(Action::VelocityProfile);
             vel_packet << profile;
             SerialLink::buffer(vel_packet);
