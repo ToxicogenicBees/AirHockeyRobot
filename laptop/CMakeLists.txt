@@ -22,7 +22,6 @@ set(COMMON_INCLUDES
 set(EXECUTABLES
     PhysicsSim
     PacketTest
-    OpenCVTest
     GraphTest
     main
 )
@@ -42,10 +41,6 @@ set(PhysicsSim_SOURCES
     src/Motion/Routines/Routine.cpp
     src/Motion/Routines/BasicDefenseRoutine.cpp
     src/Motion/Routines/MotionTestRoutine.cpp
-)
-
-set(OpenCVTest_SOURCES
-    src/Examples/OpenCVTest.cpp
 )
 
 set(GraphTest_SOURCES
@@ -77,6 +72,5 @@ endfunction()
 # --- Add all executables ---
 add_opencv_executable(PhysicsSim "${PhysicsSim_SOURCES}")
 add_opencv_executable(PacketTest "${PacketTest_SOURCES}")
-add_opencv_executable(OpenCVTest "${OpenCVTest_SOURCES}")
 add_opencv_executable(GraphTest "${GraphTest_SOURCES}")
 add_opencv_executable(main "${main_SOURCES}")
