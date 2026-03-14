@@ -53,38 +53,29 @@ std::pair<Point2<double>, Point2<double>> Puck::determineFutureOrientation(doubl
     Point2<double> new_pos = pos + dt * vel;
 
     // Effective puck bounds (accounting for the radius of the puck)
-    Point2<double> min = Constants::Puck::RADIUS * Point2<double>::one();
-    Point2<double> max = Constants::Table::SIZE - min;
+    const Point2<double> MIN = Constants::Puck::RADIUS * Point2<double>::one();
+    const Point2<double> MAX = Constants::Table::SIZE - MIN;
 
-    // Reflection variables
-    Point2<double> range = max - min;
-    Point2<double> period = 2.0 * range;
-    Point2<double> mod(
-        std::fmod(new_pos.x - min.x, period.x),
-        std::fmod(new_pos.y - min.y, period.y)
-    );
+    // Reflect off an axis
+    auto reflect = [](double& new_pos, double& vel, double min, double max) {
+        double range = max - min;
+        double period = 2 * range;
+        double mod = std::fmod(new_pos - min, period);
 
-    // Reflect off x-axis
-    if (mod.x < 0)
-        mod.x += period.x;
+        if (mod < 0)
+            mod += period;
+        
+        if (mod < range)
+            new_pos = min + mod;
+        else {
+            new_pos = max - (mod - range);
+            vel *= -1;
+        }
+    };
 
-    if (mod.x <= range.x)
-        new_pos.x = min.x + mod.x;
-    else {
-        new_pos.x = max.x - (mod.x - range.x);
-        vel.x *= -1;
-    }
-
-    // Reflect off y-axis
-    if (mod.y < 0)
-        mod.y += period.y;
-
-    if (mod.y <= range.y)
-        new_pos.y = min.y + mod.y;
-    else {
-        new_pos.y = max.y - (mod.y - range.y);
-        vel.y *= -1;
-    }
+    // Reflect off each axis
+    reflect(new_pos.x, vel.x, MIN.x, MAX.x);
+    reflect(new_pos.y, vel.y, MIN.y, MAX.y);
 
     return { new_pos , vel };
 }
