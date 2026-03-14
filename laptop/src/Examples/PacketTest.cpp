@@ -11,13 +11,13 @@ int main() {
     packet.finalize();
 
     packet.resetRead();
-    std::cout << packet.read<Point2<double>>() << std::endl;
+    std::clog << packet.read<Point2<double>>() << "\n";
 
     packet.resetRead();
-    std::cout << std::hex;
+    std::clog << std::hex;
     for (uint8_t i = 0; i < packet.payloadLength(); i++)
-        std::cout << (int) packet.read<uint8_t>() << " ";
-    std::cout << std::endl;
+        std::clog << (int) packet.read<uint8_t>() << " ";
+    std::clog << "\n";
     
     return 0;
 }
