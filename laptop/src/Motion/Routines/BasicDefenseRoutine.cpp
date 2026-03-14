@@ -11,6 +11,10 @@ namespace {
 
 BasicDefenseRoutine::BasicDefenseRoutine() : Routine() {}
 
+std::unique_ptr<Routine> BasicDefenseRoutine::clone() const {
+    return std::make_unique<BasicDefenseRoutine>(*this);
+}
+
 void BasicDefenseRoutine::updateTarget() {
     // Create copy of timestamps
     auto timestamps = Puck::estimateTrajectory();

@@ -35,9 +35,9 @@
 
 PuckTracker puck_tracker(0, cv::CAP_ANY);
 
-const std::vector<Routine> ROUTINES = {
-    MotionTestRoutine{},
-    BasicDefenseRoutine{},
+std::vector<Routine*> routines = {
+    new MotionTestRoutine(),
+    new BasicDefenseRoutine()
 };
 
 /********************
@@ -127,7 +127,7 @@ bool INIT_MAIN() {
     try {
         // Initialize state tracker
         StateTracker::init();
-        Mallet::setRoutine(ROUTINES[StateTracker::getDifficulty()]);
+        Mallet::setRoutine(routines[StateTracker::getDifficulty()]->clone());
         std::clog << "Initialized state tracker\n";
 
         // // Initialize puck tracker
@@ -178,6 +178,10 @@ int main() {
         puck_tracker.displayFrame();
         Table::render();
     }
+
+    // Clean up memory
+    for (auto r : routines)
+        delete r;
 
     return 0;
 }

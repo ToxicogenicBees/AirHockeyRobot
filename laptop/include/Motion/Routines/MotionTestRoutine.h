@@ -20,6 +20,13 @@ class MotionTestRoutine : public Routine {
         virtual ~MotionTestRoutine() = default;
 
         /**
+         * @brief Clones the routine
+         * 
+         * @returns A clone of the routine
+         */
+        std::unique_ptr<Routine> clone() const override;
+
+        /**
          * @brief Calculates and transmits an appropriate mallet action for this routine
          */
         void updateTarget() override;

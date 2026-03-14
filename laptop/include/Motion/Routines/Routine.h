@@ -4,6 +4,8 @@
 #include "Types/VelocityProfile.hpp"
 #include "Types/Point2.hpp"
 
+#include <memory>
+
 class Routine {
     protected:
         // The desired mallet velocity profile
@@ -52,6 +54,13 @@ class Routine {
          * @brief Destroy the routine
          */
         virtual ~Routine() = default;
+
+        /**
+         * @brief Clones the routine
+         * 
+         * @returns A clone of the routine
+         */
+        virtual std::unique_ptr<Routine> clone() const = 0;
 
         /**
          * @brief Calculates an appropriate mallet action for this routine

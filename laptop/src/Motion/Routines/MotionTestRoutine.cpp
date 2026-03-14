@@ -14,6 +14,10 @@ namespace {
 
 MotionTestRoutine::MotionTestRoutine() : Routine() {}
 
+std::unique_ptr<Routine> MotionTestRoutine::clone() const {
+    return std::make_unique<MotionTestRoutine>(*this);
+}
+
 void MotionTestRoutine::updateTarget() {
     auto seconds = _timer.delta<std::chrono::seconds>();
 

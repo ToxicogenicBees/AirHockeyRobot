@@ -38,10 +38,7 @@ class Mallet {
          * 
          * @param routine The desired mallet routine
          */
-        template <class T>
-        static void setRoutine(const T& routine) {
-            _routine = std::make_unique<T>(routine);
-        }
+        static void setRoutine(std::unique_ptr<Routine> routine);
 
         /**
          * @brief Calculates an appropriate mallet action from the mallet's routine

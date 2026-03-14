@@ -15,6 +15,10 @@ void Mallet::orient(const Point2<double>& pos, const Point2<double>& vel) {
     _mallet.orient(pos, vel);
 }
 
+void Mallet::setRoutine(std::unique_ptr<Routine> routine) {
+    _routine = std::move(routine);
+}
+
 void Mallet::updateTarget() {
     if (_routine)
         _routine->updateTarget();
