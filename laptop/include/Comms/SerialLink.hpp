@@ -1,5 +1,5 @@
-#ifndef SERIAL_LINK_HPP
-#define SERIAL_LINK_HPP
+#ifndef SERIALLINK_HPP
+#define SERIALLINK_HPP
 
 #include "Comms/PacketBuffer.hpp"
 #include "Comms/Packet.hpp"
@@ -18,21 +18,21 @@ class SerialLink {
         using processor = std::function<void(Packet&)>;
 
         // Link handler
-        static HANDLE _h_serial;
+        inline static HANDLE _h_serial;
 
         // Incoming bytes buffer
-        static std::vector<uint8_t> _rx_buffer;
+        inline static std::vector<uint8_t> _rx_buffer;
 
         // Buffered completed packets
-        static PacketBuffer _receive_buffer;
-        static PacketBuffer _send_buffer;
-        static std::mutex _send_guard;
+        inline static PacketBuffer _receive_buffer;
+        inline static PacketBuffer _send_buffer;
+        inline static std::mutex _send_guard;
 
         // Packet handler
-        static processor _callback;
+        inline static processor _callback;
 
         // Communication timer
-        static Timer _timer;
+        inline static Timer _timer;
 
         // Receive a packet from the link
         static Packet _receivePacket() {
@@ -187,13 +187,5 @@ class SerialLink {
             }
         }
 };
-
-HANDLE SerialLink::_h_serial;
-std::vector<uint8_t> SerialLink::_rx_buffer;
-PacketBuffer SerialLink::_receive_buffer;
-PacketBuffer SerialLink::_send_buffer;
-std::mutex SerialLink::_send_guard;
-SerialLink::processor SerialLink::_callback;
-Timer SerialLink::_timer;
 
 #endif
