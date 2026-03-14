@@ -2,7 +2,9 @@
 #define MALLET_H
 
 #include <vector>
+#include <memory>
 
+#include "Motion/Routines/Routine.h"
 #include "Motion/MovingObject.h"
 #include "Types/Point2.hpp"
 #include "Types/Point3.hpp"
@@ -10,46 +12,15 @@
 
 class Mallet {
     private:
-        static constexpr double _TARGET_ERR         // Allowed tolerance before changing target positions
-            = 0.05 * Constants::Mallet::RADIUS;  
-
-        static Point2<double> _target;              // Current target position
-        static double _target_time;                 // Current target's arrival time
         static MovingObject _mallet;                // Moving object used for the mallet
+        static std::unique_ptr<Routine> _routine;   // Current mallet routine
 
     public:
-        /***
-         * @brief Calculates how long it would take the mallet to reach this point from where it currently is
-         * 
-         * @param pos   The position the mallet is trying to move to
-         * 
-         * @return How long it takes the mallet to reach this point, in seconds
-         */
-        static double timeToReach(const Point2<double>& pos);
-
-        /***
-         * @brief Determines if the mallet can reach this point
-         * 
-         * @param timestamp   The (x-position, y-position) to check
-         * 
-         * @return If the point is within range for the mallet
-         */
-        static bool canReach(const Point2<double> pos);
-
-        /**
-         * @brief Determines the target location for the mallet to go to
-         * 
-         * @param timestamps    The (x-position, y-position, time-of-arrival) timestamps to check
-         * 
-         * @return The point the mallet is targetting
-         */
-        static Point2<double> chooseTarget(const std::vector<Point3<double>>& timestamps);
-
         /**
          * @brief Updates the internal state of the object, traveling to the new position over the given time range
          * 
          * @param new_pos   The position the object is at now
-         * @param msec      The time difference in microseconds between position updates,
+         * @param micsec    The time difference in microseconds between position updates,
          *                  defaults to the time between function calls
          */
         static void moveTo(const Point2<double>& new_pos, int64_t micsec = -1);
@@ -61,6 +32,26 @@ class Mallet {
          * @param vel   The desired velocity of the object, defaults to (0, 0)
          */
         static void orient(const Point2<double>& pos = {0.0, 0.0}, const Point2<double>& vel = {0.0, 0.0});
+
+        /**
+         * @brief Sets the mallet routine
+         * 
+         * @param routine The desired mallet routine
+         */
+        template <class T>
+        static void setRoutine(const T& routine) {
+            _routine = std::make_unique<T>(routine);
+        }
+
+        /**
+         * @brief Calculates an appropriate mallet action from the mallet's routine
+         */
+        static void updateTarget();
+
+        /**
+         * @brief Transmits the target mallet action over the SerialLink
+         */
+        static void transmitTarget();
 
         /**
          * @brief Returns the current position of the object, in inches
@@ -81,7 +72,7 @@ class Mallet {
          * 
          * @return The current target chosen
          */
-        static Point2<double> target() { return _target; }
+        static Point2<double> target();
 };
 
 #endif
