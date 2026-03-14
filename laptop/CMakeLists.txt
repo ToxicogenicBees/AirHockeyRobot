@@ -20,7 +20,6 @@ set(COMMON_INCLUDES
 
 # --- List of executables ---
 set(EXECUTABLES
-    malletSensorFeedbackVisualizer
     PhysicsSim
     PacketTest
     OpenCVTest
@@ -29,15 +28,6 @@ set(EXECUTABLES
 )
 
 # --- Mapping source files for each executable ---
-set(malletSensorFeedbackVisualizer_SOURCES
-    src/Examples/malletSensorFeedbackVisualizer.cpp
-    src/Motion/MovingObject.cpp
-    src/Simulation/Table.cpp
-    src/Motion/Mallet.cpp
-    src/Motion/Puck.cpp
-    src/Motion/PuckTracker.cpp
-)
-
 set(PacketTest_SOURCES
     src/Examples/PacketTest.cpp
 )
@@ -49,6 +39,9 @@ set(PhysicsSim_SOURCES
     src/Motion/Mallet.cpp
     src/Motion/Puck.cpp
     src/Motion/PuckTracker.cpp
+    src/Motion/Routines/Routine.cpp
+    src/Motion/Routines/BasicDefenseRoutine.cpp
+    src/Motion/Routines/MotionTestRoutine.cpp
 )
 
 set(OpenCVTest_SOURCES
@@ -69,6 +62,9 @@ set(main_SOURCES
     src/Motion/Mallet.cpp
     src/Motion/Puck.cpp
     src/Motion/PuckTracker.cpp
+    src/Motion/Routines/Routine.cpp
+    src/Motion/Routines/BasicDefenseRoutine.cpp
+    src/Motion/Routines/MotionTestRoutine.cpp
 )
 
 # --- Function to create executables with common includes and OpenCV ---
@@ -80,7 +76,6 @@ endfunction()
 
 # --- Add all executables ---
 add_opencv_executable(PhysicsSim "${PhysicsSim_SOURCES}")
-add_opencv_executable(malletSensorFeedbackVisualizer "${malletSensorFeedbackVisualizer_SOURCES}")
 add_opencv_executable(PacketTest "${PacketTest_SOURCES}")
 add_opencv_executable(OpenCVTest "${OpenCVTest_SOURCES}")
 add_opencv_executable(GraphTest "${GraphTest_SOURCES}")

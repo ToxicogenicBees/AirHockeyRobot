@@ -15,24 +15,30 @@
   Libraries
 ************/
 
-#include "Types/VelocityProfile.hpp"
+#include "Motion/Routines/BasicDefenseRoutine.h"
+#include "Motion/Routines/MotionTestRoutine.h"
+#include "Motion/Routines/Routine.h"
 #include "Comms/SerialLink.hpp"
 #include "Simulation/Table.h"
 #include "State/StateTracker.h"
-#include "State/KeyLog.h"
 #include "Motion/PuckTracker.h"
 #include "Motion/Mallet.h"
 #include "Motion/Puck.h"
 #include "Constants.h"
 
 #include <windows.h>
-
 #include <algorithm>
 #include <iostream>
+#include <vector>
 #include <thread>
 #include <mutex>
 
 PuckTracker puck_tracker(0, cv::CAP_ANY);
+
+const std::vector<Routine> ROUTINES = {
+    MotionTestRoutine{},
+    BasicDefenseRoutine{},
+};
 
 /********************
   Packet Management
@@ -49,14 +55,12 @@ void HANDLE_PACKET(Packet& packet) {
             p += Constants::Mallet::LIMIT_BL;
 
             Mallet::moveTo(p);
-            // std::clog << p << "\n";
             break;
         }
 
         case Action::LimitSwitches: {
             // uint8_t pressed = packet.read<uint8_t>();
-
-                std::clog <<  packet.read<double>() << "\n";
+            std::clog <<  packet.read<double>() << "\n";
 
             // check for which limit switches pressed
             // if (pressed & Constants::LimitSwitch::LEFT_PRESSED) {
@@ -76,19 +80,16 @@ void HANDLE_PACKET(Packet& packet) {
             //     // top was pressed, decide what movements invalid
             //     std::clog << "Top Pressed\n";
             // }
-
             break;
         }
 
         case Action::DistanceSensorRead: {
             std::clog << "Updated position with distance sensors.\n";
-
             break;
         }
 
         case Action::MalletHome: {
             std::clog << "Bad distance sensor read.\n";
-
             break;
         }
             
@@ -114,74 +115,7 @@ void RECEIVE_PACKETS() {
 
 // Mallet control
 void MALLET_CONTROL() {
-    // get initial position with distance sensors
-    Packet packet(Action::DistanceSensorRead);
-    SerialLink::buffer(packet);
-
-    Sleep(2000);
-
-    // Packet packet(Action::DistanceSensorRead);
-    SerialLink::buffer(packet);
-
-    Sleep(2000);
-
-    Point2<double> prev_target;
-
-    while (true) {
-        // Send target location
-        auto trajectory = Puck::estimateTrajectory();
-        auto target = Mallet::chooseTarget(trajectory);
-        Point2<double> target_mm = (25.4 * (target - Constants::Mallet::LIMIT_BL));
-        double dist_mag = (Mallet::position() - target).magnitude();
-
-        // if already made it to the target point, then take
-        // distance sensor reading of mallet location
-        Point2<double> temp = (Mallet::position()-Constants::Mallet::LIMIT_BL)*25.4;  // in mm
-        if (dist_mag < 0.20) {
-            Packet packet(Action::DistanceSensorRead);
-            SerialLink::buffer(packet);
-        }
-
-        // if still close to the same target, don't resend movement commands
-        if ((target - prev_target).magnitude() < 0.25) {
-            continue;
-        }
-
-        prev_target = target;
-
-        // vary speed based on how far away target is
-        // send velocity profile settings
-        if (dist_mag < 1) {
-            VelocityProfile profile(0, 0, 50, 50);
-            Packet vel_packet(Action::VelocityProfile);
-            vel_packet << profile;
-            SerialLink::buffer(vel_packet);
-        } else if (dist_mag < 2) {
-            VelocityProfile profile(0, 0, 150, 150);
-            Packet vel_packet(Action::VelocityProfile);
-            vel_packet << profile;
-            SerialLink::buffer(vel_packet);
-        } else if (dist_mag < 5) {
-            VelocityProfile profile(0.1, 0, 350, 500);
-            Packet vel_packet(Action::VelocityProfile);
-            vel_packet << profile;
-            SerialLink::buffer(vel_packet);
-        } else if (dist_mag < 15) {
-            VelocityProfile profile(0.15, 0.01, 500, 650);
-            Packet vel_packet(Action::VelocityProfile);
-            vel_packet << profile;
-            SerialLink::buffer(vel_packet);
-        }
-
-        // VelocityProfile profile(0.1, 0, 350, 750);
-        // Packet vel_packet(Action::VelocityProfile);
-        // vel_packet << profile;
-        // SerialLink::buffer(vel_packet);
-
-        Packet pos_packet(Action::MalletPosition);
-        pos_packet << target_mm;
-        SerialLink::buffer(pos_packet);
-    }
+    Mallet::updateTarget();
 }
 
 
@@ -193,6 +127,7 @@ bool INIT_MAIN() {
     try {
         // Initialize state tracker
         StateTracker::init();
+        Mallet::setRoutine(ROUTINES[StateTracker::getDifficulty()]);
         std::clog << "Initialized state tracker\n";
 
         // // Initialize puck tracker

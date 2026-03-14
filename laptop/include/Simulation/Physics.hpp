@@ -5,13 +5,16 @@
 
 #include "Simulation/Table.h"
 #include "Types/Point2.hpp"
+#include "Types/Timer.hpp"
 #include "Motion/Mallet.h"
 #include "Motion/Puck.h"
 #include "Constants.h"
 
+#include <iostream>
+
 class Physics {
     private:
-        static constexpr double _TIME_STEP = Constants::SAMPLE_PERIOD * 1e-6;
+        inline static Timer _timer;
         
         static void _processingStep();
         static void _physicsStep();
@@ -21,16 +24,14 @@ class Physics {
 };
 
 void Physics::_processingStep() {
-    // Determine target mallet location
-    std::vector<Point3<double>> timestamps = Puck::estimateTrajectory();
-
-    Point2<double> target = Mallet::chooseTarget(timestamps);
+    // Fetch mallet location data
+    Point2<double> target = Mallet::target();
     Point2<double> pos_error = target - Mallet::position();
     Point2<double> vel_error = -Mallet::velocity();
 
     // Simple PD controller for simulation (replace later)
-    const double K_P = 50.0;
-    const double K_D = 8.0;
+    const double K_P = 10.0;
+    const double K_D = 0.8;
 
     Point2<double> control = K_P * pos_error + K_D * vel_error;
 
@@ -42,18 +43,22 @@ void Physics::_processingStep() {
 }
 
 void Physics::_physicsStep() {
+    // Calculate time step since last update
+    const double TIME_STEP = 1e-6 * _timer.delta<std::chrono::microseconds>();
+    _timer.reset();
+
     // Step forward puck and mallet
-    Point2<double> fut_mallet_pos = Mallet::position() + Mallet::velocity() * _TIME_STEP;
-    auto fut_puck_orientation = Puck::determineFutureOrientation(_TIME_STEP);
+    Point2<double> fut_mallet_pos = Mallet::position() + Mallet::velocity() * TIME_STEP;
+    auto fut_puck_orientation = Puck::determineFutureOrientation(TIME_STEP);
 
     // If mallet and puck are colliding, determine when they collided and recover
     double expected_dist = Constants::Mallet::RADIUS + Constants::Puck::RADIUS;
     double cur_dist = (fut_mallet_pos - fut_puck_orientation.first).magnitude();
-    double cur_time = _TIME_STEP;
+    double cur_time = TIME_STEP;
 
     // Objects will be colliding
     if (cur_dist <= expected_dist) {
-        double cur_time_high = _TIME_STEP;
+        double cur_time_high = TIME_STEP;
         double cur_time_low = 0.0;
         double mid_time = 0.0;
         int iter = 0;
@@ -86,21 +91,22 @@ void Physics::_physicsStep() {
         Puck::orient(fut_puck_orientation.first, ref_vel);
 
         // Step forward the second half of the collision
-        fut_mallet_pos = Mallet::position() + Mallet::velocity() * (_TIME_STEP - cur_time);
-        fut_puck_orientation = Puck::determineFutureOrientation(_TIME_STEP - cur_time);
+        fut_mallet_pos = Mallet::position() + Mallet::velocity() * (TIME_STEP - cur_time);
+        fut_puck_orientation = Puck::determineFutureOrientation(TIME_STEP - cur_time);
 
         Puck::orient(fut_puck_orientation.first, fut_puck_orientation.second);
-        Mallet::moveTo(fut_mallet_pos, (_TIME_STEP - cur_time) * 1e6);
+        Mallet::moveTo(fut_mallet_pos, (TIME_STEP - cur_time) * 1e6);
     }
 
     // Objects won't be colliding
     else {
         Puck::orient(fut_puck_orientation.first, fut_puck_orientation.second);
-        Mallet::moveTo(fut_mallet_pos, _TIME_STEP * 1e6);
+        Mallet::moveTo(fut_mallet_pos, TIME_STEP * 1e6);
     }
 }
 
 void Physics::step() {
+    Mallet::updateTarget();
     _processingStep();
     _physicsStep();
 }

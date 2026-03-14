@@ -10,6 +10,8 @@
 #include "Motion/Puck.h"
 #include "Constants.h"
 
+#include "Motion/Routines/MotionTestRoutine.h"
+
 void PHYSICS_STEP() {
     while (true) {
         // Step physics
@@ -24,6 +26,7 @@ int main() {
     // Initialize the table
     Puck::orient(Constants::Puck::HOME, Constants::Puck::SPEED * Point2<double>(0.5 * std::sqrt(2), 0.5 * std::sqrt(2)));
     Mallet::orient(Constants::Mallet::HOME);
+    Mallet::setRoutine(MotionTestRoutine{});
 
     // Run physics in the background
     std::thread physics_step(PHYSICS_STEP);
