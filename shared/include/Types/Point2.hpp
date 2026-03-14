@@ -44,7 +44,12 @@ struct Point2 {
      * @param x     The desired x-component
      * @param y     The desired y-component
      */
-    Point2(T x = T(), T y = T());
+    Point2(T x, T y);
+
+    /***
+     * @brief Creates an uninitialized point
+     */
+    Point2() = default;
 
     /***
      * @brief Creates a point copying the values of another point

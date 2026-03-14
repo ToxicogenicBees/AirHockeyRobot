@@ -52,7 +52,12 @@ struct Point3 {
      * @param y     The desired y-component
      * @param z     The desired z-component
      */
-    Point3(T x = T(), T y = T(), T z = T());
+    Point3(T x, T y, T z);
+
+    /***
+     * @brief Creates an uninitialized point
+     */
+    Point3() = default;
 
     /***
      * @brief Creates a point copying the values of another point
