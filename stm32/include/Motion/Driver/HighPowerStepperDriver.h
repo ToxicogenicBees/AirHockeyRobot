@@ -193,7 +193,7 @@ public:
   //   writeCTRL();
   // }
 
-  /// Enables the driver (ENBL = 1).
+  /// Enables the driver
   void enableDriver()
   {
     driver.writeReg(HPSDRegAddr::CTRL1, 0b10001111);
@@ -236,19 +236,7 @@ public:
     //
   }
 
-  /// Sets the driver's stepping mode (MODE).
-  ///
-  /// This affects many things about the performance of the motor, including how
-  /// much the output moves for each step taken and how much current flows
-  /// through the coils in each stepping position.
-  ///
-  /// If an invalid stepping mode is passed to this function, then it selects
-  /// 1/4 micro-step, which is the driver's default.
-  ///
-  /// Example usage:
-  /// ~~~{.cpp}
-  /// sd.setStepMode(HPSDStepMode::MicroStep32);
-  /// ~~~
+  /// Sets the driver's stepping mode, defaulted to 1/8 microstepping.
   void setStepMode()
   {
     driver.writeReg(HPSDRegAddr::CTRL2, 0b00000101);  // 1/8 setting is 0101
