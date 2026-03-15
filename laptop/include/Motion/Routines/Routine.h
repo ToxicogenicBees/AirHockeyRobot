@@ -15,21 +15,6 @@ class Routine {
         Point2<double> _target;
 
         /**
-         * @brief Set a target velocity profile and position
-         * 
-         * @param velocity_profile  The desired mallet velocity profile
-         * @param position          The desired mallet position
-         */
-        void _sendCommand(const VelocityProfile& velocity_profile, const Point2<double> position);
-
-        /**
-         * @brief Sets the mallet to move to its home position
-         * 
-         * @param velocity_profile  The desired mallet velocity profile
-         */
-        void _home(const VelocityProfile& velocity_profile);
-
-        /**
          * @brief Gets the time it takes the mallet to reach a position
          * 
          * @return The time it takes the mallet to reach this position
@@ -70,7 +55,7 @@ class Routine {
         /**
          * @brief Transmits the target mallet action over the SerialLink
          */
-        virtual void transmitTarget();
+        void transmitTarget();
 
         /**
          * @brief Get the current target position
