@@ -21,11 +21,11 @@ void Motor::init() {
     // Initialize driver (auto initializes SCS pin)
     delay(100);
 
-    _driver.resetSettings();
-    _driver.clearStatus();
-    _driver.setDecayMode(HPSDDecayMode::AutoMixed);
-    _driver.setCurrentMilliamps36v4(4000); 
-    _driver.setStepMode((HPSDStepMode) MICROSTEP_SETTING);
+    // _driver.resetSettings();
+    // _driver.clearStatus();
+    // _driver.setDecayMode(HPSDDecayMode::AutoMixed);
+    // _driver.setCurrentMilliamps36v4(4000); 
+    _driver.setStepMode();
     _driver.enableDriver();
 }
 

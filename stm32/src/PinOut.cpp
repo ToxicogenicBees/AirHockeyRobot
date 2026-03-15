@@ -5,12 +5,12 @@ PinDef mosi(D11, OUTPUT);
 
 PinDef motor_l_step(A2, OUTPUT);
 PinDef motor_l_dir(A3, OUTPUT);
-PinDef motor_l_scs(A1, OUTPUT);
+PinDef motor_l_scs(PB5, OUTPUT);
 PinDef motor_l_fault(PB12, OUTPUT);
 
 PinDef motor_r_step(D9, OUTPUT);
 PinDef motor_r_dir(D8, OUTPUT);
-PinDef motor_r_scs(D10, OUTPUT);
+PinDef motor_r_scs(PA8, OUTPUT);
 PinDef motor_r_fault(PA10, OUTPUT);
 
 PinDef motor_sleep(PB3, OUTPUT);
