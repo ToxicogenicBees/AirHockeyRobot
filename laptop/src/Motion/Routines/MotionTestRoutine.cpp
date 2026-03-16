@@ -27,4 +27,5 @@ void MotionTestRoutine::updateTarget() {
     }
 
     _target = TARGETS[(int)(seconds / TIME_BETWEEN_UPDATES)];
+    _velocity_profile = VelocityProfile(0, 0, 200, 200);
 }

@@ -57,6 +57,18 @@ void BasicDefenseRoutine::updateTarget() {
     }
     
     // Only modify target if outside of acceptable tolerance
-    if ((_target - best_target).magnitude() > TARGET_ERROR)
+    if ((_target - best_target).magnitude() > TARGET_ERROR) {
         _target = best_target;
+
+        auto dist_mag = (mallet_position - _target).magnitude();
+
+        if (dist_mag < 1)
+            _velocity_profile = VelocityProfile(0, 0, 50, 50);
+        else if (dist_mag < 2)
+            _velocity_profile = VelocityProfile(0, 0, 150, 150);
+        else if (dist_mag < 5)
+            _velocity_profile = VelocityProfile(0.1, 0, 350, 500);
+        else if (dist_mag < 15)
+            _velocity_profile = VelocityProfile(0.15, 0, 500, 650);
+    }
 }
