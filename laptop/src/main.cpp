@@ -115,72 +115,32 @@ void RECEIVE_PACKETS() {
 // Mallet control
 void MALLET_CONTROL() {
     // get initial position with distance sensors
-    Packet packet(Action::DistanceSensorRead);
-    SerialLink::buffer(packet);
-
-    Sleep(2000);
-
     // Packet packet(Action::DistanceSensorRead);
-    SerialLink::buffer(packet);
+    // SerialLink::buffer(packet);
 
-    Sleep(2000);
+    // Sleep(2000);
+
+    // // Packet packet(Action::DistanceSensorRead);
+    // SerialLink::buffer(packet);
+
+    // Sleep(2000);
 
     Point2<double> prev_target;
 
+    int count = 0;
+
     while (true) {
-        // Send target location
-        auto trajectory = Puck::estimateTrajectory();
-        auto target = Mallet::chooseTarget(trajectory);
-        Point2<double> target_mm = (25.4 * (target - Constants::Mallet::LIMIT_BL));
-        double dist_mag = (Mallet::position() - target).magnitude();
-
-        // if already made it to the target point, then take
-        // distance sensor reading of mallet location
-        Point2<double> temp = (Mallet::position()-Constants::Mallet::LIMIT_BL)*25.4;  // in mm
-        if (dist_mag < 0.20) {
-            Packet packet(Action::DistanceSensorRead);
-            SerialLink::buffer(packet);
-        }
-
-        // if still close to the same target, don't resend movement commands
-        if ((target - prev_target).magnitude() < 0.25) {
-            continue;
-        }
-
-        prev_target = target;
-
-        // vary speed based on how far away target is
-        // send velocity profile settings
-        if (dist_mag < 1) {
-            VelocityProfile profile(0, 0, 50, 50);
-            Packet vel_packet(Action::VelocityProfile);
-            vel_packet << profile;
-            SerialLink::buffer(vel_packet);
-        } else if (dist_mag < 2) {
-            VelocityProfile profile(0, 0, 150, 150);
-            Packet vel_packet(Action::VelocityProfile);
-            vel_packet << profile;
-            SerialLink::buffer(vel_packet);
-        } else if (dist_mag < 5) {
-            VelocityProfile profile(0.1, 0, 350, 500);
-            Packet vel_packet(Action::VelocityProfile);
-            vel_packet << profile;
-            SerialLink::buffer(vel_packet);
-        } else if (dist_mag < 15) {
-            VelocityProfile profile(0.15, 0.01, 500, 650);
-            Packet vel_packet(Action::VelocityProfile);
-            vel_packet << profile;
-            SerialLink::buffer(vel_packet);
-        }
-
-        // VelocityProfile profile(0.1, 0, 350, 750);
-        // Packet vel_packet(Action::VelocityProfile);
-        // vel_packet << profile;
-        // SerialLink::buffer(vel_packet);
+        VelocityProfile profile(0.1, 0.1, 350, 750);
+        Packet vel_packet(Action::VelocityProfile);
+        vel_packet << profile;
+        SerialLink::buffer(vel_packet);
 
         Packet pos_packet(Action::MalletPosition);
-        pos_packet << target_mm;
+        pos_packet << Point2<double>(((count++)%2)*200+100, ((count)%2) * 300 + 200);
         SerialLink::buffer(pos_packet);
+
+        // std::this_thread::sleep_for(std::chrono::microseconds((int64)(1000000)));
+        Sleep(250);
     }
 }
 
@@ -192,12 +152,12 @@ void MALLET_CONTROL() {
 bool INIT_MAIN() {
     try {
         // Initialize state tracker
-        StateTracker::init();
-        std::clog << "Initialized state tracker\n";
+        // StateTracker::init();
+        // std::clog << "Initialized state tracker\n";
 
-        // // Initialize puck tracker
-        puck_tracker.init();
-        std::clog << "Initialized puck tracker\n";
+        // // // Initialize puck tracker
+        // puck_tracker.init();
+        // std::clog << "Initialized puck tracker\n";
 
         // Initialize serial comms
         SerialLink::init(HANDLE_PACKET);
@@ -237,10 +197,10 @@ int main() {
     // Yield main
     while (1) {
         // Puck tracking
-        puck_tracker.captureFrame();
+        // puck_tracker.captureFrame();
 
         // Visualizers
-        puck_tracker.displayFrame();
+        // puck_tracker.displayFrame();
         Table::render();
     }
 

@@ -27,6 +27,7 @@ enum class HPSDRegAddr : uint8_t
   CTRL1   = 0x04,
   CTRL2   = 0x05,
   CTRL3   = 0x06,
+  CTRL10 = 0x0D,
   CTRL11   = 0x0E,
 };
 
@@ -259,9 +260,14 @@ public:
   ///
   /// This function takes care of setting appropriate values for ISGAIN and
   /// TORQUE to get the desired current limit.
-  void setCurrentMilliamps36v4(uint16_t current)
+  void setCurrent(uint8_t current)
   {
-    //
+    driver.writeReg(HPSDRegAddr::CTRL11, current);
+  }
+
+  void setCurrentHold(uint8_t current)
+  {
+    driver.writeReg(HPSDRegAddr::CTRL10, current);
   }
 
   /// Sets the driver's decay mode (DECMOD).

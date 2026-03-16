@@ -102,23 +102,23 @@ void setup() {
     // Serial.println(SystemCoreClock);  // gets the current core clock speed, this reported 180MHz
     
     // Initialize ADC converter precision
-    analogReadResolution(12);
+    // analogReadResolution(12);
     
-    // Initialize sensors
-    dist_x.init();
-    dist_y.init();
-    limit_l.init();
-    limit_r.init();
-    limit_b.init();
-    limit_t.init();
-    temp.init();
+    // // Initialize sensors
+    // dist_x.init();
+    // dist_y.init();
+    // limit_l.init();
+    // limit_r.init();
+    // limit_b.init();
+    // limit_t.init();
+    // temp.init();
 
     delay(100);
     
     // Calibrate distance sensor
     Gantry::init();   
     Gantry::setVelocityProfile(VelocityProfile(0, 0, 100, 100));
-    DistanceSensor::calibrate(temp.temperature());
+    // DistanceSensor::calibrate(temp.temperature());
     // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
     Gantry::setPosition({250, 250}); 
 }
