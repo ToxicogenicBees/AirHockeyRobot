@@ -24,8 +24,8 @@ void Table::render() {
     cv::circle(_canvas, puck_center, IMG_SCALE * Constants::Puck::RADIUS, cv::Scalar(0, 0, 255), 2);
 
     // Draw puck trajectory
-    auto timestamps = Puck::estimateTrajectory(false);
     if (_show_target_puck) {
+        auto timestamps = Puck::estimateTrajectory(false);
         for (const auto& [orientation, time] : timestamps) {
             auto position = orientation.position();
             cv::Point point_center(IMG_SCALE * position.x, IMG_SCALE * (Constants::Table::SIZE.y - position.y));
