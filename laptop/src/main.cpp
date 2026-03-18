@@ -115,8 +115,10 @@ void RECEIVE_PACKETS() {
 
 // Mallet control
 void MALLET_CONTROL() {
-    Mallet::updateTarget();
-    Mallet::transmitTarget();
+    while(true) {
+        Mallet::updateTarget();
+        Mallet::transmitTarget();
+    }
 }
 
 
