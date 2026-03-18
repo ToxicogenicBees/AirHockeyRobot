@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "Motion/MovingObject.h"
-#include "Types/Point3.hpp"
 #include "Types/Ray2.hpp"
 
 class Puck {

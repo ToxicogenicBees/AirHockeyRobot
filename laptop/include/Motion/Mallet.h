@@ -7,7 +7,6 @@
 #include "Motion/Routines/Routine.h"
 #include "Motion/MovingObject.h"
 #include "Types/Point2.hpp"
-#include "Types/Point3.hpp"
 #include "Types/Ray2.hpp"
 #include "Constants.h"
 
