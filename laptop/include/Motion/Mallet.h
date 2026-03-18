@@ -8,6 +8,7 @@
 #include "Motion/MovingObject.h"
 #include "Types/Point2.hpp"
 #include "Types/Point3.hpp"
+#include "Types/Ray2.hpp"
 #include "Constants.h"
 
 class Mallet {
@@ -28,10 +29,9 @@ class Mallet {
         /**
          * @brief Sets the position and velocity of the object
          * 
-         * @param pos   The desired velocity of the object, defaults to (0, 0)
-         * @param vel   The desired velocity of the object, defaults to (0, 0)
+         * @param orientation   The desired orientation of the object
          */
-        static void orient(const Point2<double>& pos = {0.0, 0.0}, const Point2<double>& vel = {0.0, 0.0});
+        static void orient(const Ray2<double>& orientation);
 
         /**
          * @brief Sets the mallet routine
@@ -49,6 +49,13 @@ class Mallet {
          * @brief Transmits the target mallet action over the SerialLink
          */
         static void transmitTarget();
+
+        /**
+         * @brief Returns the current position of the object, in inches and inches/sec
+         * 
+         * @return The orientation of the object, in inches and inches/sec
+         */
+        Ray2<double> orientation();
 
         /**
          * @brief Returns the current position of the object, in inches

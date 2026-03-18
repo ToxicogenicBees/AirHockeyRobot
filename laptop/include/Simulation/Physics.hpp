@@ -39,7 +39,7 @@ void Physics::_processingStep() {
     if (control.magnitude() > Constants::Mallet::SPEED)
         control = control.normal() * Constants::Mallet::SPEED;
 
-    Mallet::orient(Mallet::position(), control);
+    Mallet::orient({Mallet::position(), control});
 }
 
 void Physics::_physicsStep() {
@@ -53,7 +53,7 @@ void Physics::_physicsStep() {
 
     // If mallet and puck are colliding, determine when they collided and recover
     double expected_dist = Constants::Mallet::RADIUS + Constants::Puck::RADIUS;
-    double cur_dist = (fut_mallet_pos - fut_puck_orientation.first).magnitude();
+    double cur_dist = (fut_mallet_pos - fut_puck_orientation.position()).magnitude();
     double cur_time = TIME_STEP;
 
     // Objects will be colliding
@@ -69,7 +69,7 @@ void Physics::_physicsStep() {
 
             fut_mallet_pos = Mallet::position() + Mallet::velocity() * mid_time;
             fut_puck_orientation = Puck::determineFutureOrientation(mid_time);
-            cur_dist = (fut_mallet_pos - fut_puck_orientation.first).magnitude();
+            cur_dist = (fut_mallet_pos - fut_puck_orientation.position()).magnitude();
 
             if (std::fabs(cur_dist - expected_dist) < 1e-8)
                 break;
@@ -83,24 +83,24 @@ void Physics::_physicsStep() {
         cur_time = mid_time;
 
         // Step forward the first half of the collision
-        Puck::orient(fut_puck_orientation.first, fut_puck_orientation.second);
+        Puck::orient(fut_puck_orientation);
         Mallet::moveTo(fut_mallet_pos, cur_time * 1e6);
 
         // Run collision calculation
         Point2<double> ref_vel = Puck::reflectedVelocity();
-        Puck::orient(fut_puck_orientation.first, ref_vel);
+        Puck::orient({fut_puck_orientation.position(), ref_vel});
 
         // Step forward the second half of the collision
         fut_mallet_pos = Mallet::position() + Mallet::velocity() * (TIME_STEP - cur_time);
         fut_puck_orientation = Puck::determineFutureOrientation(TIME_STEP - cur_time);
 
-        Puck::orient(fut_puck_orientation.first, fut_puck_orientation.second);
+        Puck::orient(fut_puck_orientation);
         Mallet::moveTo(fut_mallet_pos, (TIME_STEP - cur_time) * 1e6);
     }
 
     // Objects won't be colliding
     else {
-        Puck::orient(fut_puck_orientation.first, fut_puck_orientation.second);
+        Puck::orient(fut_puck_orientation);
         Mallet::moveTo(fut_mallet_pos, TIME_STEP * 1e6);
     }
 }

@@ -9,16 +9,23 @@ void MovingObject::moveTo(const Point2<double>& new_pos, int64_t micsec) {
     _timer.reset();
     
     // Update velocity and position
-    _vel = (new_pos - _pos) / (1e-6 * (micsec < 0 ? d_micsec : micsec));
-    _pos = new_pos;
+    _orientation.setDirection((new_pos - _orientation.position()) / (1e-6 * (micsec < 0 ? d_micsec : micsec)));
+    _orientation.setPosition(new_pos);
 }
 
-void MovingObject::orient(const Point2<double>& pos, const Point2<double>& vel) {
+void MovingObject::orient(const Ray2<double>& orientation) {
     // Get access to lock
     std::lock_guard<std::mutex> lock(_access_locational_data);
     
-    _pos = pos;
-    _vel = vel;
+    _orientation = orientation;
+}
+
+Ray2<double> MovingObject::orientation() {
+    // Get access to lock
+    std::lock_guard<std::mutex> lock(_access_locational_data);
+
+    // Return position
+    return _orientation;
 }
 
 Point2<double> MovingObject::position() {
@@ -26,7 +33,7 @@ Point2<double> MovingObject::position() {
     std::lock_guard<std::mutex> lock(_access_locational_data);
 
     // Return position
-    return _pos;
+    return _orientation.position();
 }
 
 Point2<double> MovingObject::velocity() {
@@ -34,5 +41,5 @@ Point2<double> MovingObject::velocity() {
     std::lock_guard<std::mutex> lock(_access_locational_data);
 
     // Return velocity
-    return _vel;
+    return _orientation.direction();
 }

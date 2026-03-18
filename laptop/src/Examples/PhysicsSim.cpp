@@ -24,8 +24,8 @@ void PHYSICS_STEP() {
 
 int main() {
     // Initialize the table
-    Puck::orient(Constants::Puck::HOME, Constants::Puck::SPEED * Point2<double>(0.5 * std::sqrt(2), 0.5 * std::sqrt(2)));
-    Mallet::orient(Constants::Mallet::HOME);
+    Puck::orient({Constants::Puck::HOME, Constants::Puck::SPEED * Point2<double>(0.5 * std::sqrt(2), 0.5 * std::sqrt(2))});
+    Mallet::orient({Constants::Mallet::HOME, Point2<double>::zero()});
 
     MotionTestRoutine routine;
     Mallet::setRoutine(routine.clone());

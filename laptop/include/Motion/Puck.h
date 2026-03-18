@@ -6,12 +6,15 @@
 
 #include "Motion/MovingObject.h"
 #include "Types/Point3.hpp"
+#include "Types/Ray2.hpp"
 
 class Puck {
     private:
         static MovingObject _puck;  // Moving object used for the puck
 
     public:
+        using Timestamp = std::pair<Ray2<double>, double>;
+
         /***
          * @brief Calculates a vector of trajectory (x-position, y-position, time-of-arrival) timestamps of the
          *        puck's path across the table from its current spot to the back wall, or an empty vector if it's moving
@@ -21,7 +24,7 @@ class Puck {
          * 
          * @return The vector of timestamps
          */
-        static std::vector<Point3<double>> estimateTrajectory(bool ignore_return = true);
+        static std::vector<Timestamp> estimateTrajectory(bool ignore_return = true);
 
         /***
          * @brief Returns the position and velocity of the puck in the future, if it were to continue traveling in a straight line
@@ -29,7 +32,7 @@ class Puck {
          * 
          * @return The reflected velocity
          */
-        static std::pair<Point2<double>, Point2<double>> determineFutureOrientation(double dt);
+        static Ray2<double> determineFutureOrientation(double dt);
 
         /***
          * @brief Returns the velocity the puck would have after intersecting with the mallet,
@@ -51,10 +54,16 @@ class Puck {
         /**
          * @brief Sets the position and velocity of the object
          * 
-         * @param pos   The desired velocity of the object, defaults to (0, 0)
-         * @param vel   The desired velocity of the object, defaults to (0, 0)
+         * @param orientation   The desired orientation of the object
          */
-        static void orient(const Point2<double>& pos = {0.0, 0.0}, const Point2<double>& vel = {0.0, 0.0});
+        static void orient(const Ray2<double>& orientation);
+
+        /**
+         * @brief Returns the current position of the object, in inches and inches/sec
+         * 
+         * @return The orientation of the object, in inches and inches/sec
+         */
+        Ray2<double> orientation();
 
         /**
          * @brief Returns the current position of the object, in inches

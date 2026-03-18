@@ -24,10 +24,11 @@ void Table::render() {
     cv::circle(_canvas, puck_center, IMG_SCALE * Constants::Puck::RADIUS, cv::Scalar(0, 0, 255), 2);
 
     // Draw puck trajectory
-    std::vector<Point3<double>> ts = Puck::estimateTrajectory(false);
+    auto timestamps = Puck::estimateTrajectory(false);
     if (_show_target_puck) {
-        for (const Point3<double> t : ts) {
-            cv::Point point_center(IMG_SCALE * t.x, IMG_SCALE * (Constants::Table::SIZE.y - t.y));
+        for (const auto& [orientation, time] : timestamps) {
+            auto position = orientation.position();
+            cv::Point point_center(IMG_SCALE * position.x, IMG_SCALE * (Constants::Table::SIZE.y - position.y));
             cv::circle(_canvas, point_center, 2, cv::Scalar(0, 0, 255), 2);
         }
     }

@@ -24,8 +24,8 @@ void BasicDefenseRoutine::updateTarget() {
     Point2<double> best_target = Constants::Mallet::HOME;
     Point2<double> mallet_position = Mallet::position();
     
-    for (Point3<double>& timestamp : timestamps) {
-        Point2<double> puck_position(timestamp.x, timestamp.y);
+    for (const auto& [orientation, time] : timestamps) {
+        auto puck_position = orientation.position();
 
         // Ignore if unreachable
         if (!_canReach(puck_position))
@@ -34,7 +34,7 @@ void BasicDefenseRoutine::updateTarget() {
         // Parameters for choosing a target
         auto reach_time = _timeToReach(puck_position);
 
-        auto margin = timestamp.z - reach_time;
+        auto margin = time - reach_time;
         if (margin < 0)
             continue;
 

@@ -11,8 +11,8 @@ void Mallet::moveTo(const Point2<double>& new_pos, int64_t micsec) {
     _mallet.moveTo(new_pos, micsec);
 }
 
-void Mallet::orient(const Point2<double>& pos, const Point2<double>& vel) {
-    _mallet.orient(pos, vel);
+void Mallet::orient(const Ray2<double>& orientation) {
+    _mallet.orient(orientation);
 }
 
 void Mallet::setRoutine(std::unique_ptr<Routine> routine) {
@@ -27,6 +27,10 @@ void Mallet::updateTarget() {
 void Mallet::transmitTarget() {
     if (_routine)
         _routine->transmitTarget();
+}
+
+Ray2<double> Mallet::orientation() {
+    return _mallet.orientation();
 }
 
 Point2<double> Mallet::position() {

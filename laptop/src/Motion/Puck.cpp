@@ -6,7 +6,7 @@
 
 MovingObject Puck::_puck;
 
-std::vector<Point3<double>> Puck::estimateTrajectory(bool ignore_return) {
+std::vector<Puck::Timestamp> Puck::estimateTrajectory(bool ignore_return) {
     Point2<double> pos = _puck.position();
     Point2<double> vel = _puck.velocity();
 
@@ -30,24 +30,24 @@ std::vector<Point3<double>> Puck::estimateTrajectory(bool ignore_return) {
     double time_step = time_of_arrival / NUM_SAMPLES;
     
     // Calculate trajectory
-    std::vector<Point3<double>> trajectory;
+    std::vector<Timestamp> trajectory;
     for (size_t i = 0; i < NUM_SAMPLES; i++) {
         double time = i * time_step;
-        auto o = determineFutureOrientation(time);
-        trajectory.push_back({o.first.x, o.first.y, time});
+        auto orientation = determineFutureOrientation(time);
+        trajectory.push_back({orientation, time});
     }
     
     // Return trajectory
     return trajectory;
 }
 
-std::pair<Point2<double>, Point2<double>> Puck::determineFutureOrientation(double dt) {
+Ray2<double> Puck::determineFutureOrientation(double dt) {
     Point2<double> pos = _puck.position();
     Point2<double> vel = _puck.velocity();
 
     // Exit early if not moving
     if (vel.squaredMagnitude() <= Constants::FP_ERR)
-        return {pos, vel};
+        return {pos};
 
     // Raw displacement
     Point2<double> new_pos = pos + dt * vel;
@@ -96,8 +96,12 @@ void Puck::moveTo(const Point2<double>& new_pos, int64_t micsec) {
     _puck.moveTo(new_pos, micsec);
 }
 
-void Puck::orient(const Point2<double>& pos, const Point2<double>& vel) {
-    _puck.orient(pos, vel);
+void Puck::orient(const Ray2<double>& orientation) {
+    _puck.orient(orientation);
+}
+
+Ray2<double> Puck::orientation() {
+    return _puck.orientation();
 }
 
 Point2<double> Puck::position() {

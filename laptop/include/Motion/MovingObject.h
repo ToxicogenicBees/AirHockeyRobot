@@ -3,6 +3,7 @@
 
 #include "Types/Point2.hpp"
 #include "Types/Timer.hpp"
+#include "Types/Ray2.hpp"
 #include "Constants.h"
 
 #include <chrono>
@@ -10,9 +11,9 @@
 
 class MovingObject {
     private:
-        Point2<double> _pos = {0.0, 0.0}, _vel = {0.0, 0.0};    // Position and velocity of the object
-        std::mutex _access_locational_data;                     // Mutex lock to guard access to position/velocity data
-        Timer _timer;                                           // Microsecond timer
+        Ray2<double> _orientation;              // Position and velocity of the object
+        std::mutex _access_locational_data;     // Mutex lock to guard access to position/velocity data
+        Timer _timer;                           // Microsecond timer
 
     public:
         MovingObject() = default;
@@ -30,10 +31,16 @@ class MovingObject {
         /**
          * @brief Sets the position and velocity of the object
          * 
-         * @param pos   The desired velocity of the object, defaults to (0, 0)
-         * @param vel   The desired velocity of the object, defaults to (0, 0)
+         * @param orientation   The desired orientation of the object
          */
-        void orient(const Point2<double>& pos = {0.0, 0.0}, const Point2<double>& vel = {0.0, 0.0});
+        void orient(const Ray2<double>& orientation);
+
+        /**
+         * @brief Returns the current position of the object, in inches and inches/sec
+         * 
+         * @return The orientation of the object, in inches and inches/sec
+         */
+        Ray2<double> orientation();
 
         /**
          * @brief Returns the current position of the object, in inches
