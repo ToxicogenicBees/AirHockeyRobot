@@ -4,6 +4,8 @@
 #include "Motion/Mallet.h"
 #include "Constants.h"
 
+#include <thread>
+
 double Routine::_timeToReach(const Point2<double>& position) {
     return (position - Mallet::position()).magnitude() / Constants::Mallet::SPEED;
 }
@@ -21,6 +23,90 @@ bool Routine::_canReach(const Point2<double>& position) {
         return false;
     
     return true;
+}
+
+Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double time) {
+    if (time < 0)
+        return StrikeResult::STRIKE_IMPOSSIBLE;
+
+    // get setup point based on how long the gantry needs to
+    // accelerate to the desired striking velocity
+
+    // linearly interpolate from min to max distance to accelerate to max speed
+    auto position = orientation.position();
+    auto velocity = orientation.direction();
+    double accel_dist_inches = velocity.magnitude() / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Mallet::INCHES_TO_ACCEL_TO_MAX_RPM - Constants::Mallet::MIN_ACCEL_INCES) + Constants::Mallet::MIN_ACCEL_INCES;
+
+    Point2<double> setup_point = position - accel_dist_inches * velocity.normal();
+
+    // time it will take to get from setup_point to pos assuming constant acceleration
+    // and starting from 0 velocity
+    // double time_to_strike = sqrt(2*accel_dist_inches / Constants::Mallet::ACCEL) + 0.09;
+    // double time_to_strike = 0.02;
+
+    // assuming acceleration over a distance (Kaden's method)
+    double min_speed = Constants::Mallet::MIN_RPM / Constants::Mallet::MAX_RPM * Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND;
+    double time_to_strike = accel_dist_inches / (velocity.magnitude() - min_speed) * log(1 + (velocity.magnitude() - min_speed) / min_speed);
+
+    if (time_to_strike > time)
+        return StrikeResult::STRIKE_IMPOSSIBLE;
+
+    // finally set strike point to an inch past the input pos so can decel after hitting it
+    // go through pos
+    auto strike_point = position + velocity.normal();
+
+    // check for points out of bounds
+    auto out_of_bounds = [](const Point2<double> p) -> bool {
+        return p.x < Constants::Mallet::LIMIT_BL.x
+            || p.y < Constants::Mallet::LIMIT_BL.y
+            || p.x > Constants::Mallet::LIMIT_TR.x
+            || p.y > Constants::Mallet::LIMIT_TR.y;
+    };
+
+    if (out_of_bounds(setup_point) || out_of_bounds(strike_point)) {
+        return StrikeResult::STRIKE_IMPOSSIBLE;
+    }
+
+    // find time left to be able to go to setup point
+    double time_to_setup = time - time_to_strike;
+
+    if (time_to_setup < 0)
+        return StrikeResult::STRIKE_IMPOSSIBLE;
+
+    // find distance to go to setup point
+    double setup_dist = (Mallet::position()-setup_point).magnitude();
+
+    // find required speed to setup point
+    double speed_to_setup = setup_dist / time_to_setup;
+    double rpm_to_setup = speed_to_setup/Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND*Constants::Mallet::MAX_RPM;
+
+    if (rpm_to_setup > Constants::Mallet::MIN_RPM)
+        return StrikeResult::STRIKE_IMPOSSIBLE;
+
+    // begin movement
+    _velocity_profile = {0, 0, rpm_to_setup, rpm_to_setup};
+    _target = setup_point;
+    transmitTarget();
+
+    if (time < 0.15) {
+        std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(time_to_setup*1e6)));
+        // after waiting, run the strike!
+    } else if ((Mallet::position() - setup_point).magnitude() < 0.5) {
+        // at setup position, run the strike!
+    } else {
+        return StrikeResult::STRIKE_IN_PROGRESS;
+    }
+
+    // strike
+    double accel_percent = accel_dist_inches / (setup_point-strike_point).magnitude();
+    _velocity_profile = {accel_percent, 0.05, Constants::Mallet::MIN_RPM, velocity.magnitude()/Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND*Constants::Mallet::MAX_RPM};
+    _target = strike_point;
+    transmitTarget();
+
+    // wait to return control to main mallet control function until done
+    std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(time_to_strike*1e6)));
+
+    return StrikeResult::STRIKE_COMPLETE;
 }
 
 Routine::Routine() : _target(Constants::Mallet::HOME) {}

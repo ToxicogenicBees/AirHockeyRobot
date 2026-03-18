@@ -23,10 +23,15 @@ namespace Constants {
     namespace Mallet {
         const Point2<double> HOME = {13.25, 10.0};      // Homing location for the mallet
         constexpr double SPEED = 80.4251969;            // Estimated mallet speed (inch/sec)
-        constexpr double ACCEL = 1181.10236;            // Estimated mallet accelleration (inch/sec^2)
+        constexpr double ACCEL = 17 * 39.37;            // Estimated mallet accelleration approx. linear
+                                                        // from 250 to 800 RPM speed test (inch/sec^2)
         constexpr double RADIUS = 2.0;                  // Radius in inches
         constexpr double MAX_RPM = 750;
-        constexpr double MIN_RPM = 15;
+        constexpr double MIN_RPM = 350;
+        constexpr double INCHES_TO_ACCEL_TO_MAX_RPM = 7.48; // taken from the motor speed test data accelerating to 800RPM
+        constexpr double MIN_ACCEL_INCES = 1;   // lower bound of distance to accelerate to certain speed
+        constexpr double DRIVE_PULLEY_RADIUS_MM = 28;
+        const double MAX_SPEED_INCHES_PER_SECOND = MAX_RPM * 2*3.14/60 * (DRIVE_PULLEY_RADIUS_MM*sqrt(2)/2)/25.4;
 
         const Point2<double> LIMIT_BL                   // Bottom-left limit of mallet motion
             = {1.59375, 3.0};

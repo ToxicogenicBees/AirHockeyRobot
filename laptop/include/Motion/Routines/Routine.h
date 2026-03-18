@@ -3,6 +3,7 @@
 
 #include "Types/VelocityProfile.hpp"
 #include "Types/Point2.hpp"
+#include "Types/Ray2.hpp"
 
 #include <memory>
 
@@ -13,6 +14,13 @@ class Routine {
 
         // The desired target mallet position
         Point2<double> _target;
+
+        // Strike result states
+        enum class StrikeResult {
+            STRIKE_IMPOSSIBLE,
+            STRIKE_IN_PROGRESS,
+            STRIKE_COMPLETE,
+        };
 
         /**
          * @brief Gets the time it takes the mallet to reach a position
@@ -28,6 +36,14 @@ class Routine {
          * @returns -1 if the mallet cannot reach
          */
         bool _canReach(const Point2<double>& position);
+
+        /**
+         * @brief Strikes the mallet with a given orientation and time
+         * 
+         * @param orientation   The desired mallet orientation
+         * @param time          The desired time
+         */
+        StrikeResult _strike(const Ray2<double>& orientation, double time);
 
     public:
         /**
