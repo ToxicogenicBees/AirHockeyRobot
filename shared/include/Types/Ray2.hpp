@@ -59,9 +59,9 @@ class Ray2 {
         Point2<T> position() const;
 
         /**
-         * @brief   Get this ray as a unit array
+         * @brief   Get this ray as a unit ray
          * 
-         * @return  A unit array positioned and pointing
+         * @return  A unit ray positioned and pointing
          *          the same way as this ray
          */
         Ray2<T> unit() const;
