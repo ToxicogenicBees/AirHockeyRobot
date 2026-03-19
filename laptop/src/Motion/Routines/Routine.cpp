@@ -26,8 +26,9 @@ bool Routine::_canReach(const Point2<double>& position) {
 }
 
 Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double time) {
-    if (time < 0)
+    if (time < 0) {
         return StrikeResult::STRIKE_IMPOSSIBLE;
+    }
 
     // get setup point based on how long the gantry needs to
     // accelerate to the desired striking velocity
@@ -48,8 +49,9 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
     double min_speed = Constants::Mallet::MIN_RPM / Constants::Mallet::MAX_RPM * Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND;
     double time_to_strike = accel_dist_inches / (velocity.magnitude() - min_speed) * log(1 + (velocity.magnitude() - min_speed) / min_speed);
 
-    if (time_to_strike > time)
+    if (time_to_strike > time) {
         return StrikeResult::STRIKE_IMPOSSIBLE;
+    }
 
     // finally set strike point to an inch past the input pos so can decel after hitting it
     // go through pos
@@ -70,21 +72,22 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
     // find time left to be able to go to setup point
     double time_to_setup = time - time_to_strike;
 
-    if (time_to_setup < 0)
+    if (time_to_setup < 0) {
         return StrikeResult::STRIKE_IMPOSSIBLE;
+    }
 
     // find distance to go to setup point
-    double setup_dist = (Mallet::position()-setup_point).magnitude();
+    double setup_dist = (Mallet::position() - setup_point).magnitude();
 
     // find required speed to setup point
     double speed_to_setup = setup_dist / time_to_setup;
-    double rpm_to_setup = speed_to_setup/Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND*Constants::Mallet::MAX_RPM;
+    double rpm_to_setup = speed_to_setup / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * Constants::Mallet::MAX_RPM;
 
     if (rpm_to_setup > Constants::Mallet::MIN_RPM)
         return StrikeResult::STRIKE_IMPOSSIBLE;
 
     // begin movement
-    _velocity_profile = {0, 0, rpm_to_setup, rpm_to_setup};
+    _velocity_profile = { 0, 0, (uint16_t) rpm_to_setup, (uint16_t) rpm_to_setup };
     _target = setup_point;
     transmitTarget();
 
@@ -99,7 +102,7 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
 
     // strike
     double accel_percent = accel_dist_inches / (setup_point-strike_point).magnitude();
-    _velocity_profile = {accel_percent, 0.05, Constants::Mallet::MIN_RPM, velocity.magnitude()/Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND*Constants::Mallet::MAX_RPM};
+    _velocity_profile = { accel_percent, 0.05, (uint16_t) Constants::Mallet::MIN_RPM, (uint16_t) (velocity.magnitude() / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * Constants::Mallet::MAX_RPM) };
     _target = strike_point;
     transmitTarget();
 
@@ -107,6 +110,11 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
     std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(time_to_strike*1e6)));
 
     return StrikeResult::STRIKE_COMPLETE;
+}
+
+void Routine::_targetHome() {
+    _velocity_profile = { 0, 0, 250, 250 };
+    _target = Constants::Mallet::HOME;
 }
 
 Routine::Routine() : _target(Constants::Mallet::HOME) {}

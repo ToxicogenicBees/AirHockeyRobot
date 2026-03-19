@@ -45,6 +45,11 @@ class Routine {
          */
         StrikeResult _strike(const Ray2<double>& orientation, double time);
 
+        /**
+         * @brief Sets up the target and velocity profile to go to the home position
+         */
+        void _targetHome();
+
     public:
         /**
          * @brief Create a new routine
