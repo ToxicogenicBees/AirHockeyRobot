@@ -16,7 +16,7 @@ std::unique_ptr<Routine> BasicDefenseRoutine::clone() const {
 }
 
 void BasicDefenseRoutine::updateTarget() {
-    // Create copy of timestamps
+    // Fetch puck timestamps
     auto timestamps = Puck::estimateTrajectory();
 
     // Set time for each trajectory to be the mallet's time of arrival

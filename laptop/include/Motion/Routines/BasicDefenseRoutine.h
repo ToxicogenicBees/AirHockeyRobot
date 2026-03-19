@@ -20,12 +20,12 @@ class BasicDefenseRoutine : public Routine {
          * 
          * @returns A clone of the routine
          */
-        std::unique_ptr<Routine> clone() const override;
+        virtual std::unique_ptr<Routine> clone() const override;
 
         /**
          * @brief Calculates and transmits an appropriate mallet action for this routine
          */
-        void updateTarget() override;
+        virtual void updateTarget() override;
 };
 
 #endif
