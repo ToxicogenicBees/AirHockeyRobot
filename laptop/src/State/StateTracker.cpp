@@ -2,12 +2,12 @@
 #include <iostream>
 #include <ctype.h>
 
-uint8_t StateTracker::_difficulty = 0;
+int StateTracker::_difficulty = 0;
 bool StateTracker::_state = false;
 
 void StateTracker::init() {
     // Fetch difficulty from console
-    char input = ' ';
+    char input;
 
     while (1) {
         std::cout << "Choose a desired difficulty: ";

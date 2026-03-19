@@ -5,7 +5,7 @@
 
 class StateTracker {
     private:
-        static uint8_t _difficulty;
+        static int _difficulty;
         static bool _state;
 
     public:
@@ -29,7 +29,7 @@ class StateTracker {
          * 
          * @return The current difficulty
          */
-        static bool getDifficulty() { return _difficulty; }
+        static int getDifficulty() { return _difficulty; }
 
         /**
          * @brief Fetches the current state
