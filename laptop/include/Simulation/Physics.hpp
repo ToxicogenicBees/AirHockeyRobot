@@ -1,8 +1,6 @@
 #ifndef PHYSICS_HPP
 #define PHYSICS_HPP
 
-#include <vector>
-
 #include "Simulation/Table.h"
 #include "Types/Point2.hpp"
 #include "Types/Timer.hpp"
@@ -10,7 +8,6 @@
 #include "Motion/Puck.h"
 #include "Constants.h"
 
-#include <iostream>
 #include <cmath>
 
 class Physics {
@@ -26,15 +23,15 @@ class Physics {
 
 void Physics::_processingStep() {
     // Fetch mallet location data
-    Point2<double> target = Mallet::target();
-    Point2<double> pos_error = target - Mallet::position();
-    Point2<double> vel_error = -Mallet::velocity();
+    auto target = Mallet::target();
+    auto pos_error = target - Mallet::position();
+    auto vel_error = -Mallet::velocity();
 
     // Simple PD controller for simulation (replace later)
     const double K_P = 10.0;
     const double K_D = 0.8;
 
-    Point2<double> control = K_P * pos_error + K_D * vel_error;
+    auto control = K_P * pos_error + K_D * vel_error;
 
     // Clamp to max speed
     if (control.magnitude() > Constants::Mallet::SPEED)
@@ -49,13 +46,13 @@ void Physics::_physicsStep() {
     _timer.reset();
 
     // Step forward puck and mallet
-    Point2<double> fut_mallet_pos = Mallet::position() + Mallet::velocity() * TIME_STEP;
+    auto fut_mallet_pos = Mallet::position() + Mallet::velocity() * TIME_STEP;
     auto fut_puck_orientation = Puck::determineFutureOrientation(TIME_STEP);
 
     // If mallet and puck are colliding, determine when they collided and recover
-    double expected_dist = Constants::Mallet::RADIUS + Constants::Puck::RADIUS;
-    double cur_dist = (fut_mallet_pos - fut_puck_orientation.position()).magnitude();
-    double cur_time = TIME_STEP;
+    auto expected_dist = Constants::Mallet::RADIUS + Constants::Puck::RADIUS;
+    auto cur_dist = (fut_mallet_pos - fut_puck_orientation.position()).magnitude();
+    auto cur_time = TIME_STEP;
 
     // Objects will be colliding
     if (cur_dist <= expected_dist) {
