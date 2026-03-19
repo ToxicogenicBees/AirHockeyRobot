@@ -11,6 +11,7 @@
 #include "Constants.h"
 
 #include <iostream>
+#include <cmath>
 
 class Physics {
     private:
@@ -83,7 +84,7 @@ void Physics::_physicsStep() {
         cur_time = mid_time;
 
         // Step forward the first half of the collision
-        Puck::orient(fut_puck_orientation);
+        Puck::orient({ fut_puck_orientation.position(), fut_puck_orientation.direction() * std::exp(-Constants::Table::COEF_FRIC * cur_time) });
         Mallet::moveTo(fut_mallet_pos, cur_time * 1e6);
 
         // Run collision calculation
@@ -94,19 +95,18 @@ void Physics::_physicsStep() {
         fut_mallet_pos = Mallet::position() + Mallet::velocity() * (TIME_STEP - cur_time);
         fut_puck_orientation = Puck::determineFutureOrientation(TIME_STEP - cur_time);
 
-        Puck::orient(fut_puck_orientation);
+        Puck::orient({ fut_puck_orientation.position(), fut_puck_orientation.direction() * std::exp(-Constants::Table::COEF_FRIC * (TIME_STEP - cur_time)) });
         Mallet::moveTo(fut_mallet_pos, (TIME_STEP - cur_time) * 1e6);
     }
 
     // Objects won't be colliding
     else {
-        Puck::orient(fut_puck_orientation);
+        Puck::orient({ fut_puck_orientation.position(), fut_puck_orientation.direction() * std::exp(-Constants::Table::COEF_FRIC * TIME_STEP) });
         Mallet::moveTo(fut_mallet_pos, TIME_STEP * 1e6);
     }
 }
 
 void Physics::step() {
-    Mallet::updateTarget();
     _processingStep();
     _physicsStep();
 }
