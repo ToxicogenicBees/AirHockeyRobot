@@ -41,6 +41,7 @@ set(PhysicsSim_SOURCES
     src/Motion/Routines/Routine.cpp
     src/Motion/Routines/BasicDefenseRoutine.cpp
     src/Motion/Routines/MotionTestRoutine.cpp
+    src/Motion/Routines/StrikeTestRoutine.cpp
 )
 
 set(GraphTest_SOURCES
@@ -60,6 +61,7 @@ set(main_SOURCES
     src/Motion/Routines/Routine.cpp
     src/Motion/Routines/BasicDefenseRoutine.cpp
     src/Motion/Routines/MotionTestRoutine.cpp
+    src/Motion/Routines/StrikeTestRoutine.cpp
 )
 
 # --- Function to create executables with common includes and OpenCV ---
