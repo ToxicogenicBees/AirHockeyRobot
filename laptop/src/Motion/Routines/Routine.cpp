@@ -77,11 +77,18 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
     }
 
     // find distance to go to setup point
-    double setup_dist = (Mallet::position() - setup_point).magnitude();
+    double setup_dist = (setup_point - Mallet::position()).magnitude();
 
-    // find required speed to setup point
+    // find required speed of motor with more steps to setup point
     double speed_to_setup = setup_dist / time_to_setup;
     double rpm_to_setup = speed_to_setup / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * Constants::Mallet::MAX_RPM;
+    
+    // scalar projection of setup position vector onto CoreXY movement axis
+    // divide the scalar projection value over the total movement distance to
+    // get percent motor speed of the max speed
+    double rpm_scale_a = abs( (setup_point - Mallet::position()).dot(Point2<double>{1/sqrt(2), 1/sqrt(2)}) ) / setup_dist;
+    double rpm_scale_b = abs( (setup_point - Mallet::position()).dot(Point2<double>{-1/sqrt(2), 1/sqrt(2)}) ) / setup_dist;
+    rpm_to_setup *= rpm_scale_a > rpm_scale_b ? rpm_scale_a : rpm_scale_b;
 
     if (rpm_to_setup > Constants::Mallet::MIN_RPM)
         return StrikeResult::STRIKE_IMPOSSIBLE;
@@ -101,8 +108,17 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
     }
 
     // strike
-    double accel_percent = accel_dist_inches / (setup_point-strike_point).magnitude();
-    _velocity_profile = { accel_percent, 0.05, (uint16_t) Constants::Mallet::MIN_RPM, (uint16_t) (velocity.magnitude() / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * Constants::Mallet::MAX_RPM) };
+    double accel_percent = accel_dist_inches / (strike_point - setup_point).magnitude();
+    double rpm_at_strike = velocity.magnitude() / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * Constants::Mallet::MAX_RPM;
+    
+    // scalar projection of position vector onto CoreXY movement axis
+    // divide the scalar projection value over the total movement distance to
+    // get percent motor speed of the max speed
+    rpm_scale_a = abs( (position - setup_point).dot(Point2<double>{1/sqrt(2), 1/sqrt(2)}) ) / accel_dist_inches;
+    rpm_scale_b = abs( (position - setup_point).dot(Point2<double>{-1/sqrt(2), 1/sqrt(2)}) ) / accel_dist_inches;
+    rpm_at_strike *= rpm_scale_a > rpm_scale_b ? rpm_scale_a : rpm_scale_b;
+
+    _velocity_profile = { accel_percent, 0.05, (uint16_t) Constants::Mallet::MIN_RPM, (uint16_t) rpm_at_strike};
     _target = strike_point;
     transmitTarget();
 
