@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <cmath>
 
+#include "Constants.h"
+
 template <class T>
 struct Point2 {
     // The x- and y-components of the point
@@ -185,8 +187,16 @@ struct Point2 {
      * @brief Calculate the normal of this point
      * 
      * @return The normal of this point
+     * @retval Point2::zero if the magnitude of this vector is extremely close to 0
      */
     Point2 normal() const;
+
+    /***
+     * @brief Calculate the squared magnitude of this point
+     * 
+     * @return The squared magnitude of this point
+     */
+    T squaredMagnitude() const;
 
     /***
      * @brief Calculate the magnitude of this point
@@ -196,11 +206,22 @@ struct Point2 {
     T magnitude() const;
 
     /***
-     * @brief Calculate the squared magnitude of this point
+     * @brief Calculate the scalar projection of this point onto another, as if they were vectors
      * 
-     * @return The squared magnitude of this point
+     * @param v The vector being projected onto
+     * 
+     * @return  The scalar projection
      */
-    T squaredMagnitude() const;
+    T scalarProjection(const Point2<T> v) const;
+
+    /***
+     * @brief Calculate the projection of this point onto another, as if they were vectors
+     * 
+     * @param v The vector being projected onto
+     * 
+     * @return  The projected vector
+     */
+    Point2 projection(const Point2<T> v) const;
 
     /***
      * @brief Overloaded insertion operator
@@ -325,17 +346,27 @@ T Point2<T>::dot(const Point2<T>& point) const {
 template <class T>
 Point2<T> Point2<T>::normal() const {
     double mag = magnitude();
-    return (mag != 0 ? (*this / mag) : *this);
-}
-
-template <class T>
-T Point2<T>::magnitude() const {
-    return std::sqrt(dot(*this));
+    return (mag > Constants::FP_ERR ? (*this / mag) : Point2::zero());
 }
 
 template <class T>
 T Point2<T>::squaredMagnitude() const {
     return dot(*this);
+}
+
+template <class T>
+T Point2<T>::magnitude() const {
+    return std::sqrt(squaredMagnitude());
+}
+
+template <class T>
+T Point2<T>::scalarProjection(const Point2<T> v) const {
+    return dot(v) / v.magnitude();
+}
+
+template <class T>
+Point2<T> Point2<T>::projection(const Point2<T> v) const {
+    return scalarProjection(v) * v.normal();
 }
 
 #endif
