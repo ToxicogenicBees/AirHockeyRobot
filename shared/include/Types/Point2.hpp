@@ -5,8 +5,6 @@
 #include <stdint.h>
 #include <cmath>
 
-#include "Constants.h"
-
 template <class T>
 struct Point2 {
     // The x- and y-components of the point
@@ -346,7 +344,7 @@ T Point2<T>::dot(const Point2<T>& point) const {
 template <class T>
 Point2<T> Point2<T>::normal() const {
     double mag = magnitude();
-    return (mag > Constants::FP_ERR ? (*this / mag) : Point2::zero());
+    return (mag > 1e-8 ? (*this / mag) : Point2::zero());
 }
 
 template <class T>
