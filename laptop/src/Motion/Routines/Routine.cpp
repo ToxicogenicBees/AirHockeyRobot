@@ -2,6 +2,7 @@
 #include "Comms/SerialLink.hpp"
 #include "Comms/Packet.hpp"
 #include "Motion/Mallet.h"
+#include "Types/Ray2.hpp"
 #include "Constants.h"
 
 #include <thread>
