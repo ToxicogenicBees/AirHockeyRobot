@@ -3,27 +3,27 @@
 PinDef miso(D12, OUTPUT);
 PinDef mosi(D11, OUTPUT);
 
-PinDef motor_l_step(A2, OUTPUT);
-PinDef motor_l_dir(A3, OUTPUT);
-PinDef motor_l_scs(A1, OUTPUT);
+PinDef motor_l_step(PB10, OUTPUT);
+PinDef motor_l_dir(PB4, OUTPUT);
+PinDef motor_l_scs(PB5, OUTPUT);
 PinDef motor_l_fault(PB12, OUTPUT);
 
-PinDef motor_r_step(D9, OUTPUT);
-PinDef motor_r_dir(D8, OUTPUT);
-PinDef motor_r_scs(D10, OUTPUT);
+PinDef motor_r_step(PC7, OUTPUT);
+PinDef motor_r_dir(PA9, OUTPUT);
+PinDef motor_r_scs(PA8, OUTPUT);
 PinDef motor_r_fault(PA10, OUTPUT);
 
 PinDef motor_sleep(PB3, OUTPUT);
 PinDef motor_enable(PB6, OUTPUT);
 
-PinDef dist_x_trig(A5, OUTPUT);
-PinDef dist_x_echo(A4, INPUT);
-PinDef dist_y_trig(D2, OUTPUT);
-PinDef dist_y_echo(D3, INPUT);
+PinDef dist_x_trig(PA1, OUTPUT);
+PinDef dist_x_echo(PA0, INPUT);
+PinDef dist_y_trig(PB0, OUTPUT);
+PinDef dist_y_echo(PA4, INPUT);
 
-PinDef lim_b(D4, INPUT_PULLUP);
-PinDef lim_t(D5, INPUT_PULLUP);
-PinDef lim_l(D6, INPUT_PULLUP);
-PinDef lim_r(D7, INPUT_PULLUP);
+PinDef lim_b(PB7, INPUT_PULLUP);
+PinDef lim_t(PB2, INPUT_PULLUP);
+PinDef lim_l(PB1, INPUT_PULLUP);
+PinDef lim_r(PC13, INPUT_PULLUP);
 
-PinDef temp_read(A0, INPUT_ANALOG);
+PinDef temp_read(PC5, INPUT_ANALOG);
