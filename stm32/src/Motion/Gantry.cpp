@@ -8,8 +8,8 @@ const double Gantry::_STEP_CONVERSION_CONST = Motor::MICROSTEPS_PER_REV / (2*PI 
 const double Gantry::DIST_TOLERANCE_LOW = 5; // mm
 const double Gantry::DIST_TOLERANCE_HIGH = 100; // mm
         
-Motor Gantry::_left(motor_l_step, motor_l_dir, motor_l_scs);
-Motor Gantry::_right(motor_r_step, motor_r_dir, motor_r_scs);
+Motor Gantry::_left(motor_l_step, motor_l_dir, motor_l_scs, motor_l_fault, motor_sleep, motor_enable);
+Motor Gantry::_right(motor_r_step, motor_r_dir, motor_r_scs, motor_r_fault, motor_sleep, motor_enable);
 
 Point2<double> Gantry::_position;
 
