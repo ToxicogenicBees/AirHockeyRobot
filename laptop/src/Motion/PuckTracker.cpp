@@ -109,6 +109,7 @@ void PuckTracker::displayFrame() {
         };
     };
 
+    // Overlay puck's future motion on real world image
     auto timestamps = Puck::estimateTrajectory(false);
     auto prev_point = get_pixels(Puck::position());
     for (const auto& [orientation, time] : timestamps) {
@@ -125,7 +126,7 @@ void PuckTracker::displayFrame() {
     cv::circle(_frame_filtered, _prev_pixels, 5, {128, 0, 0}, -1);
     cv::circle(_frame, _prev_pixels, 5, {128, 0, 0}, -1);
 
-    // Show the player's goal
+    // Show the goals
     auto show_goal = [&](Point2<double> goal, cv::Scalar color) {
         auto goal_p1 = goal - 0.5 * Constants::Table::GOAL_WIDTH * Point2<double>::xAxis();
         auto goal_p2 = goal + 0.5 * Constants::Table::GOAL_WIDTH * Point2<double>::xAxis();
