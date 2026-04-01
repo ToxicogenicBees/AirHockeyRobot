@@ -153,7 +153,7 @@ void Routine::transmitTarget() {
     SerialLink::buffer(vel);
 
     // Convert position to millimeters
-    auto target_mm = 25.4 * (_target - Constants::Mallet::LIMIT_BL);
+    auto target_mm = 25.4 * (_target - Constants::Mallet::SENSOR_OFFSET);
     
     // Buffer position
     Packet pos(Action::MalletPosition);

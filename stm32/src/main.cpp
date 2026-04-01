@@ -46,7 +46,7 @@ void HANDLE_PACKET(Packet& packet) {
 
         case Action::DistanceSensorRead: {
             // read distance sensors
-            DistanceSensor::calibrate(temp.temperature());
+            // DistanceSensor::calibrate(temp.temperature());
 
             // Calculate the median of a bulk distance sensor read
             // median will get rid of noise better compared to taking average (mean)
@@ -118,7 +118,12 @@ void setup() {
     // Calibrate distance sensor
     Gantry::init();   
     Gantry::setVelocityProfile(VelocityProfile(0, 0, 100, 100));
-    DistanceSensor::calibrate(temp.temperature());
+    // DistanceSensor::calibrate(temp.temperature());
+    // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
+    // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
+    // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
+    // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
+    // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
     Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
     // Gantry::setPosition({250, 250}); 
 }
@@ -134,6 +139,13 @@ void loop() {
     Packet packet(Action::MalletPosition);
     packet << Gantry::getPosition();
     SerialLink::buffer(packet);  
+
+    // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
+
+    // delay(5000);
+
+    // Serial.println(dist_y.distance());
+    // Serial.println(dist_y.distance());
 
     // Check if any limit switch is pressed
     // If so, stop movement and let laptop know

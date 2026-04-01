@@ -52,7 +52,7 @@ void HANDLE_PACKET(Packet& packet) {
         case Action::MalletPosition: {
             Point2<double> p = packet.read<Point2<double>>();
             p /= 25.4; // mm to inches
-            p += Constants::Mallet::LIMIT_BL;
+            p += Constants::Mallet::SENSOR_OFFSET;
 
             Mallet::moveTo(p);
             break;
@@ -115,9 +115,15 @@ void RECEIVE_PACKETS() {
 
 // Mallet control
 void MALLET_CONTROL() {
+
+    Sleep(2500);
     while(true) {
         Mallet::updateTarget();
         Mallet::transmitTarget();
+
+        // Sleep(250);
+
+        // SerialLink::buffer({Action::DistanceSensorRead});  
     }
 }
 

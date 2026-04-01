@@ -6,7 +6,7 @@
 namespace Constants {
     namespace Comms {
         constexpr uint32_t BAUD_RATE = 115200;          // Baud rate for USB serial communication
-        constexpr char COM_PORT[] = "\\\\.\\COM4";      // Desired COM port
+        constexpr char COM_PORT[] = "\\\\.\\COM8";      // Desired COM port
         constexpr int64_t TIMEOUT = 10;                 // Timeout in seconds
     }
     
@@ -34,9 +34,11 @@ namespace Constants {
         const double MAX_SPEED_INCHES_PER_SECOND = MAX_RPM * 2*3.14/60 * (DRIVE_PULLEY_RADIUS_MM*sqrt(2)/2)/25.4;
 
         const Point2<double> LIMIT_BL                   // Bottom-left limit of mallet motion
-            = {1.59375, 3.0};
+            = {2.5, 2.75};
         const Point2<double> LIMIT_TR                   // Top-right limit of mallet motion
             = {Table::SIZE.x - LIMIT_BL.x, 21.0};
+        const Point2<double> SENSOR_OFFSET              // Sensor offset
+            = {1.5, 1.25};
     }
     
     namespace Puck {

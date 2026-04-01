@@ -86,8 +86,8 @@ void Gantry::initMotion(const Point2<double>& target) {
     _total_steps_larger = abs(_total_steps_to_target.x) > abs(_total_steps_to_target.y) ? abs(_total_steps_to_target.x) : abs(_total_steps_to_target.y);
     _step_counter = 0;
 
-    _left.setDir(_total_steps_to_target.x < 0);
-    _right.setDir(_total_steps_to_target.y < 0);
+    _left.setDir(_total_steps_to_target.x > 0);
+    _right.setDir(_total_steps_to_target.y > 0);
 
     _accel_steps = _total_steps_larger * _profile.getAccelPercent();
     _decel_steps = _total_steps_larger * _profile.getDecelPercent();
@@ -135,7 +135,7 @@ void Gantry::_stepMotion() {
 
     auto step = [](Motor& motor) {
         motor.stepHigh();
-        return (motor.getDir() ? -1 : 1) * 2 * PI / Motor::MICROSTEPS_PER_REV * _DRIVE_PULLEY_RADIUS;
+        return (motor.getDir() ? 1 : -1) * 2 * PI / Motor::MICROSTEPS_PER_REV * _DRIVE_PULLEY_RADIUS;
     };
 
     if (e2 >= _d.y) {
