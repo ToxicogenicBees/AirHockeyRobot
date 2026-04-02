@@ -140,48 +140,71 @@ void loop() {
     packet << Gantry::getPosition();
     SerialLink::buffer(packet);  
 
-    // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
-
-    // delay(5000);
-
-    // Serial.println(dist_y.distance());
-    // Serial.println(dist_y.distance());
-
-    // Check if any limit switch is pressed
+    // Check if any limit switch is pressed for more than 5 loops (to filter any noise)
     // If so, stop movement and let laptop know
-    // pressedSwitches = 0;
-    // if (limit_l.pressed()) {
-    //     Gantry::pauseMotion();
-    //     pressedSwitches |= Constants::LimitSwitch::LEFT_PRESSED;
-    //     Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_BL.x * 25.4, Gantry::getPosition().y});
-    // }
+    pressedSwitches = 0;
+    if (limit_l.pressed()) {
+        limit_l.pressedCount++;
 
-    // if (limit_r.pressed()) {
-    //     Gantry::pauseMotion();
-    //     pressedSwitches |= Constants::LimitSwitch::RIGHT_PRESSED;
-    //     Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_TR.x * 25.4, Gantry::getPosition().y});
-    // }
+        if (limit_l.pressedCount > LimitSwitch::pressedCountMax) {
+            limit_l.pressedCount = 0;
+            Gantry::pauseMotion();
+            pressedSwitches |= Constants::LimitSwitch::LEFT_PRESSED;
+            Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_BL.x * 25.4, Gantry::getPosition().y});
+        }
+    } else if(limit_l.pressedCount) {
+        limit_l.pressedCount = 0;
+    }
 
-    // if (limit_b.pressed()) {
-    //     Gantry::pauseMotion();
-    //     pressedSwitches |= Constants::LimitSwitch::BOTTOM_PRESSED;
-    //     // Packet packet(Action::LimitSwitches);
-    //     // packet << limit_b.pressed();
-    //     // SerialLink::buffer(packet); 
-    //     Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_BL.y * 25.4});
-    // }
+    if (limit_r.pressed()) {
+        limit_r.pressedCount++;
 
-    // if (limit_t.pressed()) {
-    //     Gantry::pauseMotion();
-    //     pressedSwitches |= Constants::LimitSwitch::TOP_PRESSED;
-    //     Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_TR.y * 25.4});
-    // }
+        if (limit_r.pressedCount > LimitSwitch::pressedCountMax) {
+            limit_r.pressedCount = 0;
+            Gantry::pauseMotion();
+            pressedSwitches |= Constants::LimitSwitch::RIGHT_PRESSED;
+            Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_TR.x * 25.4, Gantry::getPosition().y});
+        }
+    } else if(limit_r.pressedCount) {
+        limit_r.pressedCount = 0;
+    }
 
-    // if (pressedSwitches) {
-    //     Packet packet(Action::LimitSwitches);
-    //     packet << pressedSwitches;
-    //     SerialLink::buffer(packet);  
-    // }
+    if (limit_b.pressed()) {
+        limit_b.pressedCount++;
+
+        if (limit_b.pressedCount > LimitSwitch::pressedCountMax) {
+            limit_b.pressedCount = 0;
+            Gantry::pauseMotion();
+            pressedSwitches |= Constants::LimitSwitch::BOTTOM_PRESSED;
+            Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_BL.y * 25.4});
+        }
+    } else if(limit_b.pressedCount) {
+        limit_b.pressedCount = 0;
+    }
+
+    if (limit_t.pressed()) {
+        limit_t.pressedCount++;
+
+        if (limit_t.pressedCount > LimitSwitch::pressedCountMax) {
+            limit_t.pressedCount = 0;
+            Gantry::pauseMotion();
+            pressedSwitches |= Constants::LimitSwitch::TOP_PRESSED;
+            Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_TR.y * 25.4});
+        }
+    } else if(limit_t.pressedCount) {
+        limit_t.pressedCount = 0;
+    }
+
+    if (pressedSwitches) {
+        limit_l.pressedCount = 0;
+        limit_r.pressedCount = 0;
+        limit_b.pressedCount = 0;
+        limit_t.pressedCount = 0;
+
+        Packet packet(Action::LimitSwitches);
+        packet << pressedSwitches;
+        SerialLink::buffer(packet);  
+    }
     
     // // Read distance
     // for (size_t i = 0; i < BUFFER_SIZE; ++i) {
