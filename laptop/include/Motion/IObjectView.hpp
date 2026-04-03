@@ -7,10 +7,9 @@
 #include "Types/Ray2.hpp"
 
 class IObjectView {
-    protected:
-        using Timestamp = std::pair<double, Ray2<double>>;
-
     public:
+        using Timestamp = std::pair<double, Ray2<double>>;
+        
         /**
          * @brief Destroy an IObjectView
          */
