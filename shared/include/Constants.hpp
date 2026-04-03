@@ -26,6 +26,8 @@ namespace Constants {
 
     namespace Mallet {
         const Point2<double> HOME = {13.25, 10.0};      // Homing location for the mallet
+        const Point2<double> DODGE_LEFT = {5.0, 5.0};   // Left dodging location for the mallet
+        const Point2<double> DODGE_RIGHT = {21.5, 5.0}; // Left dodging location for the mallet
         constexpr double SPEED = 80.4251969;            // Estimated mallet speed (inch/sec)
         constexpr double ACCEL = 17 * 39.37;            // Estimated mallet accelleration approx. linear
                                                         // from 250 to 800 RPM speed test (inch/sec^2)

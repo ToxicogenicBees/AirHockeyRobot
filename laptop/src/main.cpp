@@ -28,6 +28,8 @@
 #include "Routines/MotionTestRoutine.hpp"
 #include "Routines/BasicDefenseRoutine.hpp"
 #include "Routines/StrikeTestRoutine.hpp"
+#include "Routines/DodgeRoutine.hpp"
+#include "Routines/AdvancedDefenseRoutine.hpp"
 #include "Tracking/CameraTracker.hpp"
 #include "Tracking/PhysicsTracker.hpp"
 #include "Comms/SerialLink.hpp"
@@ -49,8 +51,10 @@ const std::unordered_map<std::string, Command> COMMAND_LIST = {
 
     {"diff", Command({
         { "0", []() { Table::setRoutine<MotionTestRoutine>(); } },
-        { "1", []() { Table::setRoutine<BasicDefenseRoutine>(); } },
-        { "2", []() { Table::setRoutine<StrikeTestRoutine>(); } },
+        { "1", []() { Table::setRoutine<DodgeRoutine>(); } },
+        { "2", []() { Table::setRoutine<BasicDefenseRoutine>(); } },
+        { "3", []() { Table::setRoutine<StrikeTestRoutine>(); } },
+        { "4", []() { Table::setRoutine<AdvancedDefenseRoutine>(); } }
     })},
 
     {"norender", Command({
