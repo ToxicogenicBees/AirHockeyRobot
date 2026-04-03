@@ -20,11 +20,40 @@ size_t distance_buffer_index = 0;
 DistanceSensor dist_x(dist_x_trig, dist_x_echo);
 DistanceSensor dist_y(dist_y_trig, dist_y_echo);
 TemperatureSensor temp(temp_read);
+
+uint8_t pressed_switches = 0; // stores any limit switches pressed
+bool use_switches = true;
 LimitSwitch limit_l(lim_l);
 LimitSwitch limit_r(lim_r);
 LimitSwitch limit_b(lim_b);
 LimitSwitch limit_t(lim_t);
-uint8_t pressedSwitches = 0; // stores any limit switches pressed
+
+uint8_t readLimitSwitches() {
+    uint8_t pressed_switches = 0;
+
+    auto process_pressed = [&pressed_switches](LimitSwitch& limit, uint8_t flag, const Point2<double>& new_pos) {
+        if (limit.pressed()) {
+            Gantry::pauseMotion();
+            pressed_switches |= flag;
+            Gantry::setPosition(new_pos);
+        }
+    };
+
+    process_pressed(limit_l, Constants::LimitSwitch::LEFT_PRESSED, {
+        25.4 * Constants::Mallet::LIMIT_BL.x, Gantry::getPosition().y
+    });
+    process_pressed(limit_r, Constants::LimitSwitch::RIGHT_PRESSED, {
+        25.4 * Constants::Mallet::LIMIT_TR.x, Gantry::getPosition().y
+    });
+    process_pressed(limit_b, Constants::LimitSwitch::BOTTOM_PRESSED, {
+        Gantry::getPosition().x, 25.4 * Constants::Mallet::LIMIT_BL.y
+    });
+    process_pressed(limit_t, Constants::LimitSwitch::TOP_PRESSED, {
+        Gantry::getPosition().x, 25.4 * Constants::Mallet::LIMIT_TR.y
+    });
+
+    return pressed_switches;
+}
 
 void setup() {
     // Create serial handlers
@@ -113,6 +142,10 @@ void setup() {
     // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
     Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
     // Gantry::setPosition({250, 250}); 
+
+    // Disable switches if they're unplugged
+    if (readLimitSwitches())
+        use_switches = false;
 }
 
 void loop() {
@@ -129,68 +162,14 @@ void loop() {
 
     // Check if any limit switch is pressed for more than 5 loops (to filter any noise)
     // If so, stop movement and let laptop know
-    pressedSwitches = 0;
-    if (limit_l.pressed()) {
-        limit_l.pressedCount++;
 
-        if (limit_l.pressedCount > LimitSwitch::pressedCountMax) {
-            limit_l.pressedCount = 0;
-            Gantry::pauseMotion();
-            pressedSwitches |= Constants::LimitSwitch::LEFT_PRESSED;
-            Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_BL.x * 25.4, Gantry::getPosition().y});
+    if (use_switches) {
+        auto pressed_switches = readLimitSwitches();
+        if (pressed_switches) {
+            Packet packet(Action::LimitSwitches);
+            packet << pressed_switches;
+            SerialLink::buffer(packet);  
         }
-    } else if(limit_l.pressedCount) {
-        limit_l.pressedCount = 0;
-    }
-
-    if (limit_r.pressed()) {
-        limit_r.pressedCount++;
-
-        if (limit_r.pressedCount > LimitSwitch::pressedCountMax) {
-            limit_r.pressedCount = 0;
-            Gantry::pauseMotion();
-            pressedSwitches |= Constants::LimitSwitch::RIGHT_PRESSED;
-            Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_TR.x * 25.4, Gantry::getPosition().y});
-        }
-    } else if(limit_r.pressedCount) {
-        limit_r.pressedCount = 0;
-    }
-
-    if (limit_b.pressed()) {
-        limit_b.pressedCount++;
-
-        if (limit_b.pressedCount > LimitSwitch::pressedCountMax) {
-            limit_b.pressedCount = 0;
-            Gantry::pauseMotion();
-            pressedSwitches |= Constants::LimitSwitch::BOTTOM_PRESSED;
-            Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_BL.y * 25.4});
-        }
-    } else if(limit_b.pressedCount) {
-        limit_b.pressedCount = 0;
-    }
-
-    if (limit_t.pressed()) {
-        limit_t.pressedCount++;
-
-        if (limit_t.pressedCount > LimitSwitch::pressedCountMax) {
-            limit_t.pressedCount = 0;
-            Gantry::pauseMotion();
-            pressedSwitches |= Constants::LimitSwitch::TOP_PRESSED;
-            Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_TR.y * 25.4});
-        }
-    } else if(limit_t.pressedCount) {
-        limit_t.pressedCount = 0;
-    }
-
-    if (pressedSwitches) {
-        limit_l.pressedCount = 0;
-        limit_r.pressedCount = 0;
-        limit_b.pressedCount = 0;
-        limit_t.pressedCount = 0;
-
-        Packet packet(Action::LimitSwitches);
-        packet << pressedSwitches;
-        SerialLink::buffer(packet);  
     }
     
     // // Read distance

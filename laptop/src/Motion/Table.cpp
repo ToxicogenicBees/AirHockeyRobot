@@ -23,27 +23,8 @@ void Table::init() {
         _mallet.moveTo(inches);
     });
     SerialLink::registerHandler(Action::LimitSwitches, [](Packet& packet) {
-        // uint8_t pressed = packet.read<uint8_t>();
-        std::clog << packet.read<double>() << "\n";
-
-        // check for which limit switches pressed
-        // if (pressed & Constants::LimitSwitch::LEFT_PRESSED) {
-        //     // left was pressed, decide what movements invalid
-        //     std::clog << "Left Pressed\n";
-        // }
-        // if (pressed & Constants::LimitSwitch::RIGHT_PRESSED) {
-        //     // right was pressed, decide what movements invalid
-        //     std::clog << "Right Pressed\n";
-        // }
-        // if (pressed & Constants::LimitSwitch::BOTTOM_PRESSED) {
-        //     // bottom was pressed, decide what movements invalid
-        //     // std::clog << "Bottom Pressed\n";
-        //     // std::clog <<  packet.read<Point2<double>>() << "\n";
-        // }
-        // if (pressed & Constants::LimitSwitch::TOP_PRESSED) {
-        //     // top was pressed, decide what movements invalid
-        //     std::clog << "Top Pressed\n";
-        // }
+        uint8_t pressed = packet.read<uint8_t>();
+        std::clog << std::hex << (int)pressed << "\n";
     });
     SerialLink::registerHandler(Action::DistanceSensorRead, [](Packet& packet) {
         std::clog << "Updated position with distance sensors.\n";
