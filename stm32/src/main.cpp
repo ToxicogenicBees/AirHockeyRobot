@@ -31,11 +31,14 @@ LimitSwitch limit_t(lim_t);
 uint8_t readLimitSwitches() {
     uint8_t pressed_switches = 0;
 
-    auto process_pressed = [&pressed_switches](LimitSwitch& limit, uint8_t flag, const Point2<double>& new_pos) {
+    auto process_pressed = [&](LimitSwitch& limit, uint8_t flag, const Point2<double>& new_pos) {
         if (limit.pressed()) {
-            Gantry::pauseMotion();
+            // Gantry::pauseMotion();
             pressed_switches |= flag;
-            Gantry::setPosition(new_pos);
+            Gantry::setPosition({
+                dist_x.distanceBurstMedian(5),
+                dist_y.distanceBurstMedian(5)
+            });
         }
     };
 
@@ -70,21 +73,7 @@ void setup() {
         // read distance sensors
         // DistanceSensor::calibrate(temp.temperature());
 
-        // Calculate the median of a bulk distance sensor read
-        // median will get rid of noise better compared to taking average (mean)
-        auto median = [](DistanceSensor& sensor) {
-            double samples[BUFFER_SIZE];
-            for (int i = 0; i < BUFFER_SIZE; ++i)
-                samples[i] = sensor.distance();
-
-            std::sort(samples, (samples + BUFFER_SIZE));
-            return samples[BUFFER_SIZE / 2];
-        };
-
-        // Fetch median distance
-        Point2<double> median_distance(
-            median(dist_x), median(dist_y)
-        );
+        Point2<double> median_distance{dist_x.distanceBurstMedian(10), dist_x.distanceBurstMedian(10)};
 
         // If delta distance lower than DIST_TOLERANCE_LOW than assume ok and don't edit Gantry position.
         // If delta distance greater than DIST_TOLERANCE_LOW away but smaller than 
@@ -140,7 +129,7 @@ void setup() {
     // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
     // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
     // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
-    Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
+    Gantry::setPosition({dist_x.distance(), dist_y.distance()}); 
     // Gantry::setPosition({250, 250}); 
 
     // Disable switches if they're unplugged

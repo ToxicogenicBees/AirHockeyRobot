@@ -29,4 +29,12 @@ class DistanceSensor : public Sensor {
          * @return The distance read by the sensor, in millimeters
          */
         double distance();
+
+        /**
+         * @brief Take multiple readings of the distance sensor and return the median.
+         * 
+         * @param n_samples  Number of samples to take
+         * @return The median distance read by the sensor, in millimeters
+         */
+        double distanceBurstMedian(int n_samples);
 };
