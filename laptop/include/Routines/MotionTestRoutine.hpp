@@ -10,15 +10,8 @@ class MotionTestRoutine : public Routine {
     public:
         /**
          * @brief Create a new routine
-         * 
-         * @param mallet Reference to the mallet
          */
-        MotionTestRoutine(MovingObject& mallet);
-
-        /**
-         * @brief Destroy the routine
-         */
-        virtual ~MotionTestRoutine() = default;
+        MotionTestRoutine() = default;
 
         /**
          * @brief Calculates and transmits an appropriate mallet action for this routine

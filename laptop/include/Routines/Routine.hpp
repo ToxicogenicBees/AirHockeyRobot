@@ -9,14 +9,13 @@
 
 class Routine {
     protected:
+        using Target = std::pair<Point2<double>, VelocityProfile>;
+
         // Reference to the table's mallet
-        MovingObject& _mallet;
+        inline static MovingObject* _mallet = nullptr;
 
-        // The desired mallet velocity profile
-        VelocityProfile _velocity_profile;
-
-        // The desired target mallet position
-        Point2<double> _target;
+        // Previous transmission data
+        inline static Target _prev_target = {Constants::Mallet::HOME, {0, 0, 0, 0}};
 
         // Strike result states
         enum class StrikeResult {
@@ -51,15 +50,20 @@ class Routine {
         /**
          * @brief Sets up the target and velocity profile to go to the home position
          */
-        void _targetHome();
+        void _travelHome();
 
     public:
         /**
          * @brief Create a new routine
-         * 
-         * @param mallet Reference to the mallet
          */
-        Routine(MovingObject& mallet);
+        Routine() = default;
+
+        /**
+         * @brief Pass a mallet pointer to all routines
+         * 
+         * @param mallet The mallet pointer
+         */
+        static void setMallet(MovingObject* mallet);
 
         /**
          * @brief Destroy the routine
@@ -72,14 +76,51 @@ class Routine {
         virtual void updateTarget() = 0;
 
         /**
-         * @brief Transmits the target mallet action over the SerialLink
+         * @brief Attempt to transmit the target, ignoring if the target is similar to the previous
+         * 
+         * @param target    The desired target
          */
-        void transmitTarget() const;
+        void softTransmit(const Target& target);
+
+        /**
+         * @brief Attempt to transmit the target, ignoring if the target is similar to the previous
+         * 
+         * @param position  The target position
+         */
+        void softTransmit(const Point2<double>& position);
+
+        /**
+         * @brief Attempt to transmit the target, ignoring if the target is similar to the previous
+         * 
+         * @param velocity  The target velocity
+         */
+        void softTransmit(const VelocityProfile& velocity);
+
+        /**
+         * @brief Transmit the desired target
+         *          
+         * @param target  The desired target
+         */
+        void transmit(const Target& target);
+
+        /**
+         * @brief Transmit the desired target
+         *
+         * @param position  The target position
+         */
+        void transmit(const Point2<double>& position);
+
+        /**
+         * @brief Transmit the desired target
+         *
+         * @param velocity  The target velocity
+         */
+        void transmit(const VelocityProfile& velocity);
 
         /**
          * @brief Get the current target position
          * 
          * @return The current target position
          */
-        Point2<double> target() const;
+        static Target target();
 };

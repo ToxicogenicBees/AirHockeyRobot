@@ -6,12 +6,9 @@
 namespace {
     constexpr double TIME_BETWEEN_UPDATES = 2;
     const std::vector<Point2<double>> TARGETS = {
-        {5, 5}, {21.5, 5}, Constants::Mallet::HOME
+        Constants::Mallet::DODGE_LEFT, Constants::Mallet::DODGE_RIGHT, Constants::Mallet::HOME
     };
 }
-
-MotionTestRoutine::MotionTestRoutine(MovingObject& mallet)
-    : Routine(mallet) {}
 
 void MotionTestRoutine::updateTarget() {
     auto seconds = _timer.delta<std::chrono::seconds>();
@@ -21,6 +18,6 @@ void MotionTestRoutine::updateTarget() {
         seconds = 0;
     }
 
-    _target = TARGETS[(int)(seconds / TIME_BETWEEN_UPDATES)];
-    _velocity_profile = VelocityProfile(0, 0, 200, 200);
+    softTransmit(TARGETS[(int)(seconds / TIME_BETWEEN_UPDATES)]);
+    softTransmit({0, 0, 200, 200});
 }

@@ -32,6 +32,9 @@ void Table::init() {
     SerialLink::registerHandler(Action::MalletHome, [](Packet& packet) {
         std::clog << "Bad distance sensor read.\n";
     });
+
+    // Pass mallet pointer to all routines
+    Routine::setMallet(&_mallet);
 }
 
 void Table::updateTracker() {
@@ -46,7 +49,6 @@ void Table::updateTracker() {
 void Table::updateRoutine() {
     if (_routine) {
         _routine->updateTarget();
-        _routine->transmitTarget();
     }
 }
 

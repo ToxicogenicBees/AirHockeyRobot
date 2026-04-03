@@ -31,7 +31,7 @@ class Table {
          */
         template <typename RoutineType, typename... Args>
         static void setRoutine(Args&&... args) {
-            _routine = std::make_unique<RoutineType>(_mallet, std::forward<Args>(args)...);
+            _routine = std::make_unique<RoutineType>(std::forward<Args>(args)...);
         }
 
         /**

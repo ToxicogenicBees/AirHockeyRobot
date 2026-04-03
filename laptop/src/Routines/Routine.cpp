@@ -12,7 +12,7 @@ namespace {
 }
 
 double Routine::_timeToReach(const Point2<double>& position) {
-    return (position - _mallet.position()).magnitude() / Constants::Mallet::SPEED;
+    return (position - _mallet->position()).magnitude() / Constants::Mallet::SPEED;
 }
 
 bool Routine::_canReach(const Point2<double>& position) {
@@ -83,7 +83,7 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
     }
 
     // find distance to go to setup point
-    auto mallet_position = _mallet.position();
+    auto mallet_position = _mallet->position();
     auto setup_displacement = setup_point - mallet_position;
     auto setup_direction = setup_displacement.normal();
 
@@ -101,9 +101,8 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
         return StrikeResult::STRIKE_IMPOSSIBLE;
 
     // begin movement
-    _velocity_profile = { 0, 0, (uint16_t) rpm_to_setup, (uint16_t) rpm_to_setup };
-    _target = setup_point;
-    transmitTarget();
+    transmit({ 0, 0, (uint16_t) rpm_to_setup, (uint16_t) rpm_to_setup });
+    transmit(setup_point);
 
     if (time < 0.15) {
         std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(time_to_setup*1e6)));
@@ -125,9 +124,8 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
     rpm_scale_b = abs( (pos - setup_point).scalarProjection(B_AXIS) ) / accel_dist_inches;
     rpm_at_strike *= rpm_scale_a > rpm_scale_b ? rpm_scale_a : rpm_scale_b;
 
-    _velocity_profile = { accel_percent, 0.05, (uint16_t) Constants::Mallet::MIN_RPM, (uint16_t) rpm_at_strike};
-    _target = strike_point;
-    transmitTarget();
+    transmit({ accel_percent, 0.05, (uint16_t) Constants::Mallet::MIN_RPM, (uint16_t) rpm_at_strike});
+    transmit(strike_point);
 
     // wait to return control to main mallet control function until done
     std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(time_to_strike*1e6)));
@@ -135,28 +133,68 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
     return StrikeResult::STRIKE_COMPLETE;
 }
 
-void Routine::_targetHome() {
-    _velocity_profile = { 0, 0, 250, 250 };
-    _target = Constants::Mallet::HOME;
+void Routine::_travelHome() {
+    softTransmit(Constants::Mallet::HOME);
+    softTransmit({ 0, 0, 250, 250 });
 }
 
-Routine::Routine(MovingObject& mallet) : _mallet(mallet), _target(Constants::Mallet::HOME) {}
-
-Point2<double> Routine::target() const {
-    return _target;
+void Routine::setMallet(MovingObject* mallet) {
+    _mallet = mallet;
 }
 
-void Routine::transmitTarget() const {
-    // Buffer velocity profile
-    Packet vel(Action::VelocityProfile);
-    vel << _velocity_profile;
-    SerialLink::buffer(vel);
+Routine::Target Routine::target() {
+    return _prev_target;
+}
 
+void Routine::softTransmit(const Target& target) {
+    softTransmit(target.first);
+    softTransmit(target.second);
+}
+
+void Routine::softTransmit(const Point2<double>& position) {
+    if ((position - _prev_target.first).magnitude() >= Constants::FP_ERR) {
+        transmit(position);
+    }
+}
+
+void Routine::softTransmit(const VelocityProfile& velocity) {
+    if (velocity.getAccelPercent() - _prev_target.second.getAccelPercent() >= Constants::FP_ERR
+        || velocity.getDecelPercent() - _prev_target.second.getDecelPercent() >= Constants::FP_ERR
+        || velocity.getMaxRPM() != _prev_target.second.getMaxRPM()
+        || velocity.getMinRPM() != _prev_target.second.getMinRPM()) {
+
+        transmit(velocity);
+    }
+}
+
+void Routine::transmit(const Target& target) {
+    transmit(target.first);
+    transmit(target.second);
+}
+
+void Routine::transmit(const Point2<double>& position) {
     // Convert position to millimeters
-    auto target_mm = 25.4 * (_target - Constants::Mallet::SENSOR_OFFSET);
+    auto target_mm = 25.4 * (position - Constants::Mallet::SENSOR_OFFSET);
     
     // Buffer position
     Packet pos(Action::MalletPosition);
     pos << target_mm;
     SerialLink::buffer(pos);
+    
+    // Update previous position
+    _prev_target.first = position;
+
+    std::cout << "Change position\n";
+}
+
+void Routine::transmit(const VelocityProfile& velocity) {
+    // Buffer velocity profile
+    Packet vel(Action::VelocityProfile);
+    vel << velocity;
+    SerialLink::buffer(vel);
+
+    // Update previous velocity
+    _prev_target.second = velocity;
+
+    std::cout << "Change velocity\n";
 }

@@ -35,7 +35,7 @@ void Overlay::overlay(cv::Mat& mat) {
     }
 
     if (_mallet_target) {
-        cv::circle(mat, _converter(Table::routine()->target()), 2, _mallet_target->first, _mallet_target->second);
+        cv::circle(mat, _converter(Table::routine()->target().first), 2, _mallet_target->first, _mallet_target->second);
     }
 
     if (_puck_trajectory) {
