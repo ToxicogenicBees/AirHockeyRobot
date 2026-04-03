@@ -21,9 +21,9 @@ PinDef dist_x_echo(PA0, INPUT);
 PinDef dist_y_trig(PB0, OUTPUT);
 PinDef dist_y_echo(PA4, INPUT);
 
-PinDef lim_b(PB7, INPUT_PULLDOWN);
+PinDef lim_b(PA11, INPUT_PULLDOWN);
 PinDef lim_t(PB2, INPUT_PULLDOWN);
 PinDef lim_l(PB1, INPUT_PULLDOWN);
-PinDef lim_r(PC13, INPUT_PULLDOWN);
+PinDef lim_r(PB15, INPUT_PULLDOWN);
 
 PinDef temp_read(PC5, INPUT_ANALOG);
