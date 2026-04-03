@@ -1,5 +1,4 @@
-#ifndef PACKETBUFFER_HPP
-#define PACKETBUFFER_HPP
+#pragma once
 
 #include "Comms/Packet.hpp"
 #include <ostream>
@@ -124,5 +123,3 @@ class PacketBuffer {
             return _packets + _SIZE;
         }
 };
-
-#endif

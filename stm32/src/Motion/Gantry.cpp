@@ -1,5 +1,5 @@
-#include "Motion/Gantry.h"
-#include "Pinout.h"
+#include "Motion/Gantry.hpp"
+#include "Pinout.hpp"
 
 #include <functional>
 

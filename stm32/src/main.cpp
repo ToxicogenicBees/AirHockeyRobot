@@ -1,8 +1,8 @@
-#include "Sensors/TemperatureSensor.h"
-#include "Sensors/DistanceSensor.h"
-#include "Sensors/LimitSwitch.h"
-#include "Motion/Gantry.h"
-#include "PinOut.h"
+#include "Sensors/TemperatureSensor.hpp"
+#include "Sensors/DistanceSensor.hpp"
+#include "Sensors/LimitSwitch.hpp"
+#include "Motion/Gantry.hpp"
+#include "PinOut.hpp"
 #include "Comms/SerialLink.hpp"
 #include "Types/Point2.hpp"
 #include "Types/VelocityProfile.hpp"
@@ -26,78 +26,65 @@ LimitSwitch limit_b(lim_b);
 LimitSwitch limit_t(lim_t);
 uint8_t pressedSwitches = 0; // stores any limit switches pressed
 
-void HANDLE_PACKET(Packet& packet) {
-    Action action = packet.action();
-    packet.resetRead();
-
-    switch(action) {
-        case Action::VelocityProfile: {
-            const auto profile = packet.read<VelocityProfile>();
-            Gantry::setVelocityProfile(profile);
-            break;
-        }
-
-        case Action::MalletPosition: {
-            const auto target = packet.read<Point2<double>>();
-            Gantry::initMotion(target);
-            Gantry::startMotion();
-            break;
-        }
-
-        case Action::DistanceSensorRead: {
-            // read distance sensors
-            // DistanceSensor::calibrate(temp.temperature());
-
-            // Calculate the median of a bulk distance sensor read
-            // median will get rid of noise better compared to taking average (mean)
-            auto median = [](DistanceSensor& sensor) {
-                double samples[BUFFER_SIZE];
-                for (int i = 0; i < BUFFER_SIZE; ++i)
-                    samples[i] = sensor.distance();
-
-                std::sort(samples, (samples + BUFFER_SIZE));
-                return samples[BUFFER_SIZE / 2];
-            };
-
-            // Fetch median distance
-            Point2<double> median_distance(
-                median(dist_x), median(dist_y)
-            );
-
-            // If delta distance lower than DIST_TOLERANCE_LOW than assume ok and don't edit Gantry position.
-            // If delta distance greater than DIST_TOLERANCE_LOW away but smaller than 
-            // DIST_TOLERANCE_HIGH from the current assumed mallet position, then set 
-            // mallet position to the weighted average between sensed position and assumed. 
-            // Otherwise distance sensor readings are bad, or the mallet
-            // assumed position is way off, so request a mallet homing routine
-            // using limit switches.
-            double delta = (median_distance - Gantry::getPosition()).magnitude();
-
-            if (delta > Gantry::DIST_TOLERANCE_LOW) {
-                if (delta < Gantry::DIST_TOLERANCE_HIGH) {
-                    // set to weighted average between assumed position and sensed position 
-                    Gantry::setPosition(0.8*median_distance +  0.2*Gantry::getPosition());
-                    Packet packet(Action::DistanceSensorRead);
-                    SerialLink::buffer(packet); 
-                } else {
-                    Packet packet(Action::MalletHome);
-                    SerialLink::buffer(packet); 
-                }
-            }
-            break;
-        }
-
-        case Action::MalletHome: {
-            // run mallet homing routine using limit switches
-            Gantry::home();
-            break;
-        }
-    }
-}
-
 void setup() {
+    // Create serial handlers
+    SerialLink::registerHandler(Action::VelocityProfile, [](Packet& packet) {
+        const auto profile = packet.read<VelocityProfile>();
+        Gantry::setVelocityProfile(profile);
+    });
+    SerialLink::registerHandler(Action::MalletPosition, [](Packet& packet) {
+        const auto target = packet.read<Point2<double>>();
+        Gantry::initMotion(target);
+        Gantry::startMotion();
+    });
+    SerialLink::registerHandler(Action::DistanceSensorRead, [](Packet& packet) {
+        // read distance sensors
+        // DistanceSensor::calibrate(temp.temperature());
+
+        // Calculate the median of a bulk distance sensor read
+        // median will get rid of noise better compared to taking average (mean)
+        auto median = [](DistanceSensor& sensor) {
+            double samples[BUFFER_SIZE];
+            for (int i = 0; i < BUFFER_SIZE; ++i)
+                samples[i] = sensor.distance();
+
+            std::sort(samples, (samples + BUFFER_SIZE));
+            return samples[BUFFER_SIZE / 2];
+        };
+
+        // Fetch median distance
+        Point2<double> median_distance(
+            median(dist_x), median(dist_y)
+        );
+
+        // If delta distance lower than DIST_TOLERANCE_LOW than assume ok and don't edit Gantry position.
+        // If delta distance greater than DIST_TOLERANCE_LOW away but smaller than 
+        // DIST_TOLERANCE_HIGH from the current assumed mallet position, then set 
+        // mallet position to the weighted average between sensed position and assumed. 
+        // Otherwise distance sensor readings are bad, or the mallet
+        // assumed position is way off, so request a mallet homing routine
+        // using limit switches.
+        double delta = (median_distance - Gantry::getPosition()).magnitude();
+
+        if (delta > Gantry::DIST_TOLERANCE_LOW) {
+            if (delta < Gantry::DIST_TOLERANCE_HIGH) {
+                // set to weighted average between assumed position and sensed position 
+                Gantry::setPosition(0.8*median_distance +  0.2*Gantry::getPosition());
+                Packet packet(Action::DistanceSensorRead);
+                SerialLink::buffer(packet); 
+            } else {
+                Packet packet(Action::MalletHome);
+                SerialLink::buffer(packet); 
+            }
+        }
+    });
+    SerialLink::registerHandler(Action::MalletHome, [](Packet& packet) {
+        // run mallet homing routine using limit switches
+        Gantry::home();
+    });
+
     // Initialize Serial output
-    SerialLink::init(HANDLE_PACKET);
+    SerialLink::init();
 
     // Serial.println(SystemCoreClock);  // gets the current core clock speed, this reported 180MHz
     
@@ -140,48 +127,71 @@ void loop() {
     packet << Gantry::getPosition();
     SerialLink::buffer(packet);  
 
-    // Gantry::setPosition({dist_x.distance(), dist_y.distance(),}); 
-
-    // delay(5000);
-
-    // Serial.println(dist_y.distance());
-    // Serial.println(dist_y.distance());
-
-    // Check if any limit switch is pressed
+    // Check if any limit switch is pressed for more than 5 loops (to filter any noise)
     // If so, stop movement and let laptop know
-    // pressedSwitches = 0;
-    // if (limit_l.pressed()) {
-    //     Gantry::pauseMotion();
-    //     pressedSwitches |= Constants::LimitSwitch::LEFT_PRESSED;
-    //     Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_BL.x * 25.4, Gantry::getPosition().y});
-    // }
+    pressedSwitches = 0;
+    if (limit_l.pressed()) {
+        limit_l.pressedCount++;
 
-    // if (limit_r.pressed()) {
-    //     Gantry::pauseMotion();
-    //     pressedSwitches |= Constants::LimitSwitch::RIGHT_PRESSED;
-    //     Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_TR.x * 25.4, Gantry::getPosition().y});
-    // }
+        if (limit_l.pressedCount > LimitSwitch::pressedCountMax) {
+            limit_l.pressedCount = 0;
+            Gantry::pauseMotion();
+            pressedSwitches |= Constants::LimitSwitch::LEFT_PRESSED;
+            Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_BL.x * 25.4, Gantry::getPosition().y});
+        }
+    } else if(limit_l.pressedCount) {
+        limit_l.pressedCount = 0;
+    }
 
-    // if (limit_b.pressed()) {
-    //     Gantry::pauseMotion();
-    //     pressedSwitches |= Constants::LimitSwitch::BOTTOM_PRESSED;
-    //     // Packet packet(Action::LimitSwitches);
-    //     // packet << limit_b.pressed();
-    //     // SerialLink::buffer(packet); 
-    //     Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_BL.y * 25.4});
-    // }
+    if (limit_r.pressed()) {
+        limit_r.pressedCount++;
 
-    // if (limit_t.pressed()) {
-    //     Gantry::pauseMotion();
-    //     pressedSwitches |= Constants::LimitSwitch::TOP_PRESSED;
-    //     Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_TR.y * 25.4});
-    // }
+        if (limit_r.pressedCount > LimitSwitch::pressedCountMax) {
+            limit_r.pressedCount = 0;
+            Gantry::pauseMotion();
+            pressedSwitches |= Constants::LimitSwitch::RIGHT_PRESSED;
+            Gantry::setPosition(Point2<double> {Constants::Mallet::LIMIT_TR.x * 25.4, Gantry::getPosition().y});
+        }
+    } else if(limit_r.pressedCount) {
+        limit_r.pressedCount = 0;
+    }
 
-    // if (pressedSwitches) {
-    //     Packet packet(Action::LimitSwitches);
-    //     packet << pressedSwitches;
-    //     SerialLink::buffer(packet);  
-    // }
+    if (limit_b.pressed()) {
+        limit_b.pressedCount++;
+
+        if (limit_b.pressedCount > LimitSwitch::pressedCountMax) {
+            limit_b.pressedCount = 0;
+            Gantry::pauseMotion();
+            pressedSwitches |= Constants::LimitSwitch::BOTTOM_PRESSED;
+            Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_BL.y * 25.4});
+        }
+    } else if(limit_b.pressedCount) {
+        limit_b.pressedCount = 0;
+    }
+
+    if (limit_t.pressed()) {
+        limit_t.pressedCount++;
+
+        if (limit_t.pressedCount > LimitSwitch::pressedCountMax) {
+            limit_t.pressedCount = 0;
+            Gantry::pauseMotion();
+            pressedSwitches |= Constants::LimitSwitch::TOP_PRESSED;
+            Gantry::setPosition(Point2<double> {Gantry::getPosition().x, Constants::Mallet::LIMIT_TR.y * 25.4});
+        }
+    } else if(limit_t.pressedCount) {
+        limit_t.pressedCount = 0;
+    }
+
+    if (pressedSwitches) {
+        limit_l.pressedCount = 0;
+        limit_r.pressedCount = 0;
+        limit_b.pressedCount = 0;
+        limit_t.pressedCount = 0;
+
+        Packet packet(Action::LimitSwitches);
+        packet << pressedSwitches;
+        SerialLink::buffer(packet);  
+    }
     
     // // Read distance
     // for (size_t i = 0; i < BUFFER_SIZE; ++i) {

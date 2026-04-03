@@ -1,7 +1,6 @@
-#ifndef SENSOR_HPP
-#define SENSOR_HPP
+#pragma once
 
-#include "Types/PinDef.h"
+#include "Types/PinDef.hpp"
 #include <vector>
 
 class Sensor {
@@ -31,5 +30,3 @@ class Sensor {
                 pin->init();
         }
 };
-
-#endif

@@ -1,4 +1,4 @@
-#include "Sensors/DistanceSensor.h"
+#include "Sensors/DistanceSensor.hpp"
 
 namespace {
     #define TRIG 0
@@ -23,4 +23,4 @@ double DistanceSensor::distance() {
     uint32_t duration = pulseIn(_pins[ECHO]->PIN, HIGH);
     // delayMicroseconds(100000);
     return 0.5 * duration * _speed_of_sound;
-} 
+}

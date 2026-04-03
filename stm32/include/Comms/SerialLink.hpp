@@ -1,14 +1,14 @@
-#ifndef SERIALLINK_HPP
-#define SERIALLINK_HPP
+#pragma once
 
 #include "Comms/PacketBuffer.hpp"
 #include "Comms/Packet.hpp"
 #include "Types/Timer.hpp"
-#include "Constants.h"
+#include "Constants.hpp"
 
 #include <Arduino.h>
 #include <functional>
 #include <stdint.h>
+#include <unordered_map>
 #include <vector>
 
 class SerialLink {
@@ -22,8 +22,8 @@ class SerialLink {
         inline static PacketBuffer _receive_buffer;
         inline static PacketBuffer _send_buffer;
 
-        // Packet handler
-        inline static processor _callback;
+        // Packet handlers
+        inline static std::unordered_map<Action, processor> _handlers;
 
         // Communication timer
         inline static Timer _timer;
@@ -51,16 +51,17 @@ class SerialLink {
         }
 
     public:
-        static void init(processor callback) {
-            // Store packet callback function
-            _callback = callback;
-
+        static void init() {
             // Initialize serial link
             Serial.begin(Constants::Comms::BAUD_RATE);
             while (!Serial);
 
             // Reset timer
             _timer.reset();
+        }
+
+        static void registerHandler(Action action, processor handler) {
+            _handlers[action] = handler;
         }
 
         static void buffer(const Packet& packet) {
@@ -82,9 +83,13 @@ class SerialLink {
                     // If this was the last packet
                     if (packet.action() == Action::Terminate) {
                         // Process all packets
-                        for (auto p : _receive_buffer) {
+                        for (auto& p : _receive_buffer) {
                             if (p) {
-                                _callback(*p);
+                                auto callback = _handlers.find(p->action());
+                                if (callback != _handlers.end()) {
+                                    p->resetRead();
+                                    callback->second(*p);
+                                }
                             }
                         }
                         _receive_buffer.clear();
@@ -96,7 +101,7 @@ class SerialLink {
 
             if (receivedTermination) {
                 // Send buffered packets
-                for (auto p : _send_buffer) {
+                for (auto& p : _send_buffer) {
                     if (p) {
                         p->finalize();
                         Serial.write(p->data(), p->length());
@@ -122,5 +127,3 @@ class SerialLink {
             }
         }
 };
-
-#endif

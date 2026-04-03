@@ -1,4 +1,4 @@
-#include "Sensors/LimitSwitch.h"
+#include "Sensors/LimitSwitch.hpp"
 
 LimitSwitch::LimitSwitch(PinDef& pin) : Sensor(pin) {}
 

@@ -1,5 +1,4 @@
-#ifndef POINT2_HPP
-#define POINT2_HPP
+#pragma once
 
 #include <iostream>
 #include <stdint.h>
@@ -366,5 +365,3 @@ template <class T>
 Point2<T> Point2<T>::projection(const Point2<T> v) const {
     return scalarProjection(v) * v.normal();
 }
-
-#endif

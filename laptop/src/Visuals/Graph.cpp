@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <iostream>
 
-#include "Visuals/Graph.h"
+#include "Visuals/Graph.hpp"
 
 const Point2<double> Graph::DYNAMIC_RANGE = {-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()};
 

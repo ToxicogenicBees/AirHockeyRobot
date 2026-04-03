@@ -1,5 +1,4 @@
-#ifndef VELOCITY_PROFILE_HPP
-#define VELOCITY_PROFILE_HPP
+#pragma once
 
 #include <stdint.h>
 #include <limits>
@@ -140,5 +139,3 @@ class VelocityProfile {
             _max_rpm = max_rpm;
         }
 };
-
-#endif

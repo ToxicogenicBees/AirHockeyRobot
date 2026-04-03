@@ -1,10 +1,9 @@
-#ifndef SERIALLINK_HPP
-#define SERIALLINK_HPP
+#pragma once
 
 #include "Comms/PacketBuffer.hpp"
 #include "Comms/Packet.hpp"
 #include "Types/Timer.hpp"
-#include "Constants.h"
+#include "Constants.hpp"
 
 #include <windows.h>
 #include <iostream>
@@ -12,6 +11,7 @@
 #include <stdint.h>
 #include <vector>
 #include <mutex>
+#include <unordered_map>
 
 class SerialLink {
     private:
@@ -28,8 +28,8 @@ class SerialLink {
         inline static PacketBuffer _send_buffer;
         inline static std::mutex _send_guard;
 
-        // Packet handler
-        inline static processor _callback;
+        // Packet handlers
+        inline static std::unordered_map<Action, processor> _handlers;
 
         // Communication timer
         inline static Timer _timer;
@@ -73,10 +73,7 @@ class SerialLink {
         }
 
     public:
-        static void init(processor callback) {
-            // Store packet callback function
-            _callback = callback;
-
+        static void init() {
             // Initialize serial link
             _h_serial = CreateFile(Constants::Comms::COM_PORT,
                 GENERIC_READ | GENERIC_WRITE,
@@ -113,6 +110,10 @@ class SerialLink {
             _timer.reset();
         }
 
+        static void registerHandler(Action action, processor handler) {
+            _handlers[action] = handler;
+        }
+
         static void buffer(const Packet& packet) {
             {
                 std::lock_guard<std::mutex> guard(_send_guard);
@@ -135,9 +136,13 @@ class SerialLink {
                     // If this was the last packet
                     if (packet.action() == Action::Terminate) {
                         // Process all packets
-                        for (auto p : _receive_buffer) {
+                        for (auto& p : _receive_buffer) {
                             if (p) {
-                                _callback(*p);
+                                auto callback = _handlers.find(p->action());
+                                if (callback != _handlers.end()) {
+                                    p->resetRead();
+                                    callback->second(*p);
+                                }
                             }
                         }
                         _receive_buffer.clear();
@@ -151,7 +156,7 @@ class SerialLink {
                     std::lock_guard<std::mutex> guard(_send_guard);
 
                     // Send buffered packets
-                    for (auto p : _send_buffer) {
+                    for (auto& p : _send_buffer) {
                         if (p) {
                             p->finalize();
 
@@ -187,5 +192,3 @@ class SerialLink {
             }
         }
 };
-
-#endif

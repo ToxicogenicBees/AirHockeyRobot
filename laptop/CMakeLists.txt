@@ -20,48 +20,22 @@ set(COMMON_INCLUDES
 
 # --- List of executables ---
 set(EXECUTABLES
-    PhysicsSim
-    PacketTest
-    GraphTest
     main
 )
 
 # --- Mapping source files for each executable ---
-set(PacketTest_SOURCES
-    src/Examples/PacketTest.cpp
-)
-
-set(PhysicsSim_SOURCES
-    src/Examples/PhysicsSim.cpp
-    src/Motion/MovingObject.cpp
-    src/Simulation/Table.cpp
-    src/Motion/Mallet.cpp
-    src/Motion/Puck.cpp
-    src/Motion/PuckTracker.cpp
-    src/Motion/Routines/Routine.cpp
-    src/Motion/Routines/BasicDefenseRoutine.cpp
-    src/Motion/Routines/MotionTestRoutine.cpp
-    src/Motion/Routines/StrikeTestRoutine.cpp
-)
-
-set(GraphTest_SOURCES
-    src/Examples/GraphTest.cpp
-    src/Visuals/Graph.cpp
-)
-
 set(main_SOURCES
     src/main.cpp
-    src/State/StateTracker.cpp
-    src/State/KeyLog.cpp
     src/Motion/MovingObject.cpp
-    src/Simulation/Table.cpp
-    src/Motion/Mallet.cpp
-    src/Motion/Puck.cpp
-    src/Motion/PuckTracker.cpp
-    src/Motion/Routines/Routine.cpp
-    src/Motion/Routines/BasicDefenseRoutine.cpp
-    src/Motion/Routines/MotionTestRoutine.cpp
-    src/Motion/Routines/StrikeTestRoutine.cpp
+    src/Motion/Table.cpp
+    src/Tracking/PuckTracker.cpp
+    src/Tracking/CameraTracker.cpp
+    src/Tracking/PhysicsTracker.cpp
+    src/Routines/Routine.cpp
+    src/Routines/BasicDefenseRoutine.cpp
+    src/Routines/MotionTestRoutine.cpp
+    src/Routines/StrikeTestRoutine.cpp
+    src/Visuals/Overlay.cpp
 )
 
 # --- Function to create executables with common includes and OpenCV ---
@@ -72,7 +46,4 @@ function(add_opencv_executable exe_name src_list)
 endfunction()
 
 # --- Add all executables ---
-add_opencv_executable(PhysicsSim "${PhysicsSim_SOURCES}")
-add_opencv_executable(PacketTest "${PacketTest_SOURCES}")
-add_opencv_executable(GraphTest "${GraphTest_SOURCES}")
 add_opencv_executable(main "${main_SOURCES}")

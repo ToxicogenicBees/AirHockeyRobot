@@ -1,5 +1,4 @@
-#ifndef PACKET_HPP
-#define PACKET_HPP
+#pragma once
 
 #include <stdexcept>
 #include <stdint.h>
@@ -234,6 +233,4 @@ class Packet {
                 o << (int)byte << " ";
             return o;
         }
-    };
-
-#endif
+};

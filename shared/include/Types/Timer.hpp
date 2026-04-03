@@ -1,5 +1,4 @@
-#ifndef TIMER_HPP
-#define TIMER_HPP
+#pragma once
 
 #include <stdint.h>
 #include <chrono>
@@ -39,5 +38,3 @@ class Timer {
             return std::chrono::duration_cast<cast_type>(Clock::now() - _prev_sample).count();
         }
 };
-
-#endif
