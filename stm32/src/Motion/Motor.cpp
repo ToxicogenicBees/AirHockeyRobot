@@ -19,7 +19,6 @@ void Motor::init() {
     _sleep->init();
     _enable->init();
 
-
     _sleep->write(HIGH);
     delay(1);
     _enable->write(HIGH);
@@ -30,11 +29,7 @@ void Motor::init() {
     // Initialize driver (auto initializes SCS pin)
     delay(100);
 
-    // _driver.resetSettings();
-    // _driver.clearStatus();
-    // _driver.setDecayMode(HPSDDecayMode::AutoMixed);
-    // _driver.setCurrentMilliamps36v4(4000); 
-    _driver.setCurrentHold(0x67);
+    // _driver.setCurrentHold(0x67);
     _driver.setCurrent(0x67);  // 0x67 for 1.7 [A]
     _driver.setStepMode();
     _driver.enableDriver();
