@@ -59,7 +59,7 @@ class MovingObject : public IObjectView {
          * 
          * @return The orientation of the object, in inches and inches/sec
          */
-        Ray2<double> orientation() const;
+        Ray2<double> orientation() const override;
 
         /**
          * @brief Returns the future orientation of the object, in inches and inches/sec

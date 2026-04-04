@@ -24,6 +24,13 @@ class IObjectView {
         virtual std::vector<Timestamp> trajectory(bool include_return = false) const = 0;
 
         /**
+         * @brief Returns the current orientation of the object, in inches and inches/sec
+         * 
+         * @return The orientation of the object, in inches and inches/sec
+         */
+        virtual Ray2<double> orientation() const = 0;
+
+        /**
          * @brief Get the object's position, in inches
          * 
          * @return The object's position, in inches
