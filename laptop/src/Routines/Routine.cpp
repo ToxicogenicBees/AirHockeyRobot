@@ -32,6 +32,7 @@ bool Routine::_canReach(const Point2<double>& position) {
 
 Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double time) {
     if (time < 0) {
+        std::clog << "Strike time is negative\n";
         return StrikeResult::STRIKE_IMPOSSIBLE;
     }
 
@@ -97,12 +98,13 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
     double rpm_scale_b = abs( setup_direction.scalarProjection(B_AXIS) );
     rpm_to_setup *= rpm_scale_a > rpm_scale_b ? rpm_scale_a : rpm_scale_b;
 
-    if (rpm_to_setup > Constants::Mallet::MIN_RPM)
+    if (rpm_to_setup > Constants::Mallet::MIN_RPM) {
         return StrikeResult::STRIKE_IMPOSSIBLE;
+    }
 
     // begin movement
-    transmit({ 0, 0, (uint16_t) rpm_to_setup, (uint16_t) rpm_to_setup });
-    transmit(setup_point);
+    softTransmit({ 0, 0, (uint16_t) rpm_to_setup, (uint16_t) rpm_to_setup });
+    softTransmit(setup_point);
 
     if (time < 0.15) {
         std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(time_to_setup*1e6)));
@@ -124,8 +126,8 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
     rpm_scale_b = abs( (pos - setup_point).scalarProjection(B_AXIS) ) / accel_dist_inches;
     rpm_at_strike *= rpm_scale_a > rpm_scale_b ? rpm_scale_a : rpm_scale_b;
 
-    transmit({ accel_percent, 0.05, (uint16_t) Constants::Mallet::MIN_RPM, (uint16_t) rpm_at_strike});
-    transmit(strike_point);
+    softTransmit({ accel_percent, 0.05, (uint16_t) Constants::Mallet::MIN_RPM, (uint16_t) rpm_at_strike});
+    softTransmit(strike_point);
 
     // wait to return control to main mallet control function until done
     std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(time_to_strike*1e6)));
@@ -183,8 +185,6 @@ void Routine::transmit(const Point2<double>& position) {
     
     // Update previous position
     _prev_target.first = position;
-
-    std::cout << "Change position\n";
 }
 
 void Routine::transmit(const VelocityProfile& velocity) {
@@ -195,6 +195,4 @@ void Routine::transmit(const VelocityProfile& velocity) {
 
     // Update previous velocity
     _prev_target.second = velocity;
-
-    std::cout << "Change velocity\n";
 }
