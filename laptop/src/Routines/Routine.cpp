@@ -30,9 +30,65 @@ bool Routine::_canReach(const Point2<double>& position) {
     return true;
 }
 
+std::optional<StrikePlan> Routine::_planStrike(const Ray2<double>& orientation, double time) {
+    if (time < 0)
+        return std::nullopt;
+
+    auto position = orientation.position;
+    auto velocity = orientation.direction;
+
+    auto speed = orientation.magnitude();
+    auto accel_dist = speed / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Mallet::INCHES_TO_ACCEL_TO_MAX_RPM - Constants::Mallet::MIN_ACCEL_INCHES) + Constants::Mallet::MIN_ACCEL_INCHES;
+
+    Point2<double> setup_position = position - accel_dist * velocity.normal();
+    Point2<double> strike_position = position + velocity.normal(); // 1 inch past
+
+    // bounds check
+    auto oob = [](const Point2<double>& p) {
+        return p.x < Constants::Mallet::LIMIT_BL.x ||
+               p.y < Constants::Mallet::LIMIT_BL.y ||
+               p.x > Constants::Mallet::LIMIT_TR.x ||
+               p.y > Constants::Mallet::LIMIT_TR.y;
+    };
+
+    if (oob(setup_position) || oob(strike_position))
+        return std::nullopt;
+
+    double min_speed = Constants::Mallet::MIN_RPM / Constants::Mallet::MAX_RPM * Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND;
+    double time_to_strike = accel_dist / (speed - min_speed) * log(1 + (speed - min_speed) / min_speed);
+
+    if (time_to_strike > time)
+        return std::nullopt;
+
+    double time_to_setup = time - time_to_strike;
+
+    // compute setup feasibility
+    auto mallet_pos = _mallet->position();
+    auto setup_displacement = setup_position - mallet_pos;
+    auto setup_direction = setup_displacement.normal();
+
+    double speed_to_setup = setup_displacement.magnitude() / time_to_setup;
+    double rpm_to_setup = speed_to_setup / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * Constants::Mallet::MAX_RPM;
+
+    // scalar projection of setup position normal onto CoreXY movement axis
+    // to get percent motor speed of the max speed
+    double rpm_scale_a = abs( setup_direction.scalarProjection(A_AXIS) );
+    double rpm_scale_b = abs( setup_direction.scalarProjection(B_AXIS) );
+    rpm_to_setup *= rpm_scale_a > rpm_scale_b ? rpm_scale_a : rpm_scale_b;
+
+    if (rpm_to_setup < Constants::Mallet::MIN_RPM || rpm_to_setup > Constants::Mallet::MAX_RPM)
+        return std::nullopt;
+
+    return StrikePlan{
+        setup_position,
+        time_to_setup,
+        {strike_position, velocity},
+        time_to_strike
+    };
+}
+
 Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double time) {
     if (time < 0) {
-        std::clog << "Strike time is negative\n";
         return StrikeResult::STRIKE_IMPOSSIBLE;
     }
 
@@ -43,7 +99,7 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
     auto pos = orientation.position;
     auto vel = orientation.direction;
     auto speed = vel.magnitude();
-    double accel_dist_inches = speed / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Mallet::INCHES_TO_ACCEL_TO_MAX_RPM - Constants::Mallet::MIN_ACCEL_INCES) + Constants::Mallet::MIN_ACCEL_INCES;
+    double accel_dist_inches = speed / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Mallet::INCHES_TO_ACCEL_TO_MAX_RPM - Constants::Mallet::MIN_ACCEL_INCHES) + Constants::Mallet::MIN_ACCEL_INCHES;
 
     Point2<double> setup_point = pos - accel_dist_inches * vel.normal();
 

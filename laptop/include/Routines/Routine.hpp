@@ -1,9 +1,10 @@
 #pragma once
 
-#include <memory>
+#include <optional>
 
 #include "Types/VelocityProfile.hpp"
 #include "Motion/MovingObject.hpp"
+#include "Types/StrikePlan.hpp"
 #include "Types/Point2.hpp"
 #include "Types/Ray2.hpp"
 
@@ -29,7 +30,7 @@ class Routine {
          * 
          * @return The time it takes the mallet to reach this position
          */
-        double _timeToReach(const Point2<double>& position);
+        static double _timeToReach(const Point2<double>& position);
 
         /**
          * @brief Checks if the mallet can reach this position
@@ -37,7 +38,15 @@ class Routine {
          * @return If the mallet can reach this position
          * @returns -1 if the mallet cannot reach
          */
-        bool _canReach(const Point2<double>& position);
+        static bool _canReach(const Point2<double>& position);
+
+        /**
+         * @brief Plan an entire strike motion
+         * 
+         * @param orientation   The required mallet orientation
+         * @param time          The time the mallet needs to reach this point
+         */
+        static std::optional<StrikePlan> _planStrike(const Ray2<double>& orientation, double time);
 
         /**
          * @brief Strikes the mallet with a given orientation and time
@@ -45,12 +54,12 @@ class Routine {
          * @param orientation   The desired mallet orientation
          * @param time          The desired time
          */
-        StrikeResult _strike(const Ray2<double>& orientation, double time);
+        static StrikeResult _strike(const Ray2<double>& orientation, double time);
 
         /**
          * @brief Sets up the target and velocity profile to go to the home position
          */
-        void _travelHome();
+        static void _travelHome();
 
     public:
         /**
@@ -71,51 +80,46 @@ class Routine {
         virtual ~Routine() = default;
 
         /**
-         * @brief Calculates an appropriate mallet action for this routine
-         */
-        virtual void updateTarget() = 0;
-
-        /**
          * @brief Attempt to transmit the target, ignoring if the target is similar to the previous
          * 
          * @param target    The desired target
          */
-        void softTransmit(const Target& target);
+        static void softTransmit(const Target& target);
 
         /**
          * @brief Attempt to transmit the target, ignoring if the target is similar to the previous
          * 
          * @param position  The target position
          */
-        void softTransmit(const Point2<double>& position);
+        static void softTransmit(const Point2<double>& position);
 
         /**
          * @brief Attempt to transmit the target, ignoring if the target is similar to the previous
          * 
          * @param velocity  The target velocity
          */
-        void softTransmit(const VelocityProfile& velocity);
+        static void softTransmit(const VelocityProfile& velocity);
 
         /**
          * @brief Transmit the desired target
          *          
          * @param target  The desired target
          */
-        void transmit(const Target& target);
+        static void transmit(const Target& target);
 
         /**
          * @brief Transmit the desired target
          *
          * @param position  The target position
          */
-        void transmit(const Point2<double>& position);
+        static void transmit(const Point2<double>& position);
 
         /**
          * @brief Transmit the desired target
          *
          * @param velocity  The target velocity
          */
-        void transmit(const VelocityProfile& velocity);
+        static void transmit(const VelocityProfile& velocity);
 
         /**
          * @brief Get the current target position
@@ -123,4 +127,9 @@ class Routine {
          * @return The current target position
          */
         static Target target();
+
+        /**
+         * @brief Calculates an appropriate mallet action for this routine
+         */
+        virtual void updateTarget() = 0;
 };
