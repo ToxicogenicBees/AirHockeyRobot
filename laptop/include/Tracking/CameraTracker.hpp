@@ -31,11 +31,10 @@ class CameraTracker : public PuckTracker {
         /***
          * @brief   Create a new puck tracker
          * 
-         * @param   puck        The puck being tracked
          * @param   min_color   The minimum color threshold (in HSV)
          * @param   max_color   The maximum color threshold (in HSV)
          */
-        CameraTracker(MovingObject& puck, const cv::Scalar& min_color, const cv::Scalar& max_color);
+        CameraTracker(const cv::Scalar& min_color, const cv::Scalar& max_color);
 
         /**
          * @brief   Initialize the tracker

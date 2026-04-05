@@ -1,7 +1,8 @@
 #include "Tracking/PuckTracker.hpp"
 
-PuckTracker::PuckTracker(MovingObject& puck)
-    : _puck(puck) {}
+void PuckTracker::setPuck(MovingObject* puck) {
+    _puck = puck;
+}
 
 void PuckTracker::init() {
     // Do nothing by default

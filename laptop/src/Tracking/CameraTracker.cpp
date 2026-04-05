@@ -25,8 +25,8 @@ namespace{
     }
 }
 
-CameraTracker::CameraTracker(MovingObject& puck, const cv::Scalar& min_color, const cv::Scalar& max_color)
-    : PuckTracker(puck), _filter(min_color, max_color), _overlay(inchesToPixels) {}
+CameraTracker::CameraTracker(const cv::Scalar& min_color, const cv::Scalar& max_color)
+    : _filter(min_color, max_color), _overlay(inchesToPixels) {}
 
 void CameraTracker::init() {
     // Open selected camera using selected API
@@ -88,7 +88,7 @@ void CameraTracker::track() {
     // Invalid centroid
     if (std::abs(m.m00) <= 1e-6) {
         // update internal timer
-        _puck.moveTo(_puck.position());
+        _puck->moveTo(_puck->position());
 
         return;
     }
@@ -102,17 +102,17 @@ void CameraTracker::track() {
     auto dif = _prev_pixels - pixels;
     if (dif.dot(dif) <= 4) {
         // update internal timer
-        _puck.moveTo(_puck.position());
+        _puck->moveTo(_puck->position());
 
         return;
     }
 
     if (inches.x >= 0 && inches.y >= 0) {
-        _puck.moveTo(inches);
+        _puck->moveTo(inches);
         _prev_pixels = pixels;
     } else {
         // update internal timer
-        _puck.moveTo(_puck.position());
+        _puck->moveTo(_puck->position());
     }
 }
 

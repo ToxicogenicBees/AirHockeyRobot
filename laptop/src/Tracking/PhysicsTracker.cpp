@@ -16,8 +16,8 @@ namespace {
     }
 }
 
-PhysicsTracker::PhysicsTracker(MovingObject& puck)
-    : PuckTracker(puck), _overlay(inchesToPixels),
+PhysicsTracker::PhysicsTracker()
+    : _overlay(inchesToPixels),
       _render(cv::Mat::zeros(PIXELS_PER_INCH * Constants::Table::SIZE.y, PIXELS_PER_INCH * Constants::Table::SIZE.x, CV_8UC3))
 {}
 
@@ -34,7 +34,7 @@ void PhysicsTracker::init() {
     };
 
     // Orient the puck
-    _puck.orient({Constants::Puck::HOME, velocity});
+    _puck->orient({Constants::Puck::HOME, velocity});
 
     // Overlay settings
     _overlay.malletTarget({{255, 255, 255}, 2});
@@ -52,7 +52,7 @@ void PhysicsTracker::track() {
 
     // Check if the puck collided with the mallet
     auto [mallet_position, mallet_velocity] = Table::mallet().orientation();
-    auto [puck_position, puck_velocity] = _puck.orientation();
+    auto [puck_position, puck_velocity] = _puck->orientation();
 
     auto r = Constants::Mallet::RADIUS + Constants::Puck::RADIUS;
     auto p = puck_position - mallet_position;
@@ -63,9 +63,18 @@ void PhysicsTracker::track() {
     auto b = 2 * p.dot(v);
     auto c = p.squaredMagnitude() - (r * r);
 
+    auto apply_drag = [&](double time_step) {
+        auto position = _puck->position();
+        auto velocity = _puck->velocity();
+        auto new_velocity = velocity * std::exp(-0.05 * time_step);
+
+        _puck->orient({position, new_velocity});
+    };
+
     if (std::abs(a) < Constants::FP_ERR) {
         // Puck inside of mallet, simply move forward like normal
-        _puck.orient(_puck.futureOrientation(dt));
+        _puck->orient(_puck->futureOrientation(dt));
+        apply_drag(dt);
         return;
     }
 
@@ -73,29 +82,33 @@ void PhysicsTracker::track() {
     auto discriminant = b * b - 4 * a * c;
     if (discriminant < 0) {
         // No collision ever happens
-        _puck.orient(_puck.futureOrientation(dt));
+        _puck->orient(_puck->futureOrientation(dt));
+        apply_drag(dt);
         return;
     }
 
     auto t = (-b - std::sqrt(discriminant)) / (2 * a);
     if (t < 0 || t > dt) {
         // Collision in the past/after this step
-        _puck.orient(_puck.futureOrientation(dt));
+        _puck->orient(_puck->futureOrientation(dt));
+        apply_drag(dt);
         return;
     }
 
     // Move to point of collision
-    _puck.orient(_puck.futureOrientation(t));
-    puck_position = _puck.position();
+    _puck->orient(_puck->futureOrientation(t));
+    apply_drag(t);
+    puck_position = _puck->position();
     mallet_position += mallet_velocity * t;
 
     // Update velocity
     auto n = (puck_position - mallet_position).normal();
     auto new_velocity = puck_velocity + (1 + Constants::Table::COEF_REST) * n.dot(mallet_velocity - puck_velocity) * n;
-    _puck.orient({puck_position, new_velocity});
+    _puck->orient({puck_position, new_velocity});
 
     // Move puck for the rest of the collision
-    _puck.orient(_puck.futureOrientation(dt - t));
+    _puck->orient(_puck->futureOrientation(dt - t));
+    apply_drag(dt - t);
 }
 
 void PhysicsTracker::display() {

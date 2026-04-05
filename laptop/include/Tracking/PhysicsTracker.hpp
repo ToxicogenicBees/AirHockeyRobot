@@ -13,10 +13,8 @@ class PhysicsTracker : public PuckTracker {
     public:
         /**
          * @brief Create a new PhysicsTracker
-         * 
-         * @param puck  Reference to the table's puck
          */
-        PhysicsTracker(MovingObject& puck);
+        PhysicsTracker();
 
         /**
          * @brief Initialize any internal tracking logic

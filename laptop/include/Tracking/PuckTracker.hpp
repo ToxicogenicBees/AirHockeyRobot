@@ -8,15 +8,20 @@
 class PuckTracker {
     protected:
         // Puck being tracked
-        MovingObject& _puck;
+        inline static MovingObject* _puck = nullptr;
 
     public:
         /**
          * @brief Create a new PuckTracker
-         * 
-         * @param puck  Reference to the table's puck
          */
-        PuckTracker(MovingObject& puck);
+        PuckTracker() = default;
+
+        /**
+         * @brief Pass a mallet pointer to all routines
+         * 
+         * @param puck  The puck pointer
+         */
+        static void setPuck(MovingObject* puck);
 
         /**
          * @brief Initialize any internal tracking logic

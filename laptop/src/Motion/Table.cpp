@@ -33,8 +33,9 @@ void Table::init() {
         std::clog << "Bad distance sensor read.\n";
     });
 
-    // Pass mallet pointer to all routines
+    // Pass mallet + puck pointers to routines + trackers
     Routine::setMallet(&_mallet);
+    PuckTracker::setPuck(&_puck);
 }
 
 void Table::updateTracker() {

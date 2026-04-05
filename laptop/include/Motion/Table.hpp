@@ -41,7 +41,7 @@ class Table {
          */
         template <typename TrackerType, typename... Args>
         static void setTracker(Args&&... args) {
-            _tracker = std::make_unique<TrackerType>(_puck, std::forward<Args>(args)...);
+            _tracker = std::make_unique<TrackerType>(std::forward<Args>(args)...);
             _tracker->init();
         }
 
