@@ -34,7 +34,7 @@ class Timer {
          * @return  The amount of time passed since the clock was last reset
          */
         template<class cast_type = std::chrono::microseconds>
-        int64_t delta() {
+        int64_t delta() const {
             return std::chrono::duration_cast<cast_type>(Clock::now() - _prev_sample).count();
         }
 };
