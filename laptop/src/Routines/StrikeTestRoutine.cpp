@@ -10,6 +10,7 @@ void StrikeTestRoutine::updateTarget() {
 
     // Set time for each trajectory to be the mallet's time of arrival
     double best_weight = -std::numeric_limits<double>::infinity();
+    double best_time = -std::numeric_limits<double>::infinity();
     Point2<double> best_target = Constants::Mallet::HOME;
     Point2<double> mallet_position = _mallet->position();
     
@@ -38,24 +39,23 @@ void StrikeTestRoutine::updateTarget() {
         // Check if this weight is the best
         if (weight > best_weight) {
             best_weight = weight;
+            best_time = time;
             best_target = {
                 std::clamp(puck_position.x, Constants::Mallet::LIMIT_BL.x + 1, Constants::Mallet::LIMIT_TR.x - 1),
                 std::clamp(puck_position.y, Constants::Mallet::LIMIT_BL.y + 1, Constants::Mallet::LIMIT_TR.y - 1)
             };
         }
     }
-
+    
     // Save info of this new target
     auto distance = (_mallet->position() - best_target).magnitude();
-
     auto puck_velocity = Table::puck().velocity();
-    auto time_to_reach = best_target.y / puck_velocity.y;
 
     // Get desired striking velocity
     auto strike_velocity = 0.5 * Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Table::HUMAN_GOAL - best_target).normal();
 
     // Attempt strike
-    auto result = _strike({best_target, strike_velocity}, time_to_reach);
+    auto result = _strike({best_target, strike_velocity}, best_time);
 
     // Strike is setting up, restart timer
     if (result == StrikeResult::STRIKE_IN_PROGRESS) {
