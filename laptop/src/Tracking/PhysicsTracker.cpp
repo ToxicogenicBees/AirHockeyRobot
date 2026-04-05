@@ -87,9 +87,16 @@ void PhysicsTracker::track() {
         return;
     }
 
-    auto t = (-b - std::sqrt(discriminant)) / (2 * a);
-    if (t < 0 || t > dt) {
-        // Collision in the past/after this step
+    // Find roots of the collision
+    auto t1 = (-b + std::sqrt(discriminant)) / (2 * a);
+    auto t2 = (-b - std::sqrt(discriminant)) / (2 * a);
+
+    // Pick smallest valid positive time
+    double t = std::numeric_limits<double>::infinity();
+    if (t1 >= 0 && t1 <= dt) t = t1;
+    if (t2 >= 0 && t2 <= dt) t = std::min(t, t2);
+
+    if (!std::isfinite(t)) {
         _puck->orient(_puck->futureOrientation(dt));
         apply_drag(dt);
         return;
@@ -103,6 +110,7 @@ void PhysicsTracker::track() {
 
     // Update velocity
     auto n = (puck_position - mallet_position).normal();
+    puck_velocity = _puck->velocity();
     auto new_velocity = puck_velocity + (1 + Constants::Table::COEF_REST) * n.dot(mallet_velocity - puck_velocity) * n;
     _puck->orient({puck_position, new_velocity});
 
