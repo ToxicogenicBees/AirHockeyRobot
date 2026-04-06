@@ -70,7 +70,7 @@ void StrikeTestRoutine::updateTarget() {
 
     // Request distance sensor reading if near the target point
     if (distance < 0.20) {
-        // Packet request(Action::DistanceSensorRead);
-        // SerialLink::buffer(request);
+        Packet request(Action::DistanceSensorRead);
+        SerialLink::buffer(request);
     }
 }

@@ -252,7 +252,4 @@ void Routine::transmit(const VelocityProfile& velocity) {
 
     // Update previous velocity
     _prev_target.second = velocity;
-
-    std::clog << "Velocity: " << velocity.getAccelPercent() << " " << (int)velocity.getMinRPM() << " -> "
-                              << velocity.getDecelPercent() << " " << (int)velocity.getMaxRPM() << "\n";
 }
