@@ -7,7 +7,7 @@
 #include "Constants.hpp"
 
 namespace{
-    const Point2<int> PIXEL_OFFSET = {50, 120};
+    const Point2<int> PIXEL_OFFSET = {35, 105};
     const double INCHES_PER_PIXEL = 1.0 / 21.0;
 
     cv::Point inchesToPixels(const Point2<double>& inches) {
