@@ -4,7 +4,6 @@
 
 #include "Types/VelocityProfile.hpp"
 #include "Motion/MovingObject.hpp"
-#include "Types/StrikePlan.hpp"
 #include "Types/Point2.hpp"
 #include "Types/Ray2.hpp"
 
@@ -17,13 +16,6 @@ class Routine {
 
         // Previous transmission data
         inline static Target _prev_target = {Constants::Mallet::HOME, {0, 0, 0, 0}};
-
-        // Strike result states
-        enum class StrikeResult {
-            STRIKE_IMPOSSIBLE,
-            STRIKE_IN_PROGRESS,
-            STRIKE_COMPLETE,
-        };
 
         /**
          * @brief Gets the time it takes the mallet to reach a position
@@ -39,22 +31,6 @@ class Routine {
          * @returns -1 if the mallet cannot reach
          */
         static bool _canReach(const Point2<double>& position);
-
-        /**
-         * @brief Plan an entire strike motion
-         * 
-         * @param orientation   The required mallet orientation
-         * @param time          The time the mallet needs to reach this point
-         */
-        static std::optional<StrikePlan> _planStrike(const Ray2<double>& orientation, double time);
-
-        /**
-         * @brief Strikes the mallet with a given orientation and time
-         * 
-         * @param orientation   The desired mallet orientation
-         * @param time          The desired time
-         */
-        static StrikeResult _strike(const Ray2<double>& orientation, double time);
 
         /**
          * @brief Sets up the target and velocity profile to go to the home position

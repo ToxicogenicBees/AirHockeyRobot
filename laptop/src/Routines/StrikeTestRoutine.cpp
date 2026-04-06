@@ -55,15 +55,15 @@ void StrikeTestRoutine::updateTarget() {
     auto strike_velocity = 0.5 * Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Table::HUMAN_GOAL - best_target).normal();
 
     // Attempt strike
-    auto result = _strike({best_target, strike_velocity}, best_time);
+    auto result = strike({best_target, strike_velocity}, best_time);
 
     // Strike is setting up, restart timer
     if (result == StrikeResult::STRIKE_IN_PROGRESS) {
-        _timer.reset();
+        _strike_timer.reset();
     }
 
     // Strike completed, return home
-    else if (result == StrikeResult::STRIKE_COMPLETE || _timer.delta<std::chrono::seconds>() >= 1) {
+    else if (result == StrikeResult::STRIKE_COMPLETE || _strike_timer.delta<std::chrono::microseconds>() >= 1) {
         _travelHome();
         return;
     }

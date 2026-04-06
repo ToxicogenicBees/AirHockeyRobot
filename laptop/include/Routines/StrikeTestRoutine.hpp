@@ -1,12 +1,13 @@
 #pragma once
 
+#include "Routines/StrikingRoutine.hpp"
 #include "Routines/Routine.hpp"
 #include "Types/Timer.hpp"
 
-class StrikeTestRoutine : public Routine {
+class StrikeTestRoutine : public StrikingRoutine {
     private:
-        Timer _timer;
-
+        Timer _strike_timer;
+        
     public:
         /**
          * @brief Create a new routine
@@ -16,5 +17,5 @@ class StrikeTestRoutine : public Routine {
         /**
          * @brief Calculates and transmits an appropriate mallet action for this routine
          */
-        virtual void updateTarget() override;
+        void updateTarget() override;
 };

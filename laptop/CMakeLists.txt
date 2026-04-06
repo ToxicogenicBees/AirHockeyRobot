@@ -35,6 +35,7 @@ set(main_SOURCES
     src/Routines/BasicDefenseRoutine.cpp
     src/Routines/MotionTestRoutine.cpp
     src/Routines/StrikeTestRoutine.cpp
+    src/Routines/StrikingRoutine.cpp
     src/Routines/DodgeRoutine.cpp
     src/Routines/AdvancedDefenseRoutine.cpp
     src/Visuals/Overlay.cpp
