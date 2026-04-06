@@ -79,7 +79,7 @@ std::vector<MovingObject::Timestamp> MovingObject::trajectory(bool include_retur
     const auto vel = velocity();
 
     // If the puck isn't moving, return early
-    if (vel.magnitude() < 1e-8)
+    if (vel.magnitude() < Constants::FP_ERR)
         return {};
 
     // If the puck is moving away and it should be ignored, return early
