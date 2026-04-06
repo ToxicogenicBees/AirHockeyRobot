@@ -348,20 +348,20 @@ Point2<T> Point2<T>::normal() const {
 
 template <class T>
 T Point2<T>::squaredMagnitude() const {
-    return dot(*this);
+    return this->dot(*this);
 }
 
 template <class T>
 T Point2<T>::magnitude() const {
-    return std::sqrt(squaredMagnitude());
+    return std::sqrt(this->squaredMagnitude());
 }
 
 template <class T>
 T Point2<T>::scalarProjection(const Point2<T> v) const {
-    return dot(v) / v.magnitude();
+    return this->dot(v) / v.magnitude();
 }
 
 template <class T>
 Point2<T> Point2<T>::projection(const Point2<T> v) const {
-    return scalarProjection(v) * v.normal();
+    return this->scalarProjection(v) * v.normal();
 }

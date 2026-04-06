@@ -63,14 +63,14 @@ void StrikeTestRoutine::updateTarget() {
     }
 
     // Strike completed, return home
-    else if (result == StrikeResult::STRIKE_COMPLETE || _timer.delta<std::chrono::milliseconds>() > 1e3) {
+    else if (result == StrikeResult::STRIKE_COMPLETE || _timer.delta<std::chrono::seconds>() >= 1) {
         _travelHome();
         return;
     }
 
     // Request distance sensor reading if near the target point
     if (distance < 0.20) {
-        Packet request(Action::DistanceSensorRead);
-        SerialLink::buffer(request);
+        // Packet request(Action::DistanceSensorRead);
+        // SerialLink::buffer(request);
     }
 }

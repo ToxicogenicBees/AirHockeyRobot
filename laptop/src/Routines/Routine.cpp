@@ -7,8 +7,9 @@
 #include <thread>
 
 namespace {
-    const Point2<double> A_AXIS = {1/sqrt(2), 1/sqrt(2)};
-    const Point2<double> B_AXIS = {-1/sqrt(2), 1/sqrt(2)};
+    const double INV_SQRT_2 = 1.0 / sqrt(2.0);
+    const Point2<double> A_AXIS = {INV_SQRT_2, INV_SQRT_2};
+    const Point2<double> B_AXIS = {-INV_SQRT_2, INV_SQRT_2};
 }
 
 double Routine::_timeToReach(const Point2<double>& position) {
@@ -72,11 +73,11 @@ std::optional<StrikePlan> Routine::_planStrike(const Ray2<double>& orientation, 
 
     // scalar projection of setup position normal onto CoreXY movement axis
     // to get percent motor speed of the max speed
-    double rpm_scale_a = abs( setup_direction.scalarProjection(A_AXIS) );
-    double rpm_scale_b = abs( setup_direction.scalarProjection(B_AXIS) );
+    double rpm_scale_a = fabs( setup_direction.scalarProjection(A_AXIS) );
+    double rpm_scale_b = fabs( setup_direction.scalarProjection(B_AXIS) );
     rpm_to_setup *= rpm_scale_a > rpm_scale_b ? rpm_scale_a : rpm_scale_b;
 
-    if (rpm_to_setup < Constants::Mallet::MIN_RPM || rpm_to_setup > Constants::Mallet::MAX_RPM)
+    if (rpm_to_setup > Constants::Mallet::MIN_RPM)
         return std::nullopt;
 
     return StrikePlan{
@@ -112,7 +113,7 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
     double min_speed = Constants::Mallet::MIN_RPM / Constants::Mallet::MAX_RPM * Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND;
     double time_to_strike = accel_dist_inches / (speed - min_speed) * log(1 + (speed - min_speed) / min_speed);
 
-    if (time_to_strike > time) {
+    if (time_to_strike > time || time_to_strike < Constants::FP_ERR) {
         return StrikeResult::STRIKE_IMPOSSIBLE;
     }
 
@@ -135,7 +136,7 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
     // find time left to be able to go to setup point
     double time_to_setup = time - time_to_strike;
 
-    if (time_to_setup < 0) {
+    if (time_to_setup < Constants::FP_ERR) {
         return StrikeResult::STRIKE_IMPOSSIBLE;
     }
 
@@ -150,8 +151,8 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
     
     // scalar projection of setup position normal onto CoreXY movement axis
     // to get percent motor speed of the max speed
-    double rpm_scale_a = abs( setup_direction.scalarProjection(A_AXIS) );
-    double rpm_scale_b = abs( setup_direction.scalarProjection(B_AXIS) );
+    double rpm_scale_a = fabs( setup_direction.scalarProjection(A_AXIS) );
+    double rpm_scale_b = fabs( setup_direction.scalarProjection(B_AXIS) );
     rpm_to_setup *= rpm_scale_a > rpm_scale_b ? rpm_scale_a : rpm_scale_b;
 
     if (rpm_to_setup > Constants::Mallet::MIN_RPM) {
@@ -178,8 +179,8 @@ Routine::StrikeResult Routine::_strike(const Ray2<double>& orientation, double t
     // scalar projection of position vector onto CoreXY movement axis
     // divide the scalar projection value over the total movement distance to
     // get percent motor speed of the max speed
-    rpm_scale_a = abs( (pos - setup_point).scalarProjection(A_AXIS) ) / accel_dist_inches;
-    rpm_scale_b = abs( (pos - setup_point).scalarProjection(B_AXIS) ) / accel_dist_inches;
+    rpm_scale_a = fabs( (pos - setup_point).scalarProjection(A_AXIS) ) / accel_dist_inches;
+    rpm_scale_b = fabs( (pos - setup_point).scalarProjection(B_AXIS) ) / accel_dist_inches;
     rpm_at_strike *= rpm_scale_a > rpm_scale_b ? rpm_scale_a : rpm_scale_b;
 
     softTransmit({ accel_percent, 0.05, (uint16_t) Constants::Mallet::MIN_RPM, (uint16_t) rpm_at_strike});
@@ -251,4 +252,7 @@ void Routine::transmit(const VelocityProfile& velocity) {
 
     // Update previous velocity
     _prev_target.second = velocity;
+
+    std::clog << "Velocity: " << velocity.getAccelPercent() << " " << (int)velocity.getMinRPM() << " -> "
+                              << velocity.getDecelPercent() << " " << (int)velocity.getMaxRPM() << "\n";
 }
