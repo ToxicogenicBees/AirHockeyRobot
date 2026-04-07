@@ -54,23 +54,9 @@ void StrikeTestRoutine::updateTarget() {
     // Get desired striking velocity
     auto strike_velocity = 0.5 * Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Table::HUMAN_GOAL - best_target).normal();
 
-    // Attempt strike
-    auto result = strike({best_target, strike_velocity}, best_time);
-
-    // Strike is setting up, restart timer
-    if (result == StrikeResult::STRIKE_IN_PROGRESS) {
-        _strike_timer.reset();
-    }
-
-    // Strike completed, return home
-    else if (result == StrikeResult::STRIKE_COMPLETE || _strike_timer.delta<std::chrono::microseconds>() >= 1) {
+    // Attempt the strike, or simply move home if it fails
+    auto success = strike({best_target, strike_velocity}, best_time);
+    if (!success) {
         _travelHome();
-        return;
-    }
-
-    // Request distance sensor reading if near the target point
-    if (distance < 0.20) {
-        Packet request(Action::DistanceSensorRead);
-        SerialLink::buffer(request);
     }
 }

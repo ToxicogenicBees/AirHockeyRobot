@@ -4,22 +4,16 @@
 #include "Types/Timer.hpp"
 #include "Types/Ray2.hpp"
 
-enum class StrikePhase {
-    IDLE,
-    MOVING_TO_SETUP,
-    WAITING,
-    STRIKING,
-    RECOVERING,
-};
-
 class StrikePlan {
     private:
-        const Ray2<double> _STRIKE_ORIENTATION;
         const Point2<double> _SETUP_POINT;
-        
-        const double _STRIKE_TIME;
+        const uint16_t _SETUP_RPM;
         const double _SETUP_TIME;
-
+    
+        const Ray2<double> _STRIKE_ORIENTATION;
+        const double _ACCELERATION_DISTANCE;
+        const double _STRIKE_TIME;
+        
         Timer _timer;
 
     public:
@@ -28,11 +22,16 @@ class StrikePlan {
          * 
          * @param setup_point           The point to set up at
          * @param setup_time            The total setup time
+         * @param setup_rpm             The RPM required for the setup point
          * @param strike_orientation    The strike orientation (position + velocity)
          * @param strike_time           The total strike time
+         * @param accel_dist            The acceleration distance for the strike
          */
-        StrikePlan(const Point2<double>& setup_point, double setup_time, const Ray2<double>& strike_orientation, double strike_time)
-            : _STRIKE_ORIENTATION(strike_orientation), _SETUP_POINT(setup_point), _STRIKE_TIME(strike_time), _SETUP_TIME(setup_time) {}
+        StrikePlan(const Point2<double>& setup_point, double setup_time, uint16_t setup_rpm,
+        const Ray2<double>& strike_orientation,double strike_time, double accel_dist)
+            : _SETUP_POINT(setup_point),_SETUP_RPM(setup_rpm), _SETUP_TIME(setup_time),
+              _STRIKE_ORIENTATION(strike_orientation), _ACCELERATION_DISTANCE(accel_dist),
+              _STRIKE_TIME(strike_time) {}
 
         /**
          * @brief Get the setup point
@@ -50,6 +49,15 @@ class StrikePlan {
          */
         double setupTime() const {
             return _SETUP_TIME;
+        }
+
+        /**
+         * @brief Get the setup RPM
+         * 
+         * @return The setup RPM
+         */
+        uint16_t setupRPM() const {
+            return _SETUP_RPM;
         }
 
         /**
@@ -88,13 +96,8 @@ class StrikePlan {
             return _STRIKE_TIME;
         }
 
-        /**
-         * @brief Get the total strike motion time
-         * 
-         * @return The total strike motion time
-         */
-        double motionTime() const {
-            return _SETUP_TIME + _STRIKE_TIME;
+        double accelerationDistance() const {
+            return _ACCELERATION_DISTANCE;
         }
 
         /**

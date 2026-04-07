@@ -5,9 +5,6 @@
 #include "Types/Timer.hpp"
 
 class StrikeTestRoutine : public StrikingRoutine {
-    private:
-        Timer _strike_timer;
-        
     public:
         /**
          * @brief Create a new routine
