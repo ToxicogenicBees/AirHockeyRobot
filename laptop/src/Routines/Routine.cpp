@@ -83,6 +83,4 @@ void Routine::transmit(const VelocityProfile& velocity) {
 
     // Update previous velocity
     _prev_target.second = velocity;
-
-    std::cout << (int) velocity.getMinRPM() << " -> " << (int) velocity.getMaxRPM() << "\n";
 }
