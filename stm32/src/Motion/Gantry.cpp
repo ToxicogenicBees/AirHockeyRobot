@@ -83,7 +83,7 @@ Point2<int> Gantry::_calculateSteps(const Point2<double>& target) {
 void Gantry::initMotion(const Point2<double>& target) {
     _current_target = target;
     _total_steps_to_target = _calculateSteps(_current_target);
-    _total_steps_larger = abs(_total_steps_to_target.x) > abs(_total_steps_to_target.y) ? abs(_total_steps_to_target.x) : abs(_total_steps_to_target.y);
+    _total_steps_larger = std::abs(_total_steps_to_target.x) > std::abs(_total_steps_to_target.y) ? std::abs(_total_steps_to_target.x) : std::abs(_total_steps_to_target.y);
     _step_counter = 0;
 
     _left.setDir(_total_steps_to_target.x > 0);
@@ -99,7 +99,7 @@ void Gantry::initMotion(const Point2<double>& target) {
     }
 
     // Calculate errors
-    _d = {abs(_total_steps_to_target.x), -abs(_total_steps_to_target.y)};
+    _d = {std::abs(_total_steps_to_target.x), -std::abs(_total_steps_to_target.y)};
     _err = _d.x + _d.y;
 }
 
