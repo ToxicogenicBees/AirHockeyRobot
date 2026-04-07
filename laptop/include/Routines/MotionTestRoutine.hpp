@@ -16,5 +16,5 @@ class MotionTestRoutine : public Routine {
         /**
          * @brief Calculates and transmits an appropriate mallet action for this routine
          */
-        virtual void updateTarget() override;
+        void updateTarget() override;
 };
