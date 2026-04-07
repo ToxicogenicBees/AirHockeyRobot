@@ -16,7 +16,10 @@ void MovingObject::moveTo(const Point2<double>& new_pos, double dt) {
 }
 
 void MovingObject::moveTo(const Point2<double>& new_pos) {
-    moveTo(new_pos, 1e-6 * _timer.delta<std::chrono::microseconds>());
+    auto microseconds = _timer.delta<std::chrono::microseconds>();
+    if (microseconds == 0)
+        ++microseconds;
+    moveTo(new_pos, 1e-6 * microseconds);
 }
 
 void MovingObject::orient(const Ray2<double>& orientation) {
@@ -97,6 +100,9 @@ std::vector<MovingObject::Timestamp> MovingObject::trajectory(bool include_retur
         (size_t) (time_of_arrival / (1e-6 * Constants::SAMPLE_PERIOD)),
         Constants::MAX_SAMPLE_POINTS
     );
+
+    if (num_samples == 0)
+        return {};
     
     double time_step = time_of_arrival / num_samples;
     
