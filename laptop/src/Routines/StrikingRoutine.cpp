@@ -15,6 +15,8 @@ namespace {
     const Point2<double> A_AXIS = {INV_SQRT_2, INV_SQRT_2};
     const Point2<double> B_AXIS = {-INV_SQRT_2, INV_SQRT_2};
 
+    const double STRIKE_SETUP_OFFSET = Constants::Mallet::RADIUS + Constants::Puck::RADIUS;
+
     // Calculate the area formed by successive points on the puck's trajectory and
     // the provided point, returning the minimum area calculated
     double minTriangularArea(const Point2<double>& position) {
@@ -149,7 +151,7 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation, double time) {
     rpm_at_strike *= rpm_scale_a > rpm_scale_b ? rpm_scale_a : rpm_scale_b;
 
     softTransmit({ accel_percent, 0.05, (uint16_t) Constants::Mallet::MIN_RPM, (uint16_t) rpm_at_strike});
-    softTransmit(plan->strikePoint());
+    softTransmit(plan->strikePoint() + STRIKE_SETUP_OFFSET * plan->strikeVelocity().normal());    // Strike through the point
 
     // Wait for the strike motion to complete before returning control
     // Add some slight additional time to complete the movement + decellerate
