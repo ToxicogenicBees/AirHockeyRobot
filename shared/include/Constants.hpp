@@ -54,10 +54,10 @@ namespace Constants {
     }
 
     namespace LimitSwitch {
-        const uint8_t LEFT_PRESSED = 0b00000001;
-        const uint8_t RIGHT_PRESSED = 0b00000010;
-        const uint8_t BOTTOM_PRESSED = 0b00000100;
-        const uint8_t TOP_PRESSED = 0b00001000;
+        const uint8_t LEFT_PRESSED = 0x01;
+        const uint8_t RIGHT_PRESSED = 0x02;
+        const uint8_t BOTTOM_PRESSED = 0x04;
+        const uint8_t TOP_PRESSED = 0x08;
     }
     
     // General
