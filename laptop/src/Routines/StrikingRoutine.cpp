@@ -20,7 +20,7 @@ namespace {
     double minTriangularArea(const Point2<double>& position) {
         // Area of the triangle where the position is the third vertex
         auto area_of_triangle = [position](const Point2<double>& p1, const Point2<double>& p2) {
-            return 0.5 * fabs(
+            return 0.5 * std::abs(
                 p1.x * (p2.y - position.y)
                 + p2.x * (position.y - p1.y)
                 + position.x * (p1.y - p2.y) 
@@ -73,10 +73,6 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
         return std::nullopt;
     }
 
-    // Finally set strike point to an inch past the input pos so can decel after hitting it
-    // go through pos
-    auto strike_point = orientation.unit().endPoint();
-
     // Check if either required point is out of the mallet's available range of motion
     auto out_of_bounds = [](const Point2<double> p) {
         return p.x < Constants::Mallet::LIMIT_BL.x
@@ -84,7 +80,7 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
             || p.x > Constants::Mallet::LIMIT_TR.x
             || p.y > Constants::Mallet::LIMIT_TR.y;
     };
-    if (out_of_bounds(setup_point) || out_of_bounds(strike_point)) {
+    if (out_of_bounds(setup_point) || out_of_bounds(orientation.position)) {
         return std::nullopt;
     }
 
@@ -107,8 +103,8 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
     
     // Scalar projection of setup position normal onto CoreXY movement axis
     // to get percent motor speed of the max speed
-    double rpm_scale_a = fabs( setup_direction.scalarProjection(A_AXIS) );
-    double rpm_scale_b = fabs( setup_direction.scalarProjection(B_AXIS) );
+    double rpm_scale_a = std::abs( setup_direction.scalarProjection(A_AXIS) );
+    double rpm_scale_b = std::abs( setup_direction.scalarProjection(B_AXIS) );
     rpm_to_setup *= rpm_scale_a > rpm_scale_b ? rpm_scale_a : rpm_scale_b;
 
     // Required RPM would cause the stepper motors to slip without an acceleration curve
@@ -117,7 +113,7 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
     }
 
     // Return strike
-    return StrikePlan(setup_point, time_to_setup, rpm_to_setup, {strike_point, orientation.direction}, time_to_strike, accel_dist);
+    return StrikePlan(setup_point, time_to_setup, rpm_to_setup, orientation, time_to_strike, accel_dist);
 }
 
 bool StrikingRoutine::strike(const Ray2<double>& orientation, double time) {
@@ -148,15 +144,17 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation, double time) {
     // divide the scalar projection value over the total movement distance to
     // get percent motor speed of the max speed
     auto displacement = plan->strikePoint() - plan->setupPoint();
-    auto rpm_scale_a = fabs( displacement.scalarProjection(A_AXIS) ) / plan->accelerationDistance();
-    auto rpm_scale_b = fabs( displacement.scalarProjection(B_AXIS) ) / plan->accelerationDistance();
+    auto rpm_scale_a = std::abs( displacement.scalarProjection(A_AXIS) ) / plan->accelerationDistance();
+    auto rpm_scale_b = std::abs( displacement.scalarProjection(B_AXIS) ) / plan->accelerationDistance();
     rpm_at_strike *= rpm_scale_a > rpm_scale_b ? rpm_scale_a : rpm_scale_b;
 
     softTransmit({ accel_percent, 0.05, (uint16_t) Constants::Mallet::MIN_RPM, (uint16_t) rpm_at_strike});
     softTransmit(plan->strikePoint());
 
     // Wait for the strike motion to complete before returning control
-    std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1e6 * plan->strikeTime())));
+    // Add some slight additional time to complete the movement + decellerate
+    auto strike_time = plan->strikeTime();
+    std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1e6 * strike_time)));
 
     return true;
 }
