@@ -1,17 +1,26 @@
 #include "Motion/Gantry.hpp"
 #include "Pinout.hpp"
+#include "Constants.hpp"
 
 #include <functional>
 
-const double Gantry::_DRIVE_PULLEY_RADIUS = 28; // 28 mm
-const double Gantry::_STEP_CONVERSION_CONST = Motor::MICROSTEPS_PER_REV / (2*PI * _DRIVE_PULLEY_RADIUS);  // for converting delta X or Y to steps
-const double Gantry::DIST_TOLERANCE_LOW = 5; // mm
-const double Gantry::DIST_TOLERANCE_HIGH = 100; // mm
-        
+namespace {
+    #ifndef step_intermission_timer
+        #define step_intermission_timer TIM3
+    #endif
+
+    #ifndef step_period_timer
+        #define step_period_timer TIM2
+    #endif
+
+    constexpr double DRIVE_PULLEY_RADIUS = 28.0; // 28 mm
+    constexpr double STEP_CONVERSION_CONST = Motor::MICROSTEPS_PER_REV / (2*PI * DRIVE_PULLEY_RADIUS);  // for converting delta X or Y to steps
+};
+
 Motor Gantry::_left(motor_l_step, motor_l_dir, motor_l_scs, motor_l_fault, motor_sleep, motor_enable);
 Motor Gantry::_right(motor_r_step, motor_r_dir, motor_r_scs, motor_r_fault, motor_sleep, motor_enable);
 
-Point2<double> Gantry::_position;
+Point2<double> Gantry::_position_offset = Constants::Mallet::HOME;
 
 Point2<double> Gantry::_current_target;
 Point2<int> Gantry::_total_steps_to_target;
@@ -19,7 +28,8 @@ int Gantry::_total_steps_larger = 0;
 int Gantry::_step_counter = 0;
 int Gantry::_accel_steps = 0;
 int Gantry::_decel_steps = 0;
-double Gantry::_current_rpm = 0;
+int Gantry::_current_rpm = 0;
+Point2<int> Gantry::_steps = {0, 0};
 Point2<int> Gantry::_d = {0, 0};
 int Gantry::_err = 0;
 uint16_t Gantry::_current_period_us = 0;
@@ -42,37 +52,45 @@ void Gantry::init() {
         hardware_timer->setMode(1, TIMER_OUTPUT_DISABLED, 0);  // no pin output, only for interrupt
         hardware_timer->pause();
         hardware_timer->attachInterrupt(callback);
-        hardware_timer->setOverflow(10000, MICROSEC_FORMAT); // 10000 microseconds
         hardware_timer->setCount(0);
+        hardware_timer->setPrescaleFactor((hardware_timer->getTimerClkFreq() / 1000000) - 1);
     };
 
-    init_timer(_step_period_timer, TIM3, _stepMotion);
-    init_timer(_step_intermission_timer, TIM4, _stepIntermission);
+    init_timer(_step_intermission_timer, step_intermission_timer, _stepIntermission);
+    init_timer(_step_period_timer, step_period_timer, _stepMotion);
 }
 
 void Gantry::setPosition(const Point2<double>& pos) {
-    _position = pos;
+    _position_offset = pos;
+    _steps = Point2<int>::zero();
+}
+
+Point2<double> Gantry::getPosition() {
+    return _position_offset + Point2<double>{
+        0.5 * (_steps.x + _steps.y) / STEP_CONVERSION_CONST,
+        0.5 * (_steps.x - _steps.y) / STEP_CONVERSION_CONST,
+    };
 }
 
 void Gantry::setVelocityProfile(const VelocityProfile& profile) {
     _profile = profile;
 }
 
-double Gantry::_mapDouble(double x, double in_min, double in_max, double out_min, double out_max) {
+double Gantry::_mapInt(int x, int in_min, int in_max, int out_min, int out_max) {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-uint16_t Gantry::_calculateStepPeriod(double rpm) {
+uint16_t Gantry::_calculateStepPeriod(int rpm) {
     if (rpm <= 0)
         return std::numeric_limits<uint16_t>::max();
 
     // microsteps/sec = (RPM / 60) * steps_per_rev
     double microsteps_per_second = (rpm / 60.0) * Motor::MICROSTEPS_PER_REV;
-    return (uint16_t)(1000000.0 / microsteps_per_second);
+    return (uint16_t)(1000000.0 / microsteps_per_second) - 2;
 }
 
 Point2<int> Gantry::_calculateSteps(const Point2<double>& target) {
-    auto step_displacement = _STEP_CONVERSION_CONST * (target - _position);
+    auto step_displacement = STEP_CONVERSION_CONST * (target - getPosition());
 
     return {
         (int) (step_displacement.x + step_displacement.y),
@@ -83,7 +101,9 @@ Point2<int> Gantry::_calculateSteps(const Point2<double>& target) {
 void Gantry::initMotion(const Point2<double>& target) {
     _current_target = target;
     _total_steps_to_target = _calculateSteps(_current_target);
-    _total_steps_larger = std::abs(_total_steps_to_target.x) > std::abs(_total_steps_to_target.y) ? std::abs(_total_steps_to_target.x) : std::abs(_total_steps_to_target.y);
+    _total_steps_larger = std::abs(_total_steps_to_target.x) > std::abs(_total_steps_to_target.y)
+        ? std::abs(_total_steps_to_target.x)
+        : std::abs(_total_steps_to_target.y);
     _step_counter = 0;
 
     _left.setDir(_total_steps_to_target.x > 0);
@@ -114,12 +134,12 @@ void Gantry::_stepMotion() {
     ++_step_counter;
 
     if (_step_counter < _accel_steps) {
-        _current_rpm = _mapDouble(_step_counter, 0, _accel_steps, _profile.getMinRPM(), _profile.getMaxRPM());
+        _current_rpm = _mapInt(_step_counter, 0, _accel_steps, _profile.getMinRPM(), _profile.getMaxRPM());
     } 
     // 2. Deceleration Phase
     else if (_step_counter >= (_total_steps_larger - _decel_steps)) {
         // Map from end of move back down to min speed
-        _current_rpm = _mapDouble(_step_counter, (_total_steps_larger - _decel_steps), _total_steps_larger, _profile.getMaxRPM(), _profile.getMinRPM());
+        _current_rpm = _mapInt(_step_counter, (_total_steps_larger - _decel_steps), _total_steps_larger, _profile.getMaxRPM(), _profile.getMinRPM());
     } 
     // 3. Cruise Phase
     else {
@@ -129,52 +149,44 @@ void Gantry::_stepMotion() {
     _current_period_us = _calculateStepPeriod(_current_rpm);
 
     // Bresenham's line plotting algorithm
-    double e2 = 2 * _err;
-    double d_a = 0;
-    double d_b = 0;
-
-    auto step = [](Motor& motor) {
-        motor.stepHigh();
-        return (motor.getDir() ? 1 : -1) * 2 * PI / Motor::MICROSTEPS_PER_REV * _DRIVE_PULLEY_RADIUS;
-    };
+    int e2 = 2 * _err;
 
     if (e2 >= _d.y) {
         _err += _d.y;
-        d_a = step(_left);
-    } /* e_xy+e_x > 0 */
+        _left.stepHigh();
+        _steps.x += (_left.getDir() ? 1 : -1);
+    }
         
     if (e2 <= _d.x) {
         _err += _d.x;
-        d_b = step(_right);
-    } /* e_xy+e_y < 0 */
+        _right.stepHigh();
+        _steps.y += (_right.getDir() ? 1 : -1);
+    }
 
-    _step_period_timer->pause();
+    step_period_timer->CR1 &= ~TIM_CR1_CEN;
 
-    _step_intermission_timer->setOverflow(2, MICROSEC_FORMAT);
-    _step_intermission_timer->setCount(0);
-    _step_intermission_timer->resume();
-
-    // update current assumed position (open-loop control)
-    _position.x += 0.5 * (d_a + d_b);
-    _position.y += 0.5 * (d_a - d_b);
+    step_intermission_timer->ARR = 2;
+    step_intermission_timer->CNT = 0;
+    step_intermission_timer->CR1 |= TIM_CR1_CEN;
 }
 
 void Gantry::_stepIntermission() {
     _left.stepLow();
     _right.stepLow();
 
-    _step_intermission_timer->pause();
-    _step_intermission_timer->setCount(0);
+    step_intermission_timer->CR1 &= ~TIM_CR1_CEN;
+    step_intermission_timer->CNT = 0;
 
     if (getStepCount() < getTotalSteps()) { // set timer to trigger next step after _current_period_us
-        _step_period_timer->setOverflow(_current_period_us, MICROSEC_FORMAT);
-        _step_period_timer->setCount(0);
-        _step_period_timer->resume();
+        step_period_timer->ARR = _current_period_us;
+        step_period_timer->CNT = 0;
+        step_period_timer->CR1 |= TIM_CR1_CEN;
     } else {
-        _step_period_timer->pause();
-        _step_period_timer->setCount(0);
-        _step_intermission_timer->pause();
-        _step_intermission_timer->setCount(0);
+        step_period_timer->CR1 &= ~TIM_CR1_CEN;
+        step_period_timer->CNT = 0;
+
+        step_intermission_timer->CR1 &= ~TIM_CR1_CEN;
+        step_intermission_timer->CNT = 0;
     }
 }
 
@@ -183,8 +195,9 @@ void Gantry::home() {
 }
 
 void Gantry::pauseMotion() {
-    _step_period_timer->pause();
-    _step_period_timer->setCount(0);
-    _step_intermission_timer->pause();
-    _step_intermission_timer->setCount(0);
+    step_period_timer->CR1 &= ~TIM_CR1_CEN;
+    step_period_timer->CNT = 0;
+
+    step_intermission_timer->CR1 &= ~TIM_CR1_CEN;
+    step_intermission_timer->CNT = 0;
 }

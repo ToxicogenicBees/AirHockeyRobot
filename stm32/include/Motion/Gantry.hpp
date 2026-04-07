@@ -20,20 +20,17 @@
 
 class Gantry {
     private:
-        static const double _DRIVE_PULLEY_RADIUS;
-        static const double _STEP_CONVERSION_CONST;
-
         // Motors
         static Motor _left;
         static Motor _right;
 
         // Position tracking
-        static Point2<double> _position;            // stores the current position of the mallet
+        static Point2<double> _position_offset;     // stores the last known read of the mallet's position
 
         // Brezenham's step tracking
         static Point2<double> _current_target;      // set to the last position the gantry was instructed to move the mallet to
         static Point2<int> _total_steps_to_target;  // stores the steps needed and direction for left and right motors
-        static double _current_rpm;
+        static int _current_rpm;
         static uint16_t _current_period_us;
         static int _total_steps_larger;             // stores absolute value of the larger amount of steps the left or right motor needs to take
         static int _step_counter;                   // count up to _total_steps_larger each time complete a step
@@ -41,6 +38,7 @@ class Gantry {
         static int _decel_steps;
         
         // Brezenham's error tracking
+        static Point2<int> _steps;
         static Point2<int> _d;
         static int _err;
 
@@ -54,12 +52,12 @@ class Gantry {
         /**
          * @brief 
          */
-        static double _mapDouble(double x, double in_min, double in_max, double out_min, double out_max);
+        static double _mapInt(int x, int in_min, int in_max, int out_min, int out_max);
 
         /**
          * @brief Takes rpm returns unit [microseconds / microstep]
          */
-        static uint16_t _calculateStepPeriod(double rpm);
+        static uint16_t _calculateStepPeriod(int rpm);
 
          /**
          * @brief Input a target point and reuturns the required steps from the left
@@ -85,8 +83,8 @@ class Gantry {
         static void _stepIntermission();
 
     public:
-        static const double DIST_TOLERANCE_LOW;
-        static const double DIST_TOLERANCE_HIGH;
+        static constexpr double DIST_TOLERANCE_HIGH = 100.0;    // mm
+        static constexpr double DIST_TOLERANCE_LOW = 5.0;       // mm
 
         /**
          * @brief Initializes the gantry, its motors, and its pins
@@ -101,7 +99,7 @@ class Gantry {
         /**
          * @brief Get position of gantry.
          */
-        static Point2<double> getPosition() { return _position; }
+        static Point2<double> getPosition();
 
         /**
          * @brief Set how the velocity should change over the course of a movement.
