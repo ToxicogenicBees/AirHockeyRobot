@@ -136,11 +136,8 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation, double time) {
     // Wait for the strike to complete, checking that the trajectory is unchanged in the meantime
     while (plan->elapsedTime() < plan->setupTime()) {
         // Puck has deviated too far from the expected trajectory
-        auto min_area = minTriangularArea(plan->strikePoint());
-        if (min_area > MAX_TRIANGLE_AREA) {
-            std::clog << "QUIT: area " << min_area << " > " << MAX_TRIANGLE_AREA << "\n";
+        if (minTriangularArea(plan->strikePoint()) > MAX_TRIANGLE_AREA)
             return false;
-        }
     }
 
     // Start the strike motion
