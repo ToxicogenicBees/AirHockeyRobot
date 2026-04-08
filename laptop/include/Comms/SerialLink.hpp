@@ -104,6 +104,7 @@ class SerialLink {
             SetCommTimeouts(_h_serial, &timeouts);
 
             // Clear both the TX and RX buffer
+            Sleep(50);
             PurgeComm(_h_serial, PURGE_RXCLEAR | PURGE_TXCLEAR); //purge both tx and rx buffer
 
             // Reset timer
