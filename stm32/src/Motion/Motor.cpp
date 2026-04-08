@@ -29,8 +29,8 @@ void Motor::init() {
     // Initialize driver (auto initializes SCS pin)
     delay(100);
 
-    // _driver.setCurrentHold(0x67);
-    _driver.setCurrent(0x67);  // 0x67 for 1.7 [A]
+    _driver.setCurrentHold(0x67);
+    // _driver.setCurrent(0x67);  // 0x67 for 1.7 [A]
     _driver.setStepMode();
     _driver.enableDriver();
 }

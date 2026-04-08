@@ -42,17 +42,20 @@ class Gantry {
         static Point2<int> _d;
         static int _err;
 
+        // Lookup tables
+        // dynamically generated on gantry initialization
+        static uint16_t _step_period_from_rpm_over_two[1201];   // max rpm is 1200
+
         // Velocity info
         static VelocityProfile _profile;
 
         // Timers
         static HardwareTimer* _step_period_timer;
-        static HardwareTimer* _step_intermission_timer;
 
         /**
          * @brief 
          */
-        static double _mapInt(int x, int in_min, int in_max, int out_min, int out_max);
+        static int _mapInt(int x, int in_min, int in_max, int out_min, int out_max);
 
         /**
          * @brief Takes rpm returns unit [microseconds / microstep]
@@ -83,7 +86,7 @@ class Gantry {
         static void _stepIntermission();
 
     public:
-        static constexpr double DIST_TOLERANCE_HIGH = 100.0;    // mm
+        static constexpr double DIST_TOLERANCE_HIGH = 500.0;    // mm
         static constexpr double DIST_TOLERANCE_LOW = 5.0;       // mm
 
         /**
