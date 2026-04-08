@@ -6,7 +6,7 @@ namespace Constants {
     namespace Comms {
         constexpr uint32_t BAUD_RATE = 115200;          // Baud rate for USB serial communication
         constexpr char COM_PORT[] = "\\\\.\\COM6";      // Desired COM port
-        constexpr int64_t TIMEOUT = 10;                 // Timeout in seconds
+        constexpr int64_t TIMEOUT = 5;                  // Timeout in seconds
     }
     
     namespace Table {
