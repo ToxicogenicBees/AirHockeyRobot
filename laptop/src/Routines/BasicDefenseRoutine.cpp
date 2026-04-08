@@ -1,6 +1,8 @@
 #include "Routines/BasicDefenseRoutine.hpp"
 #include "Motion/Table.hpp"
 #include "Constants.hpp"
+#include "Comms/SerialLink.hpp"
+#include "Comms/Packet.hpp"
 
 #include <algorithm>
 
@@ -60,9 +62,13 @@ void BasicDefenseRoutine::updateTarget() {
         else if (displacement < 5)
             softTransmit({0.1, 0, 300, 500});
         else
-            softTransmit({0.15, 0.15, 300, 650});
+            softTransmit({0.2, 0.15, 300, 650});
 
         // Set target
         softTransmit(best_target);
+    }
+
+    if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
+        SerialLink::buffer({Action::DistanceSensorRead});
     }
 }
