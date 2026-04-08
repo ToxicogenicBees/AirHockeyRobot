@@ -8,7 +8,7 @@
 
 namespace {
     // Maximum number of bounces
-    const int MAX_BOUNCES = 3;
+    const int MAX_BOUNCES = 1;
     
     // Allowed collision normals
     const double INV_SQRT_2 = 1.0 / sqrt(2.0);
@@ -54,25 +54,35 @@ void BasicOffenseRoutine::updateTarget() {
             auto tangent_puck_velocity = puck_velocity.projection(tangent);
 
             // Check each allowed bounces
-            for (int i = -MAX_BOUNCES; i <= MAX_BOUNCES; ++i) {
+            for (int bounce = -MAX_BOUNCES; bounce <= MAX_BOUNCES; ++bounce) {
                 // Projected goal based on bounce count
                 auto goal = Constants::Table::HUMAN_GOAL
-                    + i * Constants::Table::SIZE.x * Point2<double>::xAxis();
+                    + bounce * Constants::Table::SIZE.x * Point2<double>::xAxis();
 
                 // Get displacement vector from the goal
                 auto displacement = goal - puck_position;
 
-                // Determine required post-collision velocity from the displacement
+                // Ensure the puck's tangential motion is parallel to the tangent displacement
+                auto sign = [](double val) {
+                    if (val > 0)
+                        return 1;
+                    else if (val < 0)
+                        return -1;
+                    return 0;
+                };
+
+                // Ignore bounce cases if the puck will not bounce off the desired wall
                 auto tangent_displacement = displacement.projection(tangent);
+                if (sign(tangent_puck_velocity.dot(tangent_displacement)) != 1)
+                    continue;
                 auto tangent_speed = tangent_puck_velocity.magnitude();
-                if (std::abs(tangent_speed) < Constants::FP_ERR)
+                if (bounce == 0 && std::abs(tangent_speed) < Constants::FP_ERR)
                     continue;
 
+                // Fetch desired post-collision velocity
                 auto travel_time = tangent_displacement.magnitude() / tangent_speed;
-
                 if (travel_time <= Constants::FP_ERR)
                     continue;
-
                 auto post_collision_velocity = displacement / travel_time;
 
                 // Determine required mallet speed + position for this velocity
@@ -86,7 +96,7 @@ void BasicOffenseRoutine::updateTarget() {
                 // Attempt this strike
                 auto success = strike({mallet_position, mallet_velocity}, time);
                 if (success) {
-                    std::clog << std::abs(i) << " bounces, puck velocity " << post_collision_velocity
+                    std::clog << std::abs(bounce) << " bounces, puck velocity " << post_collision_velocity
                               << ", mallet velocity " << mallet_velocity.magnitude() << " * " << normal << "\n";
                     return;
                 }
