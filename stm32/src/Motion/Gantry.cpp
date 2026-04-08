@@ -38,7 +38,6 @@ uint16_t Gantry::_current_period_us = 0;
 VelocityProfile Gantry::_profile;
 
 HardwareTimer* Gantry::_step_period_timer = nullptr; // initialized in Gantry::init
-HardwareTimer* Gantry::_step_intermission_timer = nullptr;  // initialized in Gantry::init
 
 uint16_t Gantry::_step_period_from_rpm_over_two[1201];   // max rpm is 1200
 
@@ -164,9 +163,6 @@ void Gantry::_stepMotion() {
         _current_rpm = _profile.getMaxRPM();
     }
 
-    // _current_period_us = _calculateStepPeriod(_current_rpm);
-    // _current_period_us = _step_period_from_rpm_over_two[_current_rpm];
-
     // Bresenham's line plotting algorithm
     int e2 = 2 * _err;
 
@@ -194,26 +190,6 @@ void Gantry::_stepMotion() {
     }
 }
 
-void Gantry::_stepIntermission() {
-    _left.stepLow();
-    _right.stepLow();
-
-    step_intermission_timer->CR1 &= ~TIM_CR1_CEN;
-    step_intermission_timer->CNT = 0;
-
-    if (getStepCount() < getTotalSteps()) { // set timer to trigger next step after _current_period_us
-        step_period_timer->ARR = _current_period_us;
-        step_period_timer->CNT = 0;
-        step_period_timer->CR1 |= TIM_CR1_CEN;
-    } else {
-        step_period_timer->CR1 &= ~TIM_CR1_CEN;
-        step_period_timer->CNT = 0;
-
-        step_intermission_timer->CR1 &= ~TIM_CR1_CEN;
-        step_intermission_timer->CNT = 0;
-    }
-}
-
 void Gantry::home() {
     // dummy function
 }
@@ -221,7 +197,4 @@ void Gantry::home() {
 void Gantry::pauseMotion() {
     step_period_timer->CR1 &= ~TIM_CR1_CEN;
     step_period_timer->CNT = 0;
-
-    step_intermission_timer->CR1 &= ~TIM_CR1_CEN;
-    step_intermission_timer->CNT = 0;
 }

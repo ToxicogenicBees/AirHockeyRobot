@@ -51,7 +51,6 @@ class Gantry {
 
         // Timers
         static HardwareTimer* _step_period_timer;
-        static HardwareTimer* _step_intermission_timer;
 
         /**
          * @brief 
