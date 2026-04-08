@@ -64,7 +64,8 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
     auto speed = vel.magnitude();
     double accel_dist = speed / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Mallet::INCHES_TO_ACCEL_TO_MAX_RPM - Constants::Mallet::MIN_ACCEL_INCHES) + Constants::Mallet::MIN_ACCEL_INCHES;
 
-    Point2<double> setup_point = pos - accel_dist * vel.normal();
+    // Determine setup point
+    Point2<double> setup_point = pos - (accel_dist + Constants::Puck::RADIUS) * vel.normal();
 
     // Time it will take to get from setup_point to pos assuming constant acceleration
     // assuming acceleration over a distance (Kaden's method)
@@ -134,7 +135,8 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation, double time) {
     // Wait for the strike to complete, checking that the trajectory is unchanged in the meantime
     while (plan->elapsedTime() < plan->setupTime()) {
         // Puck has deviated too far from the expected trajectory
-        if (minTriangularArea(plan->strikePoint()) > MAX_TRIANGLE_AREA)
+        auto min_area = minTriangularArea(plan->strikePoint());
+        if (min_area > MAX_TRIANGLE_AREA)
             return false;
     }
 
@@ -151,7 +153,7 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation, double time) {
     rpm_at_strike *= rpm_scale_a > rpm_scale_b ? rpm_scale_a : rpm_scale_b;
 
     softTransmit({ accel_percent, 0.05, (uint16_t) Constants::Mallet::MIN_RPM, (uint16_t) rpm_at_strike});
-    softTransmit(plan->strikePoint() + STRIKE_SETUP_OFFSET * plan->strikeVelocity().normal());    // Strike through the point
+    softTransmit(plan->strikePoint());
 
     // Wait for the strike motion to complete before returning control
     // Add some slight additional time to complete the movement + decellerate
