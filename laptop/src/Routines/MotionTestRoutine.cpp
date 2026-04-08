@@ -19,5 +19,5 @@ void MotionTestRoutine::updateTarget() {
     }
 
     softTransmit(TARGETS[(int)(seconds / TIME_BETWEEN_UPDATES)]);
-    softTransmit({0, 0, 200, 200});
+    softTransmit({0, 0, 800, 800});
 }
