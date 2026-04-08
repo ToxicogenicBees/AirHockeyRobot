@@ -6,16 +6,17 @@
 
 namespace {
     #ifndef step_intermission_timer
-        #define step_intermission_timer TIM3
+    #define step_intermission_timer TIM3
     #endif
-
+    
     #ifndef step_period_timer
-        #define step_period_timer TIM2
+    #define step_period_timer TIM2
     #endif
-
+    
     constexpr double DRIVE_PULLEY_RADIUS = 28.0; // 28 mm
     constexpr double STEP_CONVERSION_CONST = Motor::MICROSTEPS_PER_REV / (2*PI * DRIVE_PULLEY_RADIUS);  // for converting delta X or Y to steps
-
+    
+    bool step_motion_parity = false;
 };
 
 Motor Gantry::_left(motor_l_step, motor_l_dir, motor_l_scs, motor_l_fault, motor_sleep, motor_enable);
@@ -108,6 +109,10 @@ Point2<int> Gantry::_calculateSteps(const Point2<double>& target) {
 }
 
 void Gantry::initMotion(const Point2<double>& target) {
+    // Disable timer
+    step_period_timer->CR1 &= ~TIM_CR1_CEN;
+    step_period_timer->CNT = 0;
+
     _current_target = target;
     _total_steps_to_target = _calculateSteps(_current_target);
     _total_steps_larger = std::abs(_total_steps_to_target.x) > std::abs(_total_steps_to_target.y)
@@ -130,6 +135,9 @@ void Gantry::initMotion(const Point2<double>& target) {
     // Calculate errors
     _d = {std::abs(_total_steps_to_target.x), -std::abs(_total_steps_to_target.y)};
     _err = _d.x + _d.y;
+
+    // Start timer
+    step_period_timer->CR1 |= TIM_CR1_CEN;
 }
 
 void Gantry::startMotion() {
@@ -139,9 +147,8 @@ void Gantry::startMotion() {
     }
 }
 
-int count = 0;
 void Gantry::_stepMotion() {
-    if (++count % 2) {
+    if (step_motion_parity = !step_motion_parity) {
         _left.stepLow();
         _right.stepLow();
         
