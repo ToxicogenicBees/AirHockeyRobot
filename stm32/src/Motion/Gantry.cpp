@@ -86,7 +86,7 @@ void Gantry::setVelocityProfile(const VelocityProfile& profile) {
     _profile = profile;
 }
 
-double Gantry::_mapInt(int x, int in_min, int in_max, int out_min, int out_max) {
+int Gantry::_mapInt(int x, int in_min, int in_max, int out_min, int out_max) {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
@@ -142,7 +142,7 @@ void Gantry::startMotion() {
 
 int count = 0;
 void Gantry::_stepMotion() {
-    if (count++ % 2) {
+    if (++count % 2) {
         _left.stepLow();
         _right.stepLow();
         
@@ -183,12 +183,6 @@ void Gantry::_stepMotion() {
     }
 
     // step_period_timer->CR1 &= ~TIM_CR1_CEN;
-
-    // step_intermission_timer->ARR = 2;
-    // step_intermission_timer->CNT = 0;
-    // step_intermission_timer->CR1 |= TIM_CR1_CEN;
-
-    // step_period_timer->CR1 &= ~TIM_CR1_CEN;
     if (getStepCount() < getTotalSteps()) {
         // step_period_timer->CR1 &= ~TIM_CR1_CEN;
         step_period_timer->ARR = _step_period_from_rpm_over_two[_current_rpm];
@@ -198,7 +192,6 @@ void Gantry::_stepMotion() {
         step_period_timer->CR1 &= ~TIM_CR1_CEN;
         step_period_timer->CNT = 0;
     }
-    
 }
 
 void Gantry::_stepIntermission() {

@@ -56,7 +56,7 @@ class Gantry {
         /**
          * @brief 
          */
-        static double _mapInt(int x, int in_min, int in_max, int out_min, int out_max);
+        static int _mapInt(int x, int in_min, int in_max, int out_min, int out_max);
 
         /**
          * @brief Takes rpm returns unit [microseconds / microstep]
