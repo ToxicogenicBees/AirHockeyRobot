@@ -154,6 +154,11 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    // Ping packet processing
+    SerialLink::registerHandler(Action::Ping, [](Packet& packet) {
+        std::clog << "Pong!\n";
+    });
+
     // Asynchronous packet processing
     std::thread receive_packets([]() {
         // Laptop initializes communication

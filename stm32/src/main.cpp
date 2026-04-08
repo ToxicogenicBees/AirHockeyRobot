@@ -100,6 +100,9 @@ void setup() {
         // run mallet homing routine using limit switches
         Gantry::home();
     });
+    SerialLink::registerHandler(Action::Ping, [](Packet& packet) {
+        SerialLink::buffer({Action::Ping});
+    });
 
     // Initialize Serial output
     SerialLink::init();
