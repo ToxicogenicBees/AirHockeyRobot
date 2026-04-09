@@ -36,7 +36,7 @@ namespace Constants {
         constexpr double MIN_RPM = 350;
         constexpr double INCHES_TO_ACCEL_TO_MAX_RPM = 7.48; // taken from the motor speed test data accelerating to 800RPM
         constexpr double MIN_ACCEL_INCHES = 1;   // lower bound of distance to accelerate to certain speed
-        constexpr double DRIVE_PULLEY_RADIUS_MM = 28;
+        constexpr double DRIVE_PULLEY_RADIUS_MM = 28.8;
         const double MAX_SPEED_INCHES_PER_SECOND = MAX_RPM * 2*3.14/60 * (DRIVE_PULLEY_RADIUS_MM*sqrt(2)/2)/25.4;
 
         const Point2<double> LIMIT_BL                   // Bottom-left limit of mallet motion
