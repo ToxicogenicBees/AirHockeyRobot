@@ -32,7 +32,7 @@ namespace Constants {
         constexpr double ACCEL = 17 * 39.37;            // Estimated mallet accelleration approx. linear
                                                         // from 250 to 800 RPM speed test (inch/sec^2)
         constexpr double RADIUS = 2.0;                  // Radius in inches
-        constexpr double MAX_RPM = 750;
+        constexpr double MAX_RPM = 1200;
         constexpr double MIN_RPM = 350;
         constexpr double INCHES_TO_ACCEL_TO_MAX_RPM = 7.48; // taken from the motor speed test data accelerating to 800RPM
         constexpr double MIN_ACCEL_INCHES = 1;   // lower bound of distance to accelerate to certain speed
