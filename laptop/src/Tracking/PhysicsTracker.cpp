@@ -7,6 +7,8 @@
 
 namespace {
     constexpr int PIXELS_PER_INCH = 10;
+    constexpr double DRAG = 0.1;            // 0.05
+    constexpr double MIN_SPEED = 5;         // inch/sec
 
     cv::Point inchesToPixels(const Point2<double>& inches) {
         return {
@@ -60,7 +62,10 @@ void PhysicsTracker::track() {
     auto apply_drag = [&](double time_step) {
         auto position = _puck->position();
         auto velocity = _puck->velocity();
-        auto new_velocity = velocity * std::exp(-0.05 * time_step);
+        auto new_velocity = velocity * std::exp(-DRAG * time_step);
+
+        if (new_velocity.magnitude() < MIN_SPEED)
+            new_velocity = MIN_SPEED * new_velocity.normal();
         _puck->orient({position, new_velocity});
     };
 
