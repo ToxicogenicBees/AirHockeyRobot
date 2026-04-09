@@ -95,9 +95,9 @@ void BasicOffenseRoutine::updateTarget() {
 
                 // Attempt this strike
                 auto success = strike({mallet_position, mallet_velocity}, time);
+
+                // No need to continue checking possible strikes
                 if (success) {
-                    std::clog << std::abs(bounce) << " bounces, puck velocity " << post_collision_velocity
-                              << ", mallet velocity " << mallet_velocity.magnitude() << " * " << normal << "\n";
                     return;
                 }
             }
