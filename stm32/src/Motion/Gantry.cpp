@@ -5,7 +5,7 @@
 #include <functional>
 
 namespace {
-    constexpr double DRIVE_PULLEY_RADIUS = 28.0; // 28 mm
+    constexpr double DRIVE_PULLEY_RADIUS = 28.8; // 28.8 mm
     constexpr double STEP_CONVERSION_CONST = Motor::MICROSTEPS_PER_REV / (2*PI * DRIVE_PULLEY_RADIUS);  // for converting delta X or Y to steps
     
     bool step_motion_parity = false;
@@ -58,9 +58,13 @@ void Gantry::init() {
     // Initialize hardware timer for motor step signal
     _timer.init(_stepMotion);
 
-    // populate rpm step period lookup table
-    for (int i = 0; i <= 1200; ++i)
-        _step_period_from_rpm_over_two[i] = _calculateStepPeriod(i) / 2;
+    // Populate rpm step period lookup table
+    _step_period_from_rpm_over_two[0] = std::numeric_limits<uint16_t>::max();
+    for (int i = 1; i <= 1200; ++i) {
+        // steps/sec = (RPM / 60) * steps_per_rev
+        double microsteps_per_second = (i / 60.0) * Motor::MICROSTEPS_PER_REV;
+        _step_period_from_rpm_over_two[i] = (uint16_t) (0.5 * 1e6 / microsteps_per_second);
+    }
 }
 
 void Gantry::setPosition(const Point2<double>& pos) {
@@ -79,15 +83,6 @@ void Gantry::setVelocityProfile(const VelocityProfile& profile) {
     _profile = profile;
 }
 
-uint16_t Gantry::_calculateStepPeriod(int rpm) {
-    if (rpm <= 0)
-        return std::numeric_limits<uint16_t>::max();
-
-    // microsteps/sec = (RPM / 60) * steps_per_rev
-    double microsteps_per_second = (rpm / 60.0) * Motor::MICROSTEPS_PER_REV;
-    return (uint16_t)(1e6 / microsteps_per_second);
-}
-
 Point2<int> Gantry::_calculateSteps(const Point2<double>& target) {
     auto step_displacement = STEP_CONVERSION_CONST * (target - getPosition());
 
@@ -101,23 +96,27 @@ void Gantry::initMotion(const Point2<double>& target) {
     // Disable timer
     _timer.stop();
 
+    // Update target
     _current_target = target;
+
+    // Update step counters
     _total_steps_to_target = _calculateSteps(_current_target);
     _total_steps_larger = std::abs(_total_steps_to_target.x) > std::abs(_total_steps_to_target.y)
         ? std::abs(_total_steps_to_target.x)
         : std::abs(_total_steps_to_target.y);
     _step_counter = 0;
 
+    // Set motor directions
     _left.setDir(_total_steps_to_target.x > 0);
     _right.setDir(_total_steps_to_target.y > 0);
 
+    // Calculate acceleration steps
     _accel_steps = _total_steps_larger * _profile.getAccelPercent();
     _decel_steps = _total_steps_larger * _profile.getDecelPercent();
     
     // Ensure cruise phase exists
     if (_accel_steps + _decel_steps > _total_steps_larger) {
-        _accel_steps = _total_steps_larger / 2;
-        _decel_steps = _total_steps_larger / 2;
+        _accel_steps = _decel_steps = _total_steps_larger / 2;
     }
 
     // Calculate errors

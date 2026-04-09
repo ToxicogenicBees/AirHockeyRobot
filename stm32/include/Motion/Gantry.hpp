@@ -54,11 +54,6 @@ class Gantry {
         static GantryTimer _timer;
 
         /**
-         * @brief Takes rpm returns unit [microseconds / microstep]
-         */
-        static uint16_t _calculateStepPeriod(int rpm);
-
-         /**
          * @brief Input a target point and reuturns the required steps from the left
          *          and right motors to reach that point.
          */
