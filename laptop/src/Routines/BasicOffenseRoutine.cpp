@@ -8,7 +8,7 @@
 
 namespace {
     // Maximum number of bounces
-    const int MAX_BOUNCES = 1;
+    const int MAX_BOUNCES = 3;
     
     // Allowed collision normals
     const double INV_SQRT_2 = 1.0 / sqrt(2.0);
