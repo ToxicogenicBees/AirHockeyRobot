@@ -5,8 +5,8 @@
 #include <functional>
 
 namespace {
-    constexpr double DRIVE_PULLEY_RADIUS = 28.8; // 28.8 mm
-    constexpr double STEP_CONVERSION_CONST = Motor::MICROSTEPS_PER_REV / (2*PI * DRIVE_PULLEY_RADIUS);  // for converting delta X or Y to steps
+    constexpr double STEP_CONVERSION_CONST = Motor::MICROSTEPS_PER_REV  // for converting delta X or Y to steps
+        / (2*PI * Constants::Mallet::DRIVE_PULLEY_RADIUS_MM);
     
     bool step_motion_parity = false;
 
