@@ -67,15 +67,6 @@ class Gantry {
          */
         static void _stepMotion();
 
-        /**
-         * @brief Should be triggered as interrupt by timer 2 microseconds after
-         *          pulling step pins high in _stepMotion function.
-         *          2 microseconds is the pulse width specified by our motor driver chip.
-         *          After pulling pins low will restart timer for _stepMotion
-         *          with overflow set to current step period if there are more steps to complete. 
-         */
-        static void _stepIntermission();
-
     public:
         static constexpr double DIST_TOLERANCE_HIGH = 500.0;    // mm
         static constexpr double DIST_TOLERANCE_LOW = 5.0;       // mm
