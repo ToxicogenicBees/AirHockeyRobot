@@ -13,48 +13,63 @@ struct PinDef {
      * @param pin   The pin number
      * @param mode  The Arduino.h pin mode
      */
-    PinDef(uint8_t pin = 0, uint8_t mode = 0);
+    PinDef(uint8_t pin = 0, uint8_t mode = 0)
+        : PIN(pin), MODE(mode) {}
 
     /**
      * @brief Reads the current (digital) state of the pin
      * 
      * @return The current (digital) state of the pin
      */
-    uint8_t read() const;
+    uint8_t read() const {
+        return digitalRead(PIN) == HIGH;
+    }
 
     /**
      * @brief Reads the current (analog) state of the pin
      * 
      * @return The current (analog) state of the pin
      */
-    uint32_t readAnalog() const;
+    uint32_t readAnalog() const {
+        return analogRead(PIN);
+    }
 
     /**
      * @brief Writes the desired state to the pin
      * 
      * @param state The desired state
      */
-    void write(uint8_t state);
+    void write(uint8_t state) {
+        digitalWrite(PIN, state);
+    }
 
     /**
      * @brief Writes the desired state to the pin
      * 
      * @param state The desired state
      */
-    void writeAnalog(uint32_t state);
+    void writeAnalog(uint32_t state) {
+        analogWrite(PIN, state);
+    }
 
     /**
      * @brief Toggles the pin's current (digital) state
      */
-    void toggle();
+    void toggle() {
+        digitalWrite(PIN, !digitalRead(PIN));
+    }
 
     /**
      * @brief Initializes the pin's mode, required to read pin properly
      */
-    void init();
+    void init() {
+        pinMode(PIN, MODE);
+    }
 
     /**
      * @brief Returns this->read() when converted to uint8_t
      */
-    operator uint8_t() const;
+    operator uint8_t() const {
+        return read();
+    }
 };
