@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Types/Point2.hpp"
+#include "Motion/GantryTimer.hpp"
 #include "Motion/Motor.hpp"
-#include "Types/PinDef.hpp"
 #include "Types/VelocityProfile.hpp"
+#include "Types/Point2.hpp"
+#include "Types/PinDef.hpp"
 
 #include <Arduino.h>
 
@@ -49,13 +50,8 @@ class Gantry {
         // Velocity info
         static VelocityProfile _profile;
 
-        // Timers
-        static HardwareTimer* _step_period_timer;
-
-        /**
-         * @brief 
-         */
-        static int _mapInt(int x, int in_min, int in_max, int out_min, int out_max);
+        // Timer
+        static GantryTimer _timer;
 
         /**
          * @brief Takes rpm returns unit [microseconds / microstep]
