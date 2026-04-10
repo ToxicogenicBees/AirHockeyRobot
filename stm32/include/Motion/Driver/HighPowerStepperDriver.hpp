@@ -29,6 +29,7 @@ enum class HPSDRegAddr : uint8_t
   CTRL3   = 0x06,
   CTRL10 = 0x0D,
   CTRL11   = 0x0E,
+  CTRL12   = 0x0F,
 };
 
 /// This class provides low-level functions for reading and writing from the SPI
@@ -268,6 +269,11 @@ public:
   void setCurrentHold(uint8_t current)
   {
     driver.writeReg(HPSDRegAddr::CTRL10, current);
+  }
+
+  void enableStandstillPowerSavingMode()
+  {
+    driver.writeReg(HPSDRegAddr::CTRL12, 0b10100000);
   }
 
   /// Sets the driver's decay mode (DECMOD).

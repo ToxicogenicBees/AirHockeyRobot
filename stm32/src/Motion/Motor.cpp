@@ -30,6 +30,7 @@ void Motor::init() {
     delay(100);
 
     _driver.setCurrentHold(0x01);
+    _driver.enableStandstillPowerSavingMode();
     // _driver.setCurrent(0x67);  // 0x67 for 1.7 [A]
     _driver.setStepMode();
     _driver.enableDriver();
