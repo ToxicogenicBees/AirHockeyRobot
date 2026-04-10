@@ -44,6 +44,9 @@ namespace {
             auto area = area_of_triangle(*prev_pos, orientation.position);
             if (area < min_area)
                 min_area = area;
+
+            // Update prev pos
+            *prev_pos = orientation.position;
         }
         
         return min_area;
