@@ -33,12 +33,19 @@ uint8_t readLimitSwitches() {
 
     auto process_pressed = [&](LimitSwitch& limit, uint8_t flag, const Point2<double>& new_pos) {
         if (limit.pressed()) {
-            // Gantry::pauseMotion();
+            Gantry::pauseMotion();
             pressed_switches |= flag;
-            Gantry::setPosition({
-                dist_x.distanceBurstMedian(5),
-                dist_y.distanceBurstMedian(5)
-            });
+
+            Gantry::setPosition(new_pos);
+
+            // tell gantry to back up a bit away from limit switch towards middle of table
+            Gantry::initMotion(new_pos - 25.0 * (new_pos - Constants::Mallet::HOME*25.4).normal());
+            Gantry::startMotion();
+
+            // Gantry::setPosition({
+            //     dist_x.distanceBurstMedian(5),
+            //     dist_y.distanceBurstMedian(5)
+            // });
         }
     };
 
