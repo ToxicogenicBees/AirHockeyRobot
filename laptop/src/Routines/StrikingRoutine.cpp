@@ -46,7 +46,7 @@ namespace {
                 min_area = area;
 
             // Update prev pos
-            *prev_pos = orientation.position;
+            prev_pos = orientation.position;
         }
         
         return min_area;
