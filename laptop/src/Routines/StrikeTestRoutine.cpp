@@ -57,7 +57,9 @@ void StrikeTestRoutine::updateTarget() {
     // Attempt the strike, or simply move home if it fails
     auto success = strike({best_target, strike_velocity}, best_time);
     if (!success) {
-        _travelHome();
+        // _travelHome();
+        softTransmit({ 0.1, 0.1, 100, 500 });
+        softTransmit(Constants::Table::ROBOT_GOAL + Point2<double>::yAxis()*2);
 
         if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
             SerialLink::buffer({Action::DistanceSensorRead});

@@ -46,3 +46,6 @@ extern PinDef lim_b;
 
 // Temperature sensor
 extern PinDef temp_read;
+
+// Estop
+extern PinDef estop_trig;

@@ -1,6 +1,7 @@
 #include "Sensors/TemperatureSensor.hpp"
 #include "Sensors/DistanceSensor.hpp"
 #include "Sensors/LimitSwitch.hpp"
+#include "Sensors/EstopTriggered.hpp"
 #include "Motion/Gantry.hpp"
 #include "PinOut.hpp"
 #include "Comms/SerialLink.hpp"
@@ -27,6 +28,8 @@ LimitSwitch limit_l(lim_l);
 LimitSwitch limit_r(lim_r);
 LimitSwitch limit_b(lim_b);
 LimitSwitch limit_t(lim_t);
+
+EstopTriggered estop(estop_trig);
 
 uint8_t readLimitSwitches() {
     uint8_t pressed_switches = 0;
