@@ -33,12 +33,19 @@ uint8_t readLimitSwitches() {
 
     auto process_pressed = [&](LimitSwitch& limit, uint8_t flag, const Point2<double>& new_pos) {
         if (limit.pressed()) {
-            // Gantry::pauseMotion();
+            Gantry::pauseMotion();
             pressed_switches |= flag;
-            Gantry::setPosition({
-                dist_x.distanceBurstMedian(5),
-                dist_y.distanceBurstMedian(5)
-            });
+
+            Gantry::setPosition(new_pos);
+
+            // tell gantry to back up a bit away from limit switch towards middle of table
+            Gantry::initMotion(new_pos - 25.0 * (new_pos - Constants::Mallet::HOME*25.4).normal());
+            Gantry::startMotion();
+
+            // Gantry::setPosition({
+            //     dist_x.distanceBurstMedian(5),
+            //     dist_y.distanceBurstMedian(5)
+            // });
         }
     };
 
@@ -127,7 +134,7 @@ void setup() {
     Gantry::init();   
     Gantry::setVelocityProfile(VelocityProfile(0, 0, 100, 100));
     // DistanceSensor::calibrate(temp.temperature());; 
-    Gantry::setPosition({dist_x.distance(), dist_y.distance()}); 
+    Gantry::setPosition({dist_x.distanceBurstMedian(5), dist_y.distanceBurstMedian(5)}); 
 
     // Disable switches if they're unplugged
     if (readLimitSwitches())
