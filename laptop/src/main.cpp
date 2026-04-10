@@ -61,6 +61,7 @@ const std::unordered_map<std::string, Command> COMMAND_LIST = {
         { "3", []() { Table::setRoutine<StrikeTestRoutine>(); } },
         { "4", []() { Table::setRoutine<AdvancedDefenseRoutine>(); } },
         { "5", []() { Table::setRoutine<BasicOffenseRoutine>(); } },
+        { "manual", []() { Table::setRoutine<ManualRoutine>(); } },
     })},
 
     {"norender", Command({

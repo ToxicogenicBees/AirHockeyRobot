@@ -31,6 +31,7 @@ set(main_SOURCES
     src/Tracking/PuckTracker.cpp
     src/Tracking/CameraTracker.cpp
     src/Tracking/PhysicsTracker.cpp
+    src/Tracking/NoOperationTracker.cpp
     src/Routines/Routine.cpp
     src/Routines/BasicDefenseRoutine.cpp
     src/Routines/MotionTestRoutine.cpp
@@ -40,6 +41,7 @@ set(main_SOURCES
     src/Routines/AdvancedDefenseRoutine.cpp
     src/Routines/BasicOffenseRoutine.cpp
     src/Routines/ManualRoutine.cpp
+    src/Routines/NoOperationRoutine.cpp
     src/Visuals/Overlay.cpp
 )
 
