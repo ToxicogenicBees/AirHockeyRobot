@@ -15,7 +15,7 @@ namespace {
     const Point2<double> A_AXIS = {INV_SQRT_2, INV_SQRT_2};
     const Point2<double> B_AXIS = {-INV_SQRT_2, INV_SQRT_2};
 
-    constexpr double STRIKE_THROUGH_INCHES = 2.0;
+    constexpr double STRIKE_THROUGH_INCHES = 3.0;
     constexpr double STRIKE_POINT_OFFSET = -(Constants::Mallet::RADIUS + Constants::Puck::RADIUS);
 
     // Calculate the area formed by successive points on the puck's trajectory and

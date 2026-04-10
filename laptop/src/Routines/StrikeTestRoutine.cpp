@@ -58,5 +58,9 @@ void StrikeTestRoutine::updateTarget() {
     auto success = strike({best_target, strike_velocity}, best_time);
     if (!success) {
         _travelHome();
+
+        if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
+            SerialLink::buffer({Action::DistanceSensorRead});
+        }
     }
 }
