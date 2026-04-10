@@ -16,7 +16,7 @@ class LimitSwitch : public Sensor {
 
         /**
          * @brief Returns if the limit switch is pressed
-         *        Assumes HIGH voltage signal when pressed
+         *        Assumes LOW voltage signal when pressed
          * 
          * @return The state of the limit switch
          */

@@ -27,3 +27,5 @@ PinDef lim_l(PB1, INPUT_PULLDOWN);
 PinDef lim_r(PB15, INPUT_PULLDOWN);
 
 PinDef temp_read(PC5, INPUT_ANALOG);
+
+PinDef estop_trig(PA12, INPUT_PULLDOWN);
