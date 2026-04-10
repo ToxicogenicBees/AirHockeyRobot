@@ -125,12 +125,6 @@ class Gantry {
         static void initMotion(const Point2<double>& target);
 
         /**
-         * @brief Resumes _stepMotion hardware timer if needed.
-         *          Call after initMotion().
-         */
-        static void startMotion();
-
-        /**
          * @brief Can be called to pause stepping motion e.g
          *          when a limit switch is triggered.
          */

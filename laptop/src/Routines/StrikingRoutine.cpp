@@ -10,7 +10,7 @@
 #include "Constants.hpp"
 
 namespace {
-    const double MAX_TRIANGLE_AREA = 4.0;
+    const double MAX_TRIANGLE_AREA = 2.0;
     const double INV_SQRT_2 = 1.0 / sqrt(2.0);
     const Point2<double> A_AXIS = {INV_SQRT_2, INV_SQRT_2};
     const Point2<double> B_AXIS = {-INV_SQRT_2, INV_SQRT_2};
@@ -157,7 +157,7 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation, double time) {
 
     // Wait for the strike motion to complete before returning control
     // Add some slight additional time to complete the movement + decellerate
-    auto strike_time = plan->strikeTime();
+    auto strike_time = plan->strikeTime() + 0.1;
     std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1e6 * strike_time)));
 
     return true;

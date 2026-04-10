@@ -41,7 +41,8 @@ uint8_t readLimitSwitches() {
             // tell gantry to back up a bit away from limit switch towards middle of table
             Gantry::setVelocityProfile({0, 0, 100, 100});
             Gantry::initMotion(new_pos - 25.0 * (new_pos - Constants::Mallet::HOME*25.4).normal());
-            Gantry::startMotion();
+
+            delayMicroseconds(1000);
 
             // Gantry::setPosition({
             //     dist_x.distanceBurstMedian(5),
@@ -75,7 +76,6 @@ void setup() {
     SerialLink::registerHandler(Action::MalletPosition, [](Packet& packet) {
         const auto target = packet.read<Point2<double>>();
         Gantry::initMotion(target);
-        Gantry::startMotion();
     });
     SerialLink::registerHandler(Action::DistanceSensorRead, [](Packet& packet) {
         // read distance sensors
@@ -152,7 +152,7 @@ void loop() {
 
     Packet packet(Action::MalletPosition);
     packet << Gantry::getPosition();
-    SerialLink::buffer(packet);  
+    SerialLink::buffer(packet);
 
     // Serial.println(dist_y.distance());
 
