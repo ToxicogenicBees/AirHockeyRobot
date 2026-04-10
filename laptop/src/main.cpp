@@ -31,9 +31,11 @@
 #include "Routines/DodgeRoutine.hpp"
 #include "Routines/AdvancedDefenseRoutine.hpp"
 #include "Routines/BasicOffenseRoutine.hpp"
+#include "Routines/NoOperationRoutine.hpp"
 #include "Routines/ManualRoutine.hpp"
 #include "Tracking/CameraTracker.hpp"
 #include "Tracking/PhysicsTracker.hpp"
+#include "Tracking/NoOperationTracker.hpp"
 #include "Comms/SerialLink.hpp"
 #include "Types/Command.hpp"
 #include "Motion/Table.hpp"
@@ -49,6 +51,7 @@ const std::unordered_map<std::string, Command> COMMAND_LIST = {
         {"yellow",  []() { Table::setTracker<CameraTracker>(cv::Scalar{20, 100, 100}, cv::Scalar{40, 255, 255}); } },
         {"green",   []() { Table::setTracker<CameraTracker>(cv::Scalar{70, 50, 50}, cv::Scalar{100, 255, 255}); } },
         {"phys",    []() { Table::setTracker<PhysicsTracker>(); } },
+        {"none",    []() { Table::setTracker<NoOperationTracker>(); } },
     })},
 
     {"diff", Command({
@@ -58,7 +61,6 @@ const std::unordered_map<std::string, Command> COMMAND_LIST = {
         { "3", []() { Table::setRoutine<StrikeTestRoutine>(); } },
         { "4", []() { Table::setRoutine<AdvancedDefenseRoutine>(); } },
         { "5", []() { Table::setRoutine<BasicOffenseRoutine>(); } },
-        { "manual", []() { Table::setRoutine<ManualRoutine>(); } },
     })},
 
     {"norender", Command({

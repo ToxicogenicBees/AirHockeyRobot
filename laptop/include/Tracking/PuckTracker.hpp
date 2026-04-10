@@ -17,6 +17,11 @@ class PuckTracker {
         PuckTracker() = default;
 
         /**
+         * @brief Destroy a PuckTracker
+         */
+        virtual ~PuckTracker() = default;
+
+        /**
          * @brief Pass a mallet pointer to all routines
          * 
          * @param puck  The puck pointer
