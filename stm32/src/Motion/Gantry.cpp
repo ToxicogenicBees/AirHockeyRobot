@@ -1,6 +1,7 @@
 #include "Motion/Gantry.hpp"
 #include "Pinout.hpp"
 #include "Constants.hpp"
+#include "Comms/SerialLink.hpp"
 
 #include <functional>
 
@@ -95,6 +96,7 @@ Point2<int> Gantry::_calculateSteps(const Point2<double>& target) {
 void Gantry::initMotion(const Point2<double>& target) {
     // Disable timer
     _timer.stop();
+    __disable_irq();
 
     // Update target
     _current_target = target;
@@ -105,6 +107,9 @@ void Gantry::initMotion(const Point2<double>& target) {
         ? std::abs(_total_steps_to_target.x)
         : std::abs(_total_steps_to_target.y);
     _step_counter = 0;
+
+    if (_total_steps_larger == 0)
+        return;
 
     // Set motor directions
     _left.setDir(_total_steps_to_target.x > 0);
@@ -124,6 +129,7 @@ void Gantry::initMotion(const Point2<double>& target) {
     _err = _d.x + _d.y;
 
     // Start timer
+    __enable_irq();
     _timer.start();
 }
 
@@ -153,6 +159,12 @@ void Gantry::_stepMotion() {
     else {
         _current_rpm = _profile.getMaxRPM();
     }
+
+    // Clamp RPM
+    if (_current_rpm > 1200)
+        _current_rpm = 1200;
+    if (_current_rpm < 0)
+        _current_rpm = 0;
 
     // Bresenham's line plotting algorithm
     int e2 = 2 * _err;
