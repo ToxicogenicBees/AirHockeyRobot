@@ -87,14 +87,13 @@ void BasicOffenseRoutine::updateTarget() {
 
                 // Determine required mallet speed + position for this velocity
                 auto mallet_velocity = 0.5 * (puck_velocity + post_collision_velocity).projection(normal);
-                auto mallet_position = puck_position - (Constants::Mallet::RADIUS + Constants::Puck::RADIUS) * normal;
 
                 // Ignore motions that move the puck anti-parallel to the normal
                 if (mallet_velocity.dot(normal) < 0)
                     continue;
 
                 // Attempt this strike
-                auto success = strike({mallet_position, mallet_velocity}, time);
+                auto success = strike({puck_position, mallet_velocity}, time);
 
                 // No need to continue checking possible strikes
                 if (success) {

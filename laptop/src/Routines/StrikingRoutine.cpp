@@ -15,7 +15,8 @@ namespace {
     const Point2<double> A_AXIS = {INV_SQRT_2, INV_SQRT_2};
     const Point2<double> B_AXIS = {-INV_SQRT_2, INV_SQRT_2};
 
-    const double STRIKE_SETUP_OFFSET = Constants::Mallet::RADIUS + Constants::Puck::RADIUS;
+    constexpr double STRIKE_THROUGH_INCHES = 1.0;
+    constexpr double STRIKE_SETUP_OFFSET = Constants::Mallet::RADIUS + Constants::Puck::RADIUS + STRIKE_THROUGH_INCHES;
 
     // Calculate the area formed by successive points on the puck's trajectory and
     // the provided point, returning the minimum area calculated
@@ -59,18 +60,21 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
     // accelerate to the desired striking velocity
 
     // Linearly interpolate from min to max distance to accelerate to max speed
-    auto pos = orientation.position;
-    auto vel = orientation.direction;
-    auto speed = vel.magnitude();
-    double accel_dist = speed / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Mallet::INCHES_TO_ACCEL_TO_MAX_RPM - Constants::Mallet::MIN_ACCEL_INCHES) + Constants::Mallet::MIN_ACCEL_INCHES;
+    auto [desired_strike_pos, strike_vel] = orientation;
+    auto strike_speed = strike_vel.magnitude();
+    double accel_dist = strike_speed / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Mallet::INCHES_TO_ACCEL_TO_MAX_RPM - Constants::Mallet::MIN_ACCEL_INCHES) + Constants::Mallet::MIN_ACCEL_INCHES;
+
+    // Determine the strike point
+    double strike_offset_dist = STRIKE_SETUP_OFFSET;
+    auto true_strike_pos = desired_strike_pos - strike_offset_dist * strike_vel.normal();
 
     // Determine setup point
-    Point2<double> setup_point = pos - (accel_dist + Constants::Puck::RADIUS) * vel.normal();
-
+    Point2<double> setup_point = true_strike_pos - accel_dist * strike_vel.normal();
+    
     // Time it will take to get from setup_point to pos assuming constant acceleration
     // assuming acceleration over a distance (Kaden's method)
     double min_speed = Constants::Mallet::MIN_RPM / Constants::Mallet::MAX_RPM * Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND;
-    double time_to_strike = accel_dist / (speed - min_speed) * log(1 + (speed - min_speed) / min_speed);
+    double time_to_strike = accel_dist / (strike_speed - min_speed) * log(1 + (strike_speed - min_speed) / min_speed);
 
     if (time_to_strike > time || time_to_strike < Constants::FP_ERR) {
         return std::nullopt;
@@ -83,7 +87,7 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
             || p.x > Constants::Mallet::LIMIT_TR.x
             || p.y > Constants::Mallet::LIMIT_TR.y;
     };
-    if (out_of_bounds(setup_point) || out_of_bounds(orientation.position)) {
+    if (out_of_bounds(setup_point) || out_of_bounds(true_strike_pos)) {
         return std::nullopt;
     }
 
@@ -116,7 +120,8 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
     }
 
     // Return strike
-    return StrikePlan(setup_point, time_to_setup, rpm_to_setup, orientation, time_to_strike, accel_dist);
+    auto strike_through_offset = strike_vel.normal();
+    return StrikePlan(setup_point, time_to_setup, rpm_to_setup, {true_strike_pos + strike_through_offset, strike_vel}, time_to_strike, accel_dist);
 }
 
 bool StrikingRoutine::strike(const Ray2<double>& orientation, double time) {
