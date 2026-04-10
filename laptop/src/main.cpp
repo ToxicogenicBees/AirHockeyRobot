@@ -31,8 +31,10 @@
 #include "Routines/DodgeRoutine.hpp"
 #include "Routines/AdvancedDefenseRoutine.hpp"
 #include "Routines/BasicOffenseRoutine.hpp"
+#include "Routines/NoOperationRoutine.hpp"
 #include "Tracking/CameraTracker.hpp"
 #include "Tracking/PhysicsTracker.hpp"
+#include "Tracking/NoOperationTracker.hpp"
 #include "Comms/SerialLink.hpp"
 #include "Types/Command.hpp"
 #include "Motion/Table.hpp"
@@ -48,15 +50,17 @@ const std::unordered_map<std::string, Command> COMMAND_LIST = {
         {"yellow",  []() { Table::setTracker<CameraTracker>(cv::Scalar{20, 100, 100}, cv::Scalar{40, 255, 255}); } },
         {"green",   []() { Table::setTracker<CameraTracker>(cv::Scalar{70, 50, 50}, cv::Scalar{100, 255, 255}); } },
         {"phys",    []() { Table::setTracker<PhysicsTracker>(); } },
+        {"none",    []() { Table::setTracker<NoOperationTracker>(); } },
     })},
 
     {"diff", Command({
-        { "0", []() { Table::setRoutine<MotionTestRoutine>(); } },
-        { "1", []() { Table::setRoutine<DodgeRoutine>(); } },
-        { "2", []() { Table::setRoutine<BasicDefenseRoutine>(); } },
-        { "3", []() { Table::setRoutine<StrikeTestRoutine>(); } },
-        { "4", []() { Table::setRoutine<AdvancedDefenseRoutine>(); } },
-        { "5", []() { Table::setRoutine<BasicOffenseRoutine>(); } },
+        { "0",      []() { Table::setRoutine<MotionTestRoutine>(); } },
+        { "1",      []() { Table::setRoutine<DodgeRoutine>(); } },
+        { "2",      []() { Table::setRoutine<BasicDefenseRoutine>(); } },
+        { "3",      []() { Table::setRoutine<StrikeTestRoutine>(); } },
+        { "4",      []() { Table::setRoutine<AdvancedDefenseRoutine>(); } },
+        { "5",      []() { Table::setRoutine<BasicOffenseRoutine>(); } },
+        { "none",   []() { Table::setRoutine<NoOperationRoutine>(); } },
     })},
 
     {"norender", Command({
