@@ -39,6 +39,7 @@ uint8_t readLimitSwitches() {
             Gantry::setPosition(new_pos);
 
             // tell gantry to back up a bit away from limit switch towards middle of table
+            Gantry::setVelocityProfile({0, 0, 100, 100});
             Gantry::initMotion(new_pos - 25.0 * (new_pos - Constants::Mallet::HOME*25.4).normal());
             Gantry::startMotion();
 
