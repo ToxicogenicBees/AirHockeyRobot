@@ -68,7 +68,7 @@ class Gantry {
         static void _stepMotion();
 
     public:
-        static constexpr double DIST_TOLERANCE_HIGH = 500.0;    // mm
+        static constexpr double DIST_TOLERANCE_HIGH = 100.0;    // mm
         static constexpr double DIST_TOLERANCE_LOW = 5.0;       // mm
 
         /**
@@ -123,12 +123,6 @@ class Gantry {
          *          set velocity profile from prior call to setVelocityProfile().
          */
         static void initMotion(const Point2<double>& target);
-
-        /**
-         * @brief Resumes _stepMotion hardware timer if needed.
-         *          Call after initMotion().
-         */
-        static void startMotion();
 
         /**
          * @brief Can be called to pause stepping motion e.g

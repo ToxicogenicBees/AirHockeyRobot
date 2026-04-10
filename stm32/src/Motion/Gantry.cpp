@@ -127,13 +127,6 @@ void Gantry::initMotion(const Point2<double>& target) {
     _timer.start();
 }
 
-void Gantry::startMotion() {
-    // To check if paused:
-    if (_timer.getCount() == 0) {
-        _stepMotion();
-    }
-}
-
 void Gantry::_stepMotion() {
     // Stop motors every other call
     if (step_motion_parity = !step_motion_parity) {
@@ -177,7 +170,7 @@ void Gantry::_stepMotion() {
     // Update timer period / stop if motion ended
     if (getStepCount() < getTotalSteps()) {
         _timer.setPeriod(_step_period_from_rpm_over_two[_current_rpm]);
-        _timer.start();
+        // _timer.start();
     } else {
         _timer.stop();
     }

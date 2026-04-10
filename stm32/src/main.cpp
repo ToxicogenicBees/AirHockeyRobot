@@ -39,8 +39,10 @@ uint8_t readLimitSwitches() {
             Gantry::setPosition(new_pos);
 
             // tell gantry to back up a bit away from limit switch towards middle of table
+            Gantry::setVelocityProfile({0, 0, 100, 100});
             Gantry::initMotion(new_pos - 25.0 * (new_pos - Constants::Mallet::HOME*25.4).normal());
-            Gantry::startMotion();
+
+            delayMicroseconds(1000);
 
             // Gantry::setPosition({
             //     dist_x.distanceBurstMedian(5),
@@ -74,13 +76,12 @@ void setup() {
     SerialLink::registerHandler(Action::MalletPosition, [](Packet& packet) {
         const auto target = packet.read<Point2<double>>();
         Gantry::initMotion(target);
-        Gantry::startMotion();
     });
     SerialLink::registerHandler(Action::DistanceSensorRead, [](Packet& packet) {
         // read distance sensors
         // DistanceSensor::calibrate(temp.temperature());
 
-        Point2<double> median_distance{dist_x.distanceBurstMedian(10), dist_x.distanceBurstMedian(10)};
+        Point2<double> median_distance{dist_x.distanceBurstMedian(10), dist_y.distanceBurstMedian(10)};
 
         // If delta distance lower than DIST_TOLERANCE_LOW than assume ok and don't edit Gantry position.
         // If delta distance greater than DIST_TOLERANCE_LOW away but smaller than 
@@ -151,7 +152,9 @@ void loop() {
 
     Packet packet(Action::MalletPosition);
     packet << Gantry::getPosition();
-    SerialLink::buffer(packet);  
+    SerialLink::buffer(packet);
+
+    // Serial.println(dist_y.distance());
 
     // Check if any limit switch is pressed for more than 5 loops (to filter any noise)
     // If so, stop movement and let laptop know
