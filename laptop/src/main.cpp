@@ -55,13 +55,14 @@ const std::unordered_map<std::string, Command> COMMAND_LIST = {
     })},
 
     {"diff", Command({
-        { "0", []() { Table::setRoutine<MotionTestRoutine>(); } },
-        { "1", []() { Table::setRoutine<DodgeRoutine>(); } },
-        { "2", []() { Table::setRoutine<BasicDefenseRoutine>(); } },
-        { "3", []() { Table::setRoutine<StrikeTestRoutine>(); } },
-        { "4", []() { Table::setRoutine<AdvancedDefenseRoutine>(); } },
-        { "5", []() { Table::setRoutine<BasicOffenseRoutine>(); } },
+        { "0",      []() { Table::setRoutine<MotionTestRoutine>(); } },
+        { "1",      []() { Table::setRoutine<DodgeRoutine>(); } },
+        { "2",      []() { Table::setRoutine<BasicDefenseRoutine>(); } },
+        { "3",      []() { Table::setRoutine<StrikeTestRoutine>(); } },
+        { "4",      []() { Table::setRoutine<AdvancedDefenseRoutine>(); } },
+        { "5",      []() { Table::setRoutine<BasicOffenseRoutine>(); } },
         { "manual", []() { Table::setRoutine<ManualRoutine>(); } },
+        { "none",   []() { Table::setRoutine<NoOperationTracker>(); } }
     })},
 
     {"norender", Command({
