@@ -64,8 +64,10 @@ class SerialLink {
             Packet packet(_rx_buffer);
 
             // Validate packet
-            if (!packet.isValid())
+            if (!packet.isValid()) {
+                _rx_buffer.clear();
                 return {Action::Invalid};
+            }
             
             // Return packet
             _rx_buffer.erase(_rx_buffer.begin(), _rx_buffer.begin() + packet.length());
