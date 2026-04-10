@@ -42,12 +42,12 @@ uint8_t readLimitSwitches() {
             Gantry::setVelocityProfile({0, 0, 100, 100});
             Gantry::initMotion(new_pos - 25.0 * (new_pos - Constants::Mallet::HOME*25.4).normal());
 
-            delayMicroseconds(1000);
+            Gantry::setPosition({
+                dist_x.distanceBurstMedian(5),
+                dist_y.distanceBurstMedian(5)
+            });
 
-            // Gantry::setPosition({
-            //     dist_x.distanceBurstMedian(5),
-            //     dist_y.distanceBurstMedian(5)
-            // });
+            delayMicroseconds(1000);
         }
     };
 

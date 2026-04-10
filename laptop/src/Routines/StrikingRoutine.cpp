@@ -15,8 +15,8 @@ namespace {
     const Point2<double> A_AXIS = {INV_SQRT_2, INV_SQRT_2};
     const Point2<double> B_AXIS = {-INV_SQRT_2, INV_SQRT_2};
 
-    constexpr double STRIKE_THROUGH_INCHES = 1.0;
-    constexpr double STRIKE_SETUP_OFFSET = Constants::Mallet::RADIUS + Constants::Puck::RADIUS + STRIKE_THROUGH_INCHES;
+    constexpr double STRIKE_THROUGH_INCHES = 2.0;
+    constexpr double STRIKE_POINT_OFFSET = -(Constants::Mallet::RADIUS + Constants::Puck::RADIUS);
 
     // Calculate the area formed by successive points on the puck's trajectory and
     // the provided point, returning the minimum area calculated
@@ -65,8 +65,8 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
     double accel_dist = strike_speed / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Mallet::INCHES_TO_ACCEL_TO_MAX_RPM - Constants::Mallet::MIN_ACCEL_INCHES) + Constants::Mallet::MIN_ACCEL_INCHES;
 
     // Determine the strike point
-    double strike_offset_dist = STRIKE_SETUP_OFFSET;
-    auto true_strike_pos = desired_strike_pos - strike_offset_dist * strike_vel.normal();
+    auto true_strike_pos = desired_strike_pos + STRIKE_POINT_OFFSET * strike_vel.normal();
+    auto strike_through_pos = true_strike_pos + STRIKE_THROUGH_INCHES * strike_vel.normal();
 
     // Determine setup point
     Point2<double> setup_point = true_strike_pos - accel_dist * strike_vel.normal();
@@ -87,7 +87,7 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
             || p.x > Constants::Mallet::LIMIT_TR.x
             || p.y > Constants::Mallet::LIMIT_TR.y;
     };
-    if (out_of_bounds(setup_point) || out_of_bounds(true_strike_pos)) {
+    if (out_of_bounds(setup_point) || out_of_bounds(true_strike_pos) || out_of_bounds(strike_through_pos)) {
         return std::nullopt;
     }
 
@@ -120,8 +120,7 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
     }
 
     // Return strike
-    auto strike_through_offset = strike_vel.normal();
-    return StrikePlan(setup_point, time_to_setup, rpm_to_setup, {true_strike_pos + strike_through_offset, strike_vel}, time_to_strike, accel_dist);
+    return StrikePlan(setup_point, time_to_setup, rpm_to_setup, {strike_through_pos, strike_vel}, time_to_strike, accel_dist);
 }
 
 bool StrikingRoutine::strike(const Ray2<double>& orientation, double time) {
@@ -157,12 +156,12 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation, double time) {
     auto rpm_scale_b = std::abs( displacement.scalarProjection(B_AXIS) ) / plan->accelerationDistance();
     rpm_at_strike *= rpm_scale_a > rpm_scale_b ? rpm_scale_a : rpm_scale_b;
 
-    softTransmit({ accel_percent, 0.05, (uint16_t) Constants::Mallet::MIN_RPM, (uint16_t) rpm_at_strike});
+    softTransmit({ accel_percent, 1-accel_percent, (uint16_t) Constants::Mallet::MIN_RPM, (uint16_t) rpm_at_strike});
     softTransmit(plan->strikePoint());
 
     // Wait for the strike motion to complete before returning control
     // Add some slight additional time to complete the movement + decellerate
-    auto strike_time = plan->strikeTime() + 0.1;
+    auto strike_time = plan->strikeTime() + 0.5;
     std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1e6 * strike_time)));
 
     return true;
