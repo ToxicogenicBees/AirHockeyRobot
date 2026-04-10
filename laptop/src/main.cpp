@@ -31,6 +31,7 @@
 #include "Routines/DodgeRoutine.hpp"
 #include "Routines/AdvancedDefenseRoutine.hpp"
 #include "Routines/BasicOffenseRoutine.hpp"
+#include "Routines/ManualRoutine.hpp"
 #include "Tracking/CameraTracker.hpp"
 #include "Tracking/PhysicsTracker.hpp"
 #include "Comms/SerialLink.hpp"
@@ -57,6 +58,7 @@ const std::unordered_map<std::string, Command> COMMAND_LIST = {
         { "3", []() { Table::setRoutine<StrikeTestRoutine>(); } },
         { "4", []() { Table::setRoutine<AdvancedDefenseRoutine>(); } },
         { "5", []() { Table::setRoutine<BasicOffenseRoutine>(); } },
+        { "manual", []() { Table::setRoutine<ManualRoutine>(); } },
     })},
 
     {"norender", Command({
