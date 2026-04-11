@@ -81,9 +81,12 @@ std::vector<MovingObject::Timestamp> MovingObject::trajectory(bool include_retur
     const auto pos = position();
     const auto vel = velocity();
 
-    // If the puck isn't moving, return early
-    if (vel.magnitude() < Constants::FP_ERR)
-        return {};
+    // If the puck isn't moving, return a single point
+    if (vel.magnitude() < Constants::FP_ERR) {
+        Ray2<double> orientation = {pos, Point2<double>::zero()};   // It will remain where it is
+        auto time = std::numeric_limits<double>::infinity();        // It will never move
+        return {{time, orientation}};
+    }
 
     // If the puck is moving away and it should be ignored, return early
     if (vel.y > 0 && !include_return)
