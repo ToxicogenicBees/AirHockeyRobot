@@ -12,6 +12,7 @@
 #include <vector>
 #include <mutex>
 #include <unordered_map>
+#include <string>
 
 class SerialLink {
     private:
@@ -75,9 +76,9 @@ class SerialLink {
         }
 
     public:
-        static void init() {
+        static void init(std::string com_port) {
             // Initialize serial link
-            _h_serial = CreateFile(Constants::Comms::COM_PORT,
+            _h_serial = CreateFile(com_port.c_str(),
                 GENERIC_READ | GENERIC_WRITE,
                 0,          // No Sharing
                 nullptr,    // No Security

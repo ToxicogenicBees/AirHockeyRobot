@@ -46,6 +46,8 @@
   Command line arguments
 *************************/
 
+std::string com_port = Constants::Comms::COM_PORT;
+
 const std::unordered_map<std::string, Command> COMMAND_LIST = {
     {"track", Command({
         {"yellow",  []() { Table::setTracker<CameraTracker>(cv::Scalar{20, 100, 100}, cv::Scalar{40, 255, 255}); } },
@@ -62,11 +64,27 @@ const std::unordered_map<std::string, Command> COMMAND_LIST = {
         { "4",      []() { Table::setRoutine<AdvancedDefenseRoutine>(); } },
         { "5",      []() { Table::setRoutine<BasicOffenseRoutine>(); } },
         { "manual", []() { Table::setRoutine<ManualRoutine>(); } },
-        { "none",   []() { Table::setRoutine<NoOperationRoutine>(); } }
+        { "none",   []() { Table::setRoutine<NoOperationRoutine>(); } },
+    })},
+
+    {"com", Command({
+        { "0",  []() { com_port = "\\\\.\\COM0"; } },
+        { "1",  []() { com_port = "\\\\.\\COM1"; } },
+        { "2",  []() { com_port = "\\\\.\\COM2"; } },
+        { "3",  []() { com_port = "\\\\.\\COM3"; } },
+        { "4",  []() { com_port = "\\\\.\\COM4"; } },
+        { "5",  []() { com_port = "\\\\.\\COM5"; } },
+        { "6",  []() { com_port = "\\\\.\\COM6"; } },
+        { "7",  []() { com_port = "\\\\.\\COM7"; } },
+        { "8",  []() { com_port = "\\\\.\\COM8"; } },
+        { "9",  []() { com_port = "\\\\.\\COM9"; } },
+        { "10", []() { com_port = "\\\\.\\COM10"; } },
+        { "11", []() { com_port = "\\\\.\\COM11"; } },
+        { "12", []() { com_port = "\\\\.\\COM12"; } },
     })},
 
     {"norender", Command({
-        { "", []() { Table::hideRender(); }}
+        { "", []() { Table::hideRender(); }},
     })}
 };
 
@@ -125,9 +143,6 @@ void initialize(int argc, char** argv) {
     // Initialize the table
     Table::init();
 
-    // Initialize serial comms
-    SerialLink::init();
-
     // Run user commands
     const auto commands = parseUserCommands(argc, argv);
     for (auto& [command, argument] : commands) {
@@ -139,6 +154,9 @@ void initialize(int argc, char** argv) {
         // Run the command with the provided argument
         result->second.run(argument);
     }
+
+    // Initialize serial comms
+    SerialLink::init(com_port);
 
     // Initialization success
     std::clog << "Initialized: " << std::setprecision(5)
