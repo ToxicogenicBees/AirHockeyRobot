@@ -220,6 +220,15 @@ struct Point2 {
      */
     Point2 projection(const Point2<T> v) const;
 
+    /**
+     * @brief Calculate the angle between this point and another, as if they were vectors
+     * 
+     * @param v The other vector the angle is between
+     * 
+     * @return  The angle between the vectors
+     */
+    T angle(const Point2<T> v) const;
+
     /***
      * @brief Overloaded insertion operator
      * 
@@ -364,4 +373,9 @@ T Point2<T>::scalarProjection(const Point2<T> v) const {
 template <class T>
 Point2<T> Point2<T>::projection(const Point2<T> v) const {
     return scalarProjection(v) * v.normal();
+}
+
+template <class T>
+T Point2<T>::angle(const Point2<T> v) const {
+    return std::acos(normal().dot(v.normal()));
 }
