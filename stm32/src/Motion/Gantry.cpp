@@ -94,9 +94,11 @@ Point2<int> Gantry::_calculateSteps(const Point2<double>& target) {
 }
 
 void Gantry::initMotion(const Point2<double>& target) {
+    // Disable irq
+    __disable_irq();
+    
     // Disable timer
     _timer.stop();
-    __disable_irq();
 
     // Update target
     _current_target = target;
@@ -108,34 +110,41 @@ void Gantry::initMotion(const Point2<double>& target) {
         : std::abs(_total_steps_to_target.y);
     _step_counter = 0;
 
-    if (_total_steps_larger == 0)
-        return;
+    if (_total_steps_larger != 0) {
+        // Set motor directions
+        _left.setDir(_total_steps_to_target.x > 0);
+        _right.setDir(_total_steps_to_target.y > 0);
 
-    // Set motor directions
-    _left.setDir(_total_steps_to_target.x > 0);
-    _right.setDir(_total_steps_to_target.y > 0);
+        // Calculate acceleration steps
+        _accel_steps = _total_steps_larger * _profile.getAccelPercent();
+        _decel_steps = _total_steps_larger * _profile.getDecelPercent();
+        
+        // Ensure cruise phase exists
+        if (_accel_steps + _decel_steps > _total_steps_larger) {
+            _accel_steps = _decel_steps = _total_steps_larger / 2;
+        }
 
-    // Calculate acceleration steps
-    _accel_steps = _total_steps_larger * _profile.getAccelPercent();
-    _decel_steps = _total_steps_larger * _profile.getDecelPercent();
-    
-    // Ensure cruise phase exists
-    if (_accel_steps + _decel_steps > _total_steps_larger) {
-        _accel_steps = _decel_steps = _total_steps_larger / 2;
+        // Calculate errors
+        _d = {std::abs(_total_steps_to_target.x), -std::abs(_total_steps_to_target.y)};
+        _err = _d.x + _d.y;
+
+        // Re-enable irq
+        __enable_irq();
+
+        // Start timer
+        _timer.start();
     }
-
-    // Calculate errors
-    _d = {std::abs(_total_steps_to_target.x), -std::abs(_total_steps_to_target.y)};
-    _err = _d.x + _d.y;
-
-    // Start timer
-    __enable_irq();
-    _timer.start();
+    
+    else {
+        // Re-enable irq
+        __enable_irq();
+    }
 }
 
 void Gantry::_stepMotion() {
     // Stop motors every other call
-    if (step_motion_parity = !step_motion_parity) {
+    step_motion_parity = !step_motion_parity;
+    if (step_motion_parity) {
         _left.stepLow();
         _right.stepLow();
 
