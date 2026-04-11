@@ -10,47 +10,25 @@
 #include "Constants.hpp"
 
 namespace {
-    const double MAX_TRIANGLE_AREA = 2.0;
+    // Gantry axes
     const double INV_SQRT_2 = 1.0 / sqrt(2.0);
     const Point2<double> A_AXIS = {INV_SQRT_2, INV_SQRT_2};
     const Point2<double> B_AXIS = {-INV_SQRT_2, INV_SQRT_2};
 
+    // Strike through setup
     constexpr double STRIKE_THROUGH_INCHES = 3.0;
     constexpr double STRIKE_POINT_OFFSET = -(Constants::Mallet::RADIUS + Constants::Puck::RADIUS);
 
-    // Calculate the area formed by successive points on the puck's trajectory and
-    // the provided point, returning the minimum area calculated
-    double minTriangularArea(const Point2<double>& position) {
-        // Area of the triangle where the position is the third vertex
-        auto area_of_triangle = [position](const Point2<double>& p1, const Point2<double>& p2) {
-            return 0.5 * std::abs(
-                p1.x * (p2.y - position.y)
-                + p2.x * (position.y - p1.y)
-                + position.x * (p1.y - p2.y) 
-            );
-        };
+    // Position deviation
+    constexpr double POSITION_DEVIATION_WEIGHT = 1.0;
+    constexpr double POSITION_OFFSET_MAX = 2.0;
 
-        double min_area = std::numeric_limits<double>::max();
-        std::optional<Point2<double>> prev_pos;
+    // Velocity deviation
+    constexpr double VELOCITY_DEVIATION_WEIGHT = 1.0;
+    constexpr double VELOCITY_OFFSET_MAX = 3.14 / 16;
 
-        for (auto [time, orientation] : Table::puck().trajectory()) {
-            // Initialize the first position
-            if (!prev_pos) {
-                prev_pos = orientation.position;
-                continue;
-            }
-
-            // Find area of triangle
-            auto area = area_of_triangle(*prev_pos, orientation.position);
-            if (area < min_area)
-                min_area = area;
-
-            // Update prev pos
-            prev_pos = orientation.position;
-        }
-        
-        return min_area;
-    }
+    // Max deviation
+    constexpr double MAX_DEVIATION = 4.0;
 }
 
 std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orientation, double time) {
@@ -126,6 +104,42 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
     return StrikePlan(setup_point, time_to_setup, rpm_to_setup, {strike_through_pos, strike_vel}, time_to_strike, accel_dist);
 }
 
+double StrikingRoutine::_deviation(const StrikePlan& plan) {
+    // Fetch trajectory and return if it's empty
+    auto trajectory = Table::puck().trajectory();
+    if (trajectory.empty())
+        return std::numeric_limits<double>::max();
+
+    // Get strike orientation components
+    auto [strike_pos, strike_vel] = plan.strikeOrientation();
+    
+    // Find minimum deviation
+    double min_deviation = std::numeric_limits<double>::max();
+    for (auto [time, orientation] : trajectory) {
+        // Get puck orientation components
+        auto [puck_pos, puck_vel] = orientation;
+
+        // Calculate deviation components
+        auto distance = (puck_pos - strike_pos).magnitude();
+        auto velocity_angle = puck_vel.angle(strike_vel);
+
+        // Normalize components
+        auto distance_norm = distance / POSITION_OFFSET_MAX;
+        auto velocity_norm = velocity_angle / VELOCITY_OFFSET_MAX;
+
+        // Get deviation
+        double deviation = POSITION_DEVIATION_WEIGHT * distance
+            + VELOCITY_DEVIATION_WEIGHT * velocity_angle;
+
+        // Save if this deviation is smaller
+        if (deviation < min_deviation)
+            min_deviation = deviation;
+    }
+    
+    std::clog << min_deviation << "\n";
+    return min_deviation;
+}
+
 bool StrikingRoutine::strike(const Ray2<double>& orientation, double time) {
     // Create a strike plan
     auto plan = _createPlan(orientation, time);
@@ -142,8 +156,7 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation, double time) {
     // Wait for the strike to complete, checking that the trajectory is unchanged in the meantime
     while (plan->elapsedTime() < plan->setupTime()) {
         // Puck has deviated too far from the expected trajectory
-        auto min_area = minTriangularArea(plan->strikePoint());
-        if (min_area > MAX_TRIANGLE_AREA)
+        if (_deviation(*plan) > MAX_DEVIATION)
             return false;
     }
 

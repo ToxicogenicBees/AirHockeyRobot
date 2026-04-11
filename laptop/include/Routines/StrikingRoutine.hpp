@@ -19,6 +19,13 @@ class StrikingRoutine : public Routine {
          */
         std::optional<StrikePlan> _createPlan(const Ray2<double>& orientation, double time);
 
+        /**
+         * @brief Determine how far the desired plan deviates from the current puck trajectory
+         * 
+         * @param plan  The desired plan
+         */
+        double _deviation(const StrikePlan& plan);
+
     public:
         /**
          * @brief Create a new routine
