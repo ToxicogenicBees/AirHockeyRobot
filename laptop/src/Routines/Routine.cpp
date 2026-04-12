@@ -42,8 +42,23 @@ void Routine::softTransmit(const Target& target) {
 }
 
 void Routine::softTransmit(const Point2<double>& position) {
-    if ((position - _prev_target.first).magnitude() >= Constants::FP_ERR) {
-        transmit(position);
+    Point2<double> p = position;
+
+    if ((p - _prev_target.first).magnitude() >= Constants::FP_ERR) {
+        // clamp position to robot bounds of movement
+        if (p.x < Constants::Mallet::LIMIT_BL.x + Constants::Mallet::RADIUS/2) {
+            p.x = Constants::Mallet::LIMIT_BL.x + Constants::Mallet::RADIUS/2;
+        } else if (p.x > Constants::Mallet::LIMIT_TR.x - Constants::Mallet::RADIUS/2) {
+            p.x = Constants::Mallet::LIMIT_TR.x - Constants::Mallet::RADIUS/2;
+        }
+
+        if (p.y < Constants::Mallet::LIMIT_BL.y + Constants::Mallet::RADIUS/2) {
+            p.y = Constants::Mallet::LIMIT_BL.y + Constants::Mallet::RADIUS/2;
+        } else if (p.y > Constants::Mallet::LIMIT_TR.y - Constants::Mallet::RADIUS/2) {
+            p.y = Constants::Mallet::LIMIT_TR.y - Constants::Mallet::RADIUS/2;
+        }
+
+        transmit(p);
     }
 }
 
