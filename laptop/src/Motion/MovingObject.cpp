@@ -1,15 +1,23 @@
 #include "Motion/MovingObject.hpp"
 
-MovingObject::MovingObject(double radius)
-    :_RADIUS(radius) {}
+MovingObject::MovingObject(double radius, int buffer_size)
+    :_RADIUS(radius), _SAMPLE_BUFFER_SIZE(buffer_size) {}
 
 void MovingObject::moveTo(const Point2<double>& new_pos, double dt) {
     // Get access to lock
     std::lock_guard<std::mutex> lock(_access_locational_data);
     
-    // Update velocity and position
-    _orientation.direction = (new_pos - _orientation.position) / dt;
-    _orientation.position = new_pos;
+    // Store new position
+    _sample_buffer.push_back(new_pos);
+    if (_sample_buffer.size() > _SAMPLE_BUFFER_SIZE)
+        _sample_buffer.erase(_sample_buffer.begin());
+    
+    // Calculate average velocity
+    auto new_vel = (new_pos - _sample_buffer[0]) / (dt * (_SAMPLE_BUFFER_SIZE - 1));
+
+    // Update position and velocity
+    _orientation.position = new_pos; 
+    _orientation.direction = new_vel;
 
     // Reset timer
     _timer.reset();

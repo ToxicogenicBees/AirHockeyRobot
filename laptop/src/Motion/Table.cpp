@@ -7,7 +7,7 @@
 #include "Constants.hpp"
 
 MovingObject Table::_mallet(Constants::Mallet::RADIUS);
-MovingObject Table::_puck(Constants::Puck::RADIUS);
+MovingObject Table::_puck(Constants::Puck::RADIUS, 10);
 
 std::unique_ptr<PuckTracker> Table::_tracker = nullptr;
 std::unique_ptr<Routine> Table::_routine = nullptr;

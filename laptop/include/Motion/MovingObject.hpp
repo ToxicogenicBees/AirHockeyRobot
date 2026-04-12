@@ -12,7 +12,10 @@
 
 class MovingObject : public IObjectView {
     private:
+        const int _SAMPLE_BUFFER_SIZE;              // Number of samples to store the velocity info for
         const double _RADIUS;                       // Object radius, in inches
+
+        std::vector<Point2<double>> _sample_buffer; // The sample position buffer
 
         mutable std::mutex _access_locational_data; // Mutex lock to guard access to position/velocity data
         Ray2<double> _orientation;                  // Position and velocity of the object
@@ -22,9 +25,10 @@ class MovingObject : public IObjectView {
         /**
          * @brief Create a new moving object
          * 
-         * @param radius    The radius of the object
+         * @param radius        The radius of the object
+         * @param buffer_size   The sample buffer size (default = 1)
          */
-        MovingObject(double radius);
+        MovingObject(double radius, int buffer_size = 1);
 
         /**
          * @brief Prevent reassignment of moving objects

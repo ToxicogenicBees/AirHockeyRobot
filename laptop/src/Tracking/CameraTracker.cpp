@@ -82,6 +82,9 @@ void CameraTracker::track() {
         return;
     }
 
+    // Apply median blur with a 5x5 kernel
+    cv::medianBlur(_frame, _frame, 5);
+
     // Filter the camera image
     _filter.filter(_frame);
 
