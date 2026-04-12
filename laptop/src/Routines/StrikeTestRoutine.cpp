@@ -60,7 +60,7 @@ void StrikeTestRoutine::updateTarget() {
     auto strike_velocity = 0.5 * Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Table::HUMAN_GOAL - best_target).normal();
 
     // Attempt the strike, or simply move home if it fails
-    auto success = strike({best_target, strike_velocity}, best_time);
+    auto success = strike({best_target, strike_velocity}, {best_target, puck_velocity}, best_time);
     if (!success) {
         // _travelHome();
         // softTransmit({ 0.1, 0.1, 100, 500 });

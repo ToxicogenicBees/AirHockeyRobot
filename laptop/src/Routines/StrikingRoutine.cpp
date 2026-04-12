@@ -21,7 +21,7 @@ namespace {
 
     // Position deviation
     constexpr double POSITION_DEVIATION_WEIGHT = 1.0;
-    constexpr double POSITION_OFFSET_MAX = 2.0;
+    constexpr double POSITION_OFFSET_MAX = 8.0;
 
     // Velocity deviation
     constexpr double VELOCITY_DEVIATION_WEIGHT = 1.0;
@@ -31,7 +31,7 @@ namespace {
     constexpr double MAX_DEVIATION = 4.0;
 }
 
-std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orientation, double time) {
+std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orientation, const Ray2<double>& puck_target, double time) {
     // Invalid strike time
     if (time < 0) {
         return std::nullopt;
@@ -104,45 +104,59 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
     return StrikePlan(setup_point, time_to_setup, rpm_to_setup, {strike_through_pos, strike_vel}, time_to_strike, accel_dist);
 }
 
-double StrikingRoutine::_deviation(const StrikePlan& plan) {
+double StrikingRoutine::_deviation(const StrikePlan& plan, const Ray2<double>& puck_target, double *time_update) {
     // Fetch trajectory and return if it's empty
     auto trajectory = Table::puck().trajectory();
     if (trajectory.empty())
         return std::numeric_limits<double>::max();
 
     // Get strike orientation components
-    auto [strike_pos, strike_vel] = plan.strikeOrientation();
+    auto [strike_puck_pos, puck_vel_old] = puck_target;
+
+    double second_least_deviation_time = 0;
+    double least_deviation_time = 0;
     
     // Find minimum deviation
     double min_deviation = std::numeric_limits<double>::max();
+    double distance_norm;
+    double velocity_norm;
+
     for (auto [time, orientation] : trajectory) {
         // Get puck orientation components
         auto [puck_pos, puck_vel] = orientation;
 
         // Calculate deviation components
-        auto distance = (puck_pos - strike_pos).magnitude();
-        auto velocity_angle = puck_vel.angle(strike_vel);
+        auto distance = (puck_pos - strike_puck_pos).magnitude();
+        auto velocity_angle = puck_vel.angle(puck_vel_old);
 
         // Normalize components
-        auto distance_norm = distance / POSITION_OFFSET_MAX;
-        auto velocity_norm = velocity_angle / VELOCITY_OFFSET_MAX;
+        distance_norm = distance / POSITION_OFFSET_MAX;
+        velocity_norm = velocity_angle / VELOCITY_OFFSET_MAX;
 
         // Get deviation
-        double deviation = POSITION_DEVIATION_WEIGHT * distance
-            + VELOCITY_DEVIATION_WEIGHT * velocity_angle;
+        double deviation = POSITION_DEVIATION_WEIGHT * distance_norm
+            + VELOCITY_DEVIATION_WEIGHT * velocity_norm;
 
         // Save if this deviation is smaller
-        if (deviation < min_deviation)
+        if (deviation < min_deviation) {
             min_deviation = deviation;
+
+            second_least_deviation_time = least_deviation_time;
+            least_deviation_time = time;
+        }
     }
+
+    // std::clog << min_deviation << " " << velocity_norm << " " << distance_norm << "\n\n";
+
+    *time_update = (second_least_deviation_time + least_deviation_time)/2;
     
     // std::clog << min_deviation << "\n";
     return min_deviation;
 }
 
-bool StrikingRoutine::strike(const Ray2<double>& orientation, double time) {
+bool StrikingRoutine::strike(const Ray2<double>& orientation,  const Ray2<double>& puck_target, double time) {
     // Create a strike plan
-    auto plan = _createPlan(orientation, time);
+    auto plan = _createPlan(orientation, puck_target, time);
 
     // Plan was impossible to create
     if (!plan) {
@@ -154,10 +168,18 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation, double time) {
     softTransmit(plan->setupPoint());
 
     // Wait for the setup to complete, checking that the trajectory is unchanged in the meantime
+    double time_to_puck_get_in_position = -1;
+
     while (plan->elapsedTime() < plan->setupTime()) {
         // Puck has deviated too far from the expected trajectory
-        if (_deviation(*plan) > MAX_DEVIATION)
+        if (_deviation(*plan, puck_target, &time_to_puck_get_in_position) > MAX_DEVIATION) {
+            // std::cout << "Too much deviation!!!\n\n";
             return false;
+        }
+    }
+
+    if (time_to_puck_get_in_position - plan->strikeTime() > 0.001) {
+        std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1e6 * time_to_puck_get_in_position - plan->strikeTime())));
     }
 
     // Start the strike motion

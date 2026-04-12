@@ -93,7 +93,7 @@ void BasicOffenseRoutine::updateTarget() {
                     continue;
 
                 // Attempt this strike
-                auto success = strike({puck_position, mallet_velocity}, time);
+                auto success = strike({puck_position, mallet_velocity}, {puck_position, puck_velocity}, time);
 
                 // No need to continue checking possible strikes
                 if (success) {
