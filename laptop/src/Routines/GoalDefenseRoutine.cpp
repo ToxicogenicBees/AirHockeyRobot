@@ -12,7 +12,7 @@ namespace {
 
 void GoalDefenseRoutine::updateTarget() {
     // Fetch puck timestamps
-    auto timestamps = Table::puck().trajectory(true);
+    auto timestamps = Table::puck().trajectory();
 
     Point2<double> defense_target;
 
