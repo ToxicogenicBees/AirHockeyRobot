@@ -377,5 +377,5 @@ Point2<T> Point2<T>::projection(const Point2<T> v) const {
 
 template <class T>
 T Point2<T>::angle(const Point2<T> v) const {
-    return std::acos(normal().dot(v.normal()));
+    return std::acos(dot(v) / magnitude() / v.magnitude());
 }
