@@ -52,7 +52,7 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
     // Determine setup point
     Point2<double> setup_point = true_strike_pos - accel_dist * strike_vel.normal();
     
-    // Time it will take to get from setup_point to pos assuming constant acceleration
+    // Time it will take to get from setup_point to true_strike_pos
     // assuming acceleration over a distance (Kaden's method)
     double min_speed = Constants::Mallet::MIN_RPM / Constants::Mallet::MAX_RPM * Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND;
     double time_to_strike = accel_dist / (strike_speed - min_speed) * log(1 + (strike_speed - min_speed) / min_speed);
@@ -136,7 +136,7 @@ double StrikingRoutine::_deviation(const StrikePlan& plan) {
             min_deviation = deviation;
     }
     
-    std::clog << min_deviation << "\n";
+    // std::clog << min_deviation << "\n";
     return min_deviation;
 }
 
@@ -153,7 +153,7 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation, double time) {
     softTransmit({ 0, 0, plan->setupRPM(), plan->setupRPM() });
     softTransmit(plan->setupPoint());
 
-    // Wait for the strike to complete, checking that the trajectory is unchanged in the meantime
+    // Wait for the setup to complete, checking that the trajectory is unchanged in the meantime
     while (plan->elapsedTime() < plan->setupTime()) {
         // Puck has deviated too far from the expected trajectory
         if (_deviation(*plan) > MAX_DEVIATION)
