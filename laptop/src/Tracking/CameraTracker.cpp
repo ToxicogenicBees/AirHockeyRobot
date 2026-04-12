@@ -44,6 +44,9 @@ void CameraTracker::init() {
     // Set the camera's frames per second (fps)
     _capture.set(cv::CAP_PROP_FPS, 100);
 
+    // Set to use MJPG compression
+    _capture.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M','J','P','G'));
+
     // Set camera to auto adjust exposure
     _capture.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.75);
 
