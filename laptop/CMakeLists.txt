@@ -41,6 +41,7 @@ set(main_SOURCES
     src/Routines/AdvancedDefenseRoutine.cpp
     src/Routines/BasicOffenseRoutine.cpp
     src/Routines/ManualRoutine.cpp
+    src/Routines/GoalDefenseRoutine.cpp
     src/Routines/NoOperationRoutine.cpp
     src/Visuals/Overlay.cpp
 )
