@@ -37,7 +37,7 @@ void StrikeTestRoutine::updateTarget() {
         // Weight target
         auto weight = 
             -0.95 * dist/desired_dist;
-            -0.05 * margin/desired_margin;                                // Relative time between arrivals
+            // -0.05 * margin/desired_margin;                                // Relative time between arrivals
             // + 0.5 / (1 + sqrt(t.z))                           // Time the puck arrives
             // + 0.75 / (1 + dist);   // The distance from the puck's current location (normalized for time)
 
@@ -56,7 +56,7 @@ void StrikeTestRoutine::updateTarget() {
     auto distance = (_mallet->position() - best_target).magnitude();
     auto puck_velocity = Table::puck().velocity();
 
-    if (best_target.y > Constants::Mallet::LIMIT_BL.y + Constants::Mallet::RADIUS*2) {
+    // if (best_target.y > Constants::Mallet::LIMIT_BL.y + Constants::Mallet::RADIUS*2) {
         // Get desired striking velocity
         auto strike_velocity = 0.5 * Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Table::HUMAN_GOAL - best_target).normal();
 
@@ -73,11 +73,11 @@ void StrikeTestRoutine::updateTarget() {
                 SerialLink::buffer({Action::DistanceSensorRead});
             }
         }
-    } else {
-        _goal_defense.updateTarget();
+    // } else {
+    //     _goal_defense.updateTarget();
 
-        if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
-            SerialLink::buffer({Action::DistanceSensorRead});
-        }
-    }
+    //     if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
+    //         SerialLink::buffer({Action::DistanceSensorRead});
+    //     }
+    // }
 }
