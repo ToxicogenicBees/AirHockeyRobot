@@ -31,13 +31,13 @@ void GoalDefenseRoutine::updateTarget() {
         } else {
             softTransmit({ 0.1, 0.1, 100, 200 }); 
         }
-
-        softTransmit(defense_target);
     }
+
+    softTransmit(defense_target);
 
     Timer timeout;
 
-    while ((Table::mallet().position() - _prev_target.first).magnitude() > 0.1 || timeout.delta<std::chrono::milliseconds>() > 500) {
+    while ((Table::mallet().position() - _prev_target.first).magnitude() > 0.1 && timeout.delta<std::chrono::milliseconds>() < 500) {
         std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1)));
     }
 }
