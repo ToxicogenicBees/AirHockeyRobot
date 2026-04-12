@@ -56,7 +56,7 @@ void StrikeTestRoutine::updateTarget() {
     auto distance = (_mallet->position() - best_target).magnitude();
     auto puck_velocity = Table::puck().velocity();
 
-    if (puck_velocity.magnitude() <= 60) {
+    if (puck_velocity.magnitude() <= 60 && best_target.y > Constants::Mallet::HOME.y) {
          // Get desired striking velocity
         auto strike_velocity = 0.5 * Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Table::HUMAN_GOAL - best_target).normal();
 
