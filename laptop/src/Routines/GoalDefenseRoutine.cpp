@@ -37,7 +37,7 @@ void GoalDefenseRoutine::updateTarget() {
 
     Timer timeout;
 
-    while ((Table::mallet().position() - _prev_target.first).magnitude() > 0.1 && timeout.delta<std::chrono::milliseconds>() < 500) {
+    while ((Table::mallet().position() - _prev_target.first).magnitude() > 0.1 && timeout.delta<std::chrono::milliseconds>() < 250) {
         std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1)));
     }
 }
