@@ -1,5 +1,6 @@
 #include <optional>
 #include <vector>
+#include <thread>
 
 #include "Routines/GoalDefenseRoutine.hpp"
 #include "Motion/Table.hpp"
@@ -22,7 +23,7 @@ void GoalDefenseRoutine::updateTarget() {
         defense_target = Constants::Table::ROBOT_GOAL + Point2<double>::yAxis()*2;
     }
 
-    if ( (Table::mallet().position() - _prev_target.first).magnitude() < 0.5 ) {
+    if ( (defense_target - _prev_target.first).magnitude() > Constants::Mallet::RADIUS ) {
         if ( (Table::mallet().position() - defense_target).magnitude() > 12 ) {
             softTransmit({ 0.1, 0.1, 100, 600 }); 
         } else if ( (Table::mallet().position() - defense_target).magnitude() > 5 ) {
@@ -32,5 +33,11 @@ void GoalDefenseRoutine::updateTarget() {
         }
 
         softTransmit(defense_target);
+    }
+
+    Timer timeout;
+
+    while ((Table::mallet().position() - _prev_target.first).magnitude() > 0.1 || timeout.delta<std::chrono::milliseconds>() > 500) {
+        std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1)));
     }
 }

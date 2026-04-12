@@ -56,14 +56,17 @@ void StrikeTestRoutine::updateTarget() {
     auto distance = (_mallet->position() - best_target).magnitude();
     auto puck_velocity = Table::puck().velocity();
 
-    if (puck_velocity.magnitude() <= 60 && best_target.y > Constants::Mallet::HOME.y) {
-         // Get desired striking velocity
+    if (best_target.y > Constants::Mallet::HOME.y - 5) {
+        // Get desired striking velocity
         auto strike_velocity = 0.5 * Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Table::HUMAN_GOAL - best_target).normal();
 
         // Attempt the strike, or simply move home or to defend if it fails
         auto success = strike({best_target, strike_velocity}, {best_target, puck_velocity}, best_time);
-
         if (!success) {
+            // _travelHome();
+            // softTransmit({ 0.1, 0.1, 100, 500 });
+            // softTransmit(Constants::Table::ROBOT_GOAL + Point2<double>::yAxis()*2);
+
             _goal_defense.updateTarget();
 
             if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
@@ -77,10 +80,4 @@ void StrikeTestRoutine::updateTarget() {
             SerialLink::buffer({Action::DistanceSensorRead});
         }
     }
-   
-    // if (!success) {
-    //     // _travelHome();
-    //     // softTransmit({ 0.1, 0.1, 100, 500 });
-    //     // softTransmit(Constants::Table::ROBOT_GOAL + Point2<double>::yAxis()*2);
-    // }
 }
