@@ -6,7 +6,7 @@
 
 void StrikeTestRoutine::updateTarget() {
     // Fetch puck timestamps
-    auto timestamps = Table::puck().trajectory();
+    auto timestamps = Table::puck().trajectory(true);
 
     // Set time for each trajectory to be the mallet's time of arrival
     double best_weight = -std::numeric_limits<double>::infinity();
@@ -28,11 +28,16 @@ void StrikeTestRoutine::updateTarget() {
         if (margin < 0)
             continue;
 
-        auto dist = (puck_position - mallet_position).magnitude();
+        double desired_margin = 1.5;
+
+        // auto dist = (puck_position - Constants::Mallet::HOME + 5.0*Point2<double>::yAxis()).magnitude();
+        auto dist = (puck_position - Point2<double>{Constants::Table::ROBOT_GOAL.x, Constants::Mallet::LIMIT_TR.y - 6.0}).magnitude();
+        double desired_dist = 5; // desired within radius 5
 
         // Weight target
         auto weight = 
-            -0.25 * margin;                                // Relative time between arrivals
+            -0.95 * dist/desired_dist;
+            -0.05 * margin/desired_margin;                                // Relative time between arrivals
             // + 0.5 / (1 + sqrt(t.z))                           // Time the puck arrives
             // + 0.75 / (1 + dist);   // The distance from the puck's current location (normalized for time)
 
