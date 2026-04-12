@@ -46,16 +46,16 @@ void Routine::softTransmit(const Point2<double>& position) {
 
     if ((p - _prev_target.first).magnitude() >= Constants::FP_ERR) {
         // clamp position to robot bounds of movement
-        if (p.x < Constants::Mallet::LIMIT_BL.x + Constants::Mallet::RADIUS/2) {
-            p.x = Constants::Mallet::LIMIT_BL.x + Constants::Mallet::RADIUS/2;
-        } else if (p.x > Constants::Mallet::LIMIT_TR.x - Constants::Mallet::RADIUS/2) {
-            p.x = Constants::Mallet::LIMIT_TR.x - Constants::Mallet::RADIUS/2;
+        if (p.x < Constants::Mallet::LIMIT_BL.x + 1) {
+            p.x = Constants::Mallet::LIMIT_BL.x + 1;
+        } else if (p.x > Constants::Mallet::LIMIT_TR.x - 1) {
+            p.x = Constants::Mallet::LIMIT_TR.x - 1;
         }
 
-        if (p.y < Constants::Mallet::LIMIT_BL.y + Constants::Mallet::RADIUS/2) {
-            p.y = Constants::Mallet::LIMIT_BL.y + Constants::Mallet::RADIUS/2;
-        } else if (p.y > Constants::Mallet::LIMIT_TR.y - Constants::Mallet::RADIUS/2) {
-            p.y = Constants::Mallet::LIMIT_TR.y - Constants::Mallet::RADIUS/2;
+        if (p.y < Constants::Mallet::LIMIT_BL.y + 1) {
+            p.y = Constants::Mallet::LIMIT_BL.y + 1;
+        } else if (p.y > Constants::Mallet::LIMIT_TR.y - 1) {
+            p.y = Constants::Mallet::LIMIT_TR.y - 1;
         }
 
         transmit(p);
