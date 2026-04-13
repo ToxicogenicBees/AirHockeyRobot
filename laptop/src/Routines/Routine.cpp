@@ -78,6 +78,10 @@ void Routine::transmit(const Target& target) {
 }
 
 void Routine::transmit(const Point2<double>& position) {
+    // Ignore if emergency stop is pressed
+    if (_estop_enabled)
+        return;
+    
     // Convert position to millimeters
     auto target_mm = 25.4 * (position - Constants::Mallet::SENSOR_OFFSET);
     
@@ -91,6 +95,10 @@ void Routine::transmit(const Point2<double>& position) {
 }
 
 void Routine::transmit(const VelocityProfile& velocity) {
+    // Ignore if emergency stop is pressed
+    if (_estop_enabled)
+        return;
+    
     // Buffer velocity profile
     Packet vel(Action::VelocityProfile);
     vel << velocity;
@@ -98,4 +106,10 @@ void Routine::transmit(const VelocityProfile& velocity) {
 
     // Update previous velocity
     _prev_target.second = velocity;
+}
+
+void Routine::init() {
+    SerialLink::registerHandler(Action::EStop, [](Packet& packet) {
+        _estop_enabled = packet.read<bool>();
+    });
 }

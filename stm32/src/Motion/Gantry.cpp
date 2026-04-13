@@ -52,9 +52,7 @@ uint16_t Gantry::_step_period_from_rpm_over_two[1201];   // max rpm is 1200
 
 void Gantry::init() {
     // Initialize motors
-    _right.init();
-    delay(100);
-    _left.init();
+    initMotors();
 
     // Initialize hardware timer for motor step signal
     _timer.init(_stepMotion);
@@ -66,6 +64,12 @@ void Gantry::init() {
         double microsteps_per_second = (i / 60.0) * Motor::MICROSTEPS_PER_REV;
         _step_period_from_rpm_over_two[i] = (uint16_t) (0.5 * 1e6 / microsteps_per_second);
     }
+}
+
+void Gantry::initMotors() {
+    _right.init();
+    delay(100);
+    _left.init();
 }
 
 void Gantry::setPosition(const Point2<double>& pos) {

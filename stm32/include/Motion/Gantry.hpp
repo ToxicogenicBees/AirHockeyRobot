@@ -77,6 +77,11 @@ class Gantry {
         static void init();
 
         /**
+         * @brief Initializes the gantry's motors
+         */
+        static void initMotors();
+
+        /**
          * @brief Set position of gantry.
          */
         static void setPosition(const Point2<double>& pos);

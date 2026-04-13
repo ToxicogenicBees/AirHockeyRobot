@@ -17,6 +17,9 @@ class Routine {
         // Previous transmission data
         inline static Target _prev_target = {Constants::Mallet::HOME, {0, 0, 0, 0}};
 
+        // Emergency stop state
+        inline static bool _estop_enabled = false;
+
         /**
          * @brief Gets the time it takes the mallet to reach a position
          * 
@@ -108,4 +111,9 @@ class Routine {
          * @brief Calculates an appropriate mallet action for this routine
          */
         virtual void updateTarget() = 0;
+
+        /**
+         * @brief Initialize this routine
+         */
+        virtual void init();
 };

@@ -1,7 +1,7 @@
 #include "Sensors/TemperatureSensor.hpp"
 #include "Sensors/DistanceSensor.hpp"
 #include "Sensors/LimitSwitch.hpp"
-#include "Sensors/EstopTriggered.hpp"
+#include "Sensors/EmergencyStop.hpp"
 #include "Motion/Gantry.hpp"
 #include "PinOut.hpp"
 #include "Comms/SerialLink.hpp"
@@ -29,7 +29,8 @@ LimitSwitch limit_r(lim_r);
 LimitSwitch limit_b(lim_b);
 LimitSwitch limit_t(lim_t);
 
-EstopTriggered estop(estop_trig);
+EmergencyStop estop(estop_trig);
+bool gantry_enabled = true;
 
 uint8_t readLimitSwitches() {
     uint8_t pressed_switches = 0;
@@ -146,22 +147,31 @@ void setup() {
 }
 
 void loop() {
+    // Process serial data
+    SerialLink::process();
+
+    // Update estop state
+    // If enabled, ignore any further processing this update
+    estop.update();
+    if (estop.enabled())
+        return;
+
+    // Re-enable the gantry if it was deactivated
+    if (!gantry_enabled && estop.enabled())
+        Gantry::initMotors();
+    gantry_enabled = estop.enabled();
+    
     // // Calibrate distance sensor
     // DistanceSensor::calibrate(temp.temperature());
     // Gantry::setPosition({dist_x.distance(), dist_y.distance(),});
 
-    // Process serial data
-    SerialLink::process();
-
+    // Transmit mallet position
     Packet packet(Action::MalletPosition);
     packet << Gantry::getPosition();
     SerialLink::buffer(packet);
 
-    // Serial.println(dist_y.distance());
-
     // Check if any limit switch is pressed for more than 5 loops (to filter any noise)
     // If so, stop movement and let laptop know
-
     if (use_switches) {
         auto pressed_switches = readLimitSwitches();
         if (pressed_switches) {
@@ -170,24 +180,4 @@ void loop() {
             SerialLink::buffer(packet);  
         }
     }
-    
-    // // Read distance
-    // for (size_t i = 0; i < BUFFER_SIZE; ++i) {
-    //     //distance_buffer_index = (distance_buffer_index + 1) % BUFFER_SIZE;
-    //     distance_buffer[i] = {
-    //         dist_x.distance(),
-    //         dist_y.distance()
-    //     };
-    // }
-    
-    // // Calculate average distance
-    // Point2<double> avg_pos;
-    // for (int i = 0; i < BUFFER_SIZE; i++)
-    //     avg_pos += distance_buffer[i]; 
-    // avg_pos /= BUFFER_SIZE;
-    
-    // // Buffer mallet position for the laptop
-    // Packet packet(Action::MalletPosition);
-    // packet << avg_pos;
-    // SerialLink::buffer(packet);  
 }
