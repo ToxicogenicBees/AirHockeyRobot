@@ -20,8 +20,8 @@ double DistanceSensor::distance() {
     delayMicroseconds(10);
     _pins[TRIG]->write(LOW);
 
-    uint32_t duration = pulseIn(_pins[ECHO]->PIN, HIGH, 6000);
-    // delayMicroseconds(100000);
+    uint32_t duration = pulseIn(_pins[ECHO]->PIN, HIGH, 20000);
+    delayMicroseconds(1000);
     return 0.5 * duration * _speed_of_sound;
 }
 

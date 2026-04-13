@@ -28,7 +28,7 @@ namespace {
     constexpr double VELOCITY_OFFSET_MAX = 3.14 / 16;
 
     // Max deviation
-    constexpr double MAX_DEVIATION = 8.0;
+    constexpr double MAX_DEVIATION = 2.0;
 }
 
 std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orientation, const Ray2<double>& puck_target, double time) {
@@ -189,9 +189,14 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation, const Ray2<double>
         // }
     }
 
-    // if (time_to_puck_get_in_position - plan->strikeTime() > 0.001) {
-    //     std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1e6 * (time_to_puck_get_in_position - plan->strikeTime()) )));
-    // } 
+    if (time_to_puck_get_in_position - plan->strikeTime() > 0.001) {
+        double time_to_wait = time_to_puck_get_in_position - plan->strikeTime();
+        if (time_to_wait > 0.08) {
+            time_to_wait = 0.08;
+        }
+
+        std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1e6 * time_to_wait )));
+    }
     
     // else if (time_to_puck_get_in_position - plan->strikeTime() < 0.001) {
     //     // abandon strike if puck actually moving faster than expected
@@ -215,7 +220,7 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation, const Ray2<double>
 
     // Wait for the strike motion to complete before returning control
     // Add some slight additional time to complete the movement + decellerate
-    auto strike_time = plan->strikeTime() + 0.25;
+    auto strike_time = plan->strikeTime() + 0.5;
     std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1e6 * strike_time)));
 
     return true;

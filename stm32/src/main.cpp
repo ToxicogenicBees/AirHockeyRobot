@@ -165,6 +165,10 @@ void loop() {
         Gantry::setPosition({dist_x.distanceBurstMedian(5), dist_y.distanceBurstMedian(5)}); 
         gantry_enabled = true;
     }
+
+    // Serial.print(dist_x.distance());
+    // Serial.print(" ");
+    // Serial.println(dist_y.distance());
     
     // // Calibrate distance sensor
     // DistanceSensor::calibrate(temp.temperature());
