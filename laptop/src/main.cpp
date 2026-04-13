@@ -50,7 +50,7 @@ std::string com_port = Constants::Comms::COM_PORT;
 
 const std::unordered_map<std::string, Command> COMMAND_LIST = {
     {"track", Command({
-        {"yellow",  []() { Table::setTracker<CameraTracker>(cv::Scalar{20, 100, 100}, cv::Scalar{40, 255, 255}); } },
+        {"yellow",  []() { Table::setTracker<CameraTracker>(cv::Scalar{20, 150, 110}, cv::Scalar{40, 255, 255}); } },
         {"green",   []() { Table::setTracker<CameraTracker>(cv::Scalar{70, 50, 50}, cv::Scalar{100, 255, 255}); } },
         {"phys",    []() { Table::setTracker<PhysicsTracker>(); } },
         {"none",    []() { Table::setTracker<NoOperationTracker>(); } },
@@ -137,11 +137,21 @@ std::unordered_map<std::string, std::string> parseUserCommands(int argc, char** 
 }
 
 void initialize(int argc, char** argv) {
-    // Start initialization
+    // Initialization logging
     Timer init_timer;
+    Timer log_timer;
+
+    auto log_msg = [](Timer& timer, const std::string& msg) {
+        std::clog << std::setw(30) << std::left << (msg + ":");
+        std::clog << std::setprecision(5)
+            << 1e-3 * timer.delta<std::chrono::microseconds>()
+            << " ms\n";
+        timer.reset();
+    };
 
     // Initialize the table
     Table::init();
+    log_msg(log_timer, "Initialized table");
 
     // Run user commands
     const auto commands = parseUserCommands(argc, argv);
@@ -153,15 +163,19 @@ void initialize(int argc, char** argv) {
         
         // Run the command with the provided argument
         result->second.run(argument);
+
+        if (argument == "")
+            log_msg(log_timer, "Ran command [" + command + "]");
+        else
+            log_msg(log_timer, "Ran command [" + command + "=" + argument + "]");
     }
 
     // Initialize serial comms
     SerialLink::init(com_port);
+    log_msg(log_timer, "Initialized communications");
 
     // Initialization success
-    std::clog << "Initialized: " << std::setprecision(5)
-        << 1e-6 * init_timer.delta<std::chrono::microseconds>()
-        << " seconds\n";
+    log_msg(init_timer, "Initialization complete");
 }
 
 /****************
