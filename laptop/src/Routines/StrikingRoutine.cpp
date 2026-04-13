@@ -28,7 +28,7 @@ namespace {
     constexpr double VELOCITY_OFFSET_MAX = 3.14 / 16;
 
     // Max deviation
-    constexpr double MAX_DEVIATION = 4.0;
+    constexpr double MAX_DEVIATION = 8.0;
 }
 
 std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orientation, const Ray2<double>& puck_target, double time) {
@@ -180,10 +180,12 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation,  const Ray2<double
 
     if (time_to_puck_get_in_position - plan->strikeTime() > 0.001) {
         std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1e6 * (time_to_puck_get_in_position - plan->strikeTime()) )));
-    } else if (time_to_puck_get_in_position - plan->strikeTime() < 0.001) {
-        // abandon strike if puck actually moving faster than expected
-        return false;
-    }
+    } 
+    
+    // else if (time_to_puck_get_in_position - plan->strikeTime() < 0.001) {
+    //     // abandon strike if puck actually moving faster than expected
+    //     return false;
+    // }
 
     // Start the strike motion
     double accel_percent = plan->accelerationDistance() / (plan->strikePoint() - plan->setupPoint()).magnitude();

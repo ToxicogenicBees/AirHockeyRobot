@@ -37,7 +37,7 @@ void StrikeTestRoutine::updateTarget() {
         // Weight target
         auto weight = 
             -0.95 * dist/desired_dist;
-            // -0.05 * margin/desired_margin;                                // Relative time between arrivals
+            -0.05 * margin/desired_margin;                                // Relative time between arrivals
             // + 0.5 / (1 + sqrt(t.z))                           // Time the puck arrives
             // + 0.75 / (1 + dist);   // The distance from the puck's current location (normalized for time)
 
@@ -56,28 +56,33 @@ void StrikeTestRoutine::updateTarget() {
     auto distance = (_mallet->position() - best_target).magnitude();
     auto puck_velocity = Table::puck().velocity();
 
-    // if (best_target.y > Constants::Mallet::LIMIT_BL.y + Constants::Mallet::RADIUS*2) {
-        // Get desired striking velocity
-        auto strike_velocity = 0.5 * Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Table::HUMAN_GOAL - best_target).normal();
+    // Get desired striking velocity
+    auto strike_velocity = 0.5 * Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * (Constants::Table::HUMAN_GOAL - best_target).normal();
 
-        // Attempt the strike, or simply move home or to defend if it fails
-        auto success = strike({best_target, strike_velocity}, {best_target, puck_velocity}, best_time);
-        if (!success) {
-            // _travelHome();
-            // softTransmit({ 0.1, 0.1, 100, 500 });
-            // softTransmit(Constants::Table::ROBOT_GOAL + Point2<double>::yAxis()*2);
+    // Attempt the strike, or move home or defend if it fails
+    auto success = strike({best_target, strike_velocity}, {best_target, puck_velocity}, best_time);
+    if (!success) {
+        // softTransmit({ 0.1, 0.1, 100, 400 });
+        // _travelHome();
+        // _travelHome();
+        // softTransmit({ 0.1, 0.1, 100, 500 });
+        // softTransmit(Constants::Table::ROBOT_GOAL + Point2<double>::yAxis()*2);
 
-            _goal_defense.updateTarget();
+        // _goal_defense.updateTarget();
 
-            if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
-                SerialLink::buffer({Action::DistanceSensorRead});
-            }
-        }
-    // } else {
-    //     _goal_defense.updateTarget();
+        // if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
+        //     SerialLink::buffer({Action::DistanceSensorRead});
+        // }
+    } else {
+        // if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
+        //     SerialLink::buffer({Action::DistanceSensorRead});
+        // }
 
-    //     if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
-    //         SerialLink::buffer({Action::DistanceSensorRead});
-    //     }
-    // }
+        _goal_defense.updateTarget();
+    }
+
+    // engineering requirements will try to return puck with scoring trajectory if puck < 2.23m/s ~= 90in/s
+    if (-puck_velocity.y > 90 || (best_target.y < Constants::Mallet::LIMIT_BL.y + Constants::Mallet::RADIUS*4)) {
+        _goal_defense.updateTarget();
+    }
 }
