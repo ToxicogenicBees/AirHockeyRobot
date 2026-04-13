@@ -110,6 +110,10 @@ void Routine::transmit(const VelocityProfile& velocity) {
 
 void Routine::init() {
     SerialLink::registerHandler(Action::EStop, [](Packet& packet) {
-        _estop_enabled = packet.read<bool>();
+        auto new_state = packet.read<bool>();
+        if (new_state != _estop_enabled) {
+            std::clog << "EMERGENCY STOP EVENT: " << (new_state ? "ENABLED\n" : "DISABLED\n");
+            _estop_enabled = new_state;
+        }
     });
 }
