@@ -13,6 +13,12 @@ namespace {
 };
 
 void GoalDefenseRoutine::updateTarget() {
+    // Ignore the puck if it is invalid
+    if (!Table::puck().isValid()) {
+        _travelHome();
+        return;
+    }
+
     // if puck moving very slowly, go to meet it to keep gameplay going
     if (Table::puck().velocity().magnitude() < 5) {
         softTransmit({ 0.1, 0.1, 50, 100 });

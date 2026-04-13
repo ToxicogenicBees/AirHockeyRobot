@@ -5,6 +5,12 @@
 #include "Constants.hpp"
 
 void StrikeTestRoutine::updateTarget() {
+    // Ignore the puck if it is invalid
+    if (!Table::puck().isValid()) {
+        _travelHome();
+        return;
+    }
+
     // Fetch puck timestamps
     auto timestamps = Table::puck().trajectory(true);
 

@@ -5,6 +5,12 @@
 #include <algorithm>
 
 void DodgeRoutine::updateTarget() {
+    // Ignore the puck if it is invalid
+    if (!Table::puck().isValid()) {
+        _travelHome();
+        return;
+    }
+
     // Fetch puck position
     auto puck_position = Table::puck().position();
 

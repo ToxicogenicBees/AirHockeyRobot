@@ -27,6 +27,12 @@ namespace {
 };
 
 void BasicOffenseRoutine::updateTarget() {
+    // Ignore the puck if it is invalid
+    if (!Table::puck().isValid()) {
+        _travelHome();
+        return;
+    }
+
     // Ignore if the puck is moving too fast (~1.5 m/s)
     if (Table::puck().velocity().magnitude() >= 90) {
         _travelHome();

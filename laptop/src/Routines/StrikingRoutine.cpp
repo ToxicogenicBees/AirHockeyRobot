@@ -169,6 +169,10 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation, const Ray2<double>
     double time_to_puck_get_in_position = -1;
 
     while (plan->elapsedTime() < plan->setupTime()) {
+        // Puck has been lost
+        if (!Table::puck().isValid())
+            return false;
+            
         // Puck has deviated too far from the expected trajectory
         if (_deviation(*plan, puck_target, &time_to_puck_get_in_position) > MAX_DEVIATION) {
             // std::cout << "Too much deviation!!!\n\n";

@@ -2,6 +2,12 @@
 #include "Motion/Table.hpp"
 
 void AdvancedDefenseRoutine::updateTarget() {
+    // Ignore the puck if it is invalid
+    if (!Table::puck().isValid()) {
+        _travelHome();
+        return;
+    }
+
     // Get puck position
     auto puck_position = Table::puck().position();
     auto puck_velocity = Table::puck().velocity();
