@@ -68,7 +68,6 @@ void Gantry::init() {
 
 void Gantry::initMotors() {
     _right.init();
-    delay(100);
     _left.init();
 }
 
