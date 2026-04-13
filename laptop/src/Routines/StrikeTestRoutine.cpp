@@ -70,9 +70,9 @@ void StrikeTestRoutine::updateTarget() {
 
         // _goal_defense.updateTarget();
 
-        // if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
-        //     SerialLink::buffer({Action::DistanceSensorRead});
-        // }
+        if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
+            SerialLink::buffer({Action::DistanceSensorRead});
+        }
     } else {
         // if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
         //     SerialLink::buffer({Action::DistanceSensorRead});

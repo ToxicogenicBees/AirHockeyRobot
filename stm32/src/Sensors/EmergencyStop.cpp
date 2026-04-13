@@ -6,7 +6,7 @@ EmergencyStop::EmergencyStop(PinDef& pin)
 
 void EmergencyStop::update() {
     // Get the pin state
-    auto pressed = !_pins[0]->read();
+    auto pressed = _pins[0]->read();
 
     // Update enabled flag
     if ((pressed && !_enabled) || (!pressed && _enabled)) {

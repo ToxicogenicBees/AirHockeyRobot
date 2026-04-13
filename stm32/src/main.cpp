@@ -46,26 +46,26 @@ uint8_t readLimitSwitches() {
             Gantry::setVelocityProfile({0, 0, 100, 100});
             Gantry::initMotion(new_pos - 25.0 * (new_pos - Constants::Mallet::HOME*25.4).normal());
 
-            Gantry::setPosition({
-                dist_x.distanceBurstMedian(5),
-                dist_y.distanceBurstMedian(5)
-            });
+            // Gantry::setPosition({
+            //     dist_x.distanceBurstMedian(2),
+            //     dist_y.distanceBurstMedian(2)
+            // });
 
             delayMicroseconds(1000);
         }
     };
 
     process_pressed(limit_l, Constants::LimitSwitch::LEFT_PRESSED, {
-        25.4 * Constants::Mallet::LIMIT_BL.x, Gantry::getPosition().y
+        25.4 * (Constants::Mallet::LIMIT_BL.x - Constants::Mallet::SENSOR_OFFSET.x), Gantry::getPosition().y
     });
     process_pressed(limit_r, Constants::LimitSwitch::RIGHT_PRESSED, {
-        25.4 * Constants::Mallet::LIMIT_TR.x, Gantry::getPosition().y
+        25.4 * (Constants::Mallet::LIMIT_TR.x - Constants::Mallet::SENSOR_OFFSET.x), Gantry::getPosition().y
     });
     process_pressed(limit_b, Constants::LimitSwitch::BOTTOM_PRESSED, {
-        Gantry::getPosition().x, 25.4 * Constants::Mallet::LIMIT_BL.y
+        Gantry::getPosition().x, 25.4 * (Constants::Mallet::LIMIT_BL.y - Constants::Mallet::SENSOR_OFFSET.y)
     });
     process_pressed(limit_t, Constants::LimitSwitch::TOP_PRESSED, {
-        Gantry::getPosition().x, 25.4 * Constants::Mallet::LIMIT_TR.y
+        Gantry::getPosition().x, 25.4 * (Constants::Mallet::LIMIT_TR.y - Constants::Mallet::SENSOR_OFFSET.y)
     });
 
     return pressed_switches;
@@ -131,6 +131,7 @@ void setup() {
     limit_r.init();
     limit_b.init();
     limit_t.init();
+    estop.init();
     temp.init();
 
     delay(100);
@@ -143,7 +144,7 @@ void setup() {
 
     // Disable switches if they're unplugged
     if (readLimitSwitches())
-        use_switches = false;
+        use_switches = false;    
 }
 
 void loop() {
@@ -153,13 +154,17 @@ void loop() {
     // Update estop state
     // If enabled, ignore any further processing this update
     estop.update();
-    if (estop.enabled())
+    if (estop.enabled()) {
+        gantry_enabled = false;
         return;
+    }
 
     // Re-enable the gantry if it was deactivated
-    if (!gantry_enabled && estop.enabled())
+    if (!gantry_enabled) {
         Gantry::initMotors();
-    gantry_enabled = estop.enabled();
+        Gantry::setPosition({dist_x.distanceBurstMedian(5), dist_y.distanceBurstMedian(5)}); 
+        gantry_enabled = true;
+    }
     
     // // Calibrate distance sensor
     // DistanceSensor::calibrate(temp.temperature());

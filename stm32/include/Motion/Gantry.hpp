@@ -68,7 +68,7 @@ class Gantry {
         static void _stepMotion();
 
     public:
-        static constexpr double DIST_TOLERANCE_HIGH = 500.0;    // mm
+        static constexpr double DIST_TOLERANCE_HIGH = 100.0;    // mm
         static constexpr double DIST_TOLERANCE_LOW = 5.0;       // mm
 
         /**
