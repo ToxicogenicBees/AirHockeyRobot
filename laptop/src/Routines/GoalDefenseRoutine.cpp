@@ -35,10 +35,10 @@ void GoalDefenseRoutine::updateTarget() {
         Point2<double> defense_target = {timestamps.back().second.position.x, 2};
 
         // clamp x
-        if (defense_target.x < Constants::Mallet::LIMIT_BL.x + Constants::Puck::RADIUS*2 + Constants::Mallet::RADIUS) {
-            defense_target.x = Constants::Mallet::LIMIT_BL.x + Constants::Puck::RADIUS*2 + Constants::Mallet::RADIUS;
-        } else if (defense_target.x > Constants::Mallet::LIMIT_TR.x - Constants::Puck::RADIUS*2 - Constants::Mallet::RADIUS) {
-            defense_target.x = Constants::Mallet::LIMIT_TR.x - Constants::Puck::RADIUS*2 - Constants::Mallet::RADIUS;
+        if (defense_target.x < Constants::Mallet::LIMIT_BL.x + Constants::Puck::RADIUS*2 + 1.5) {
+            defense_target.x = Constants::Mallet::LIMIT_BL.x + Constants::Puck::RADIUS*2 + 1.5;
+        } else if (defense_target.x > Constants::Mallet::LIMIT_TR.x - Constants::Puck::RADIUS*2 - 1.5) {
+            defense_target.x = Constants::Mallet::LIMIT_TR.x - Constants::Puck::RADIUS*2 - 1.5;
         }
 
         if ( (defense_target - _prev_target.first).magnitude() > Constants::Mallet::RADIUS/2 ) {
