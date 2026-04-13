@@ -80,6 +80,11 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
         return std::nullopt;
     }
 
+    // also not good if way too much setup time
+    if (time_to_setup > 4) {
+        return std::nullopt;
+    }
+
     // Find distance to go to setup point
     auto mallet_position = _mallet->position();
     auto setup_displacement = setup_point - mallet_position;
