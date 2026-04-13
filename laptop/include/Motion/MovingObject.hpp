@@ -26,9 +26,9 @@ class MovingObject : public IObjectView {
          * @brief Create a new moving object
          * 
          * @param radius        The radius of the object
-         * @param buffer_size   The sample buffer size (default = 1)
+         * @param buffer_size   The sample buffer size (default = 2)
          */
-        MovingObject(double radius, int buffer_size = 1);
+        MovingObject(double radius, int buffer_size = 2);
 
         /**
          * @brief Prevent reassignment of moving objects
