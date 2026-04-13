@@ -13,47 +13,31 @@ namespace {
 };
 
 void GoalDefenseRoutine::updateTarget() {
-    // Fetch puck timestamps
-    auto timestamps = Table::puck().trajectory();
+    // if puck moving very slowly, go to meet it to keep gameplay going
+    if (Table::puck().velocity().magnitude() < 5) {
+        softTransmit({ 0.1, 0.1, 50, 100 });
+        softTransmit(Table::puck().position());
 
-    Point2<double> defense_target;
-
-    if (!timestamps.empty()) {
-        if (timestamps.back().second.direction.magnitude() > 5) {
-            defense_target = {timestamps.back().second.position.x, 2};
-
-            if ( (defense_target - _prev_target.first).magnitude() > Constants::Mallet::RADIUS/2 ) {
-                if ( (Table::mallet().position() - defense_target).magnitude() > 12 ) {
-                    softTransmit({ 0.1, 0.1, 100, 600 }); 
-                } else if ( (Table::mallet().position() - defense_target).magnitude() > 8 ) {
-                    softTransmit({ 0.1, 0.1, 100, 400 }); 
-                } else {
-                    softTransmit({ 0.1, 0.1, 100, 150 }); 
-                }
-
-                softTransmit(defense_target);
-
-                Timer timeout;
-
-                while ((Table::mallet().position() - _prev_target.first).magnitude() > 0.1 && timeout.delta<std::chrono::milliseconds>() < 250) {
-                    std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1)));
-                }
-
-                if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
-                    SerialLink::buffer({Action::DistanceSensorRead});
-                }
-            }
-        } else {
-            // if puck moving very slowly, go to meet it to keep gameplay going
-            // logic handled below
+        Timer timeout;
+        while ((_mallet->position() - _prev_target.first).magnitude() > 0.1 && timeout.delta<std::chrono::milliseconds>() < 250) {
+            std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1)));
         }
-    } else {
-        defense_target = Constants::Table::ROBOT_GOAL + Point2<double>::yAxis()*2;
+        if ((_mallet->position() - _prev_target.first).magnitude() < 0.5) {
+            SerialLink::buffer({Action::DistanceSensorRead});
+        }
+
+        return;
+    }
+
+    // Otherwise, calculate the puck trajectory and attempt to block it
+    auto timestamps = Table::puck().trajectory();
+    if (!timestamps.empty() && timestamps.back().second.direction.magnitude() > 5) {
+        Point2<double> defense_target = {timestamps.back().second.position.x, 2};
 
         if ( (defense_target - _prev_target.first).magnitude() > Constants::Mallet::RADIUS/2 ) {
-            if ( (Table::mallet().position() - defense_target).magnitude() > 12 ) {
+            if ( (_mallet->position() - defense_target).magnitude() > 12 ) {
                 softTransmit({ 0.1, 0.1, 100, 600 }); 
-            } else if ( (Table::mallet().position() - defense_target).magnitude() > 8 ) {
+            } else if ( (_mallet->position() - defense_target).magnitude() > 8 ) {
                 softTransmit({ 0.1, 0.1, 100, 400 }); 
             } else {
                 softTransmit({ 0.1, 0.1, 100, 150 }); 
@@ -62,32 +46,37 @@ void GoalDefenseRoutine::updateTarget() {
             softTransmit(defense_target);
 
             Timer timeout;
-
-            while ((Table::mallet().position() - _prev_target.first).magnitude() > 0.1 && timeout.delta<std::chrono::milliseconds>() < 250) {
+            while ((_mallet->position() - _prev_target.first).magnitude() > 0.1 && timeout.delta<std::chrono::milliseconds>() < 250) {
                 std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1)));
             }
-
-            if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
+            if ((_mallet->position() - _prev_target.first).magnitude() < 0.1) {
                 SerialLink::buffer({Action::DistanceSensorRead});
             }
         }
     }
-    
-    // if puck moving very slowly, go to meet it to keep gameplay going
-    if (Table::puck().velocity().magnitude() < 5) {
-        // std::clog << "Hello there!\n\n";
-        
-        softTransmit({ 0.1, 0.1, 50, 100 });
-        softTransmit(Table::puck().position());
 
-        Timer timeout;
+    else {
+        Point2<double> defense_target = Constants::Table::ROBOT_GOAL + 2.0 * Point2<double>::yAxis();
 
-        while ((Table::mallet().position() - _prev_target.first).magnitude() > 0.1 && timeout.delta<std::chrono::milliseconds>() < 250) {
-            std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1)));
-        }
+        if ( (defense_target - _prev_target.first).magnitude() > Constants::Mallet::RADIUS/2 ) {
+            auto displacement = (_mallet->position() - defense_target).magnitude();
+            if ( displacement > 12 ) {
+                softTransmit({ 0.1, 0.1, 100, 600 }); 
+            } else if ( displacement > 8 ) {
+                softTransmit({ 0.1, 0.1, 100, 400 }); 
+            } else {
+                softTransmit({ 0.1, 0.1, 100, 150 }); 
+            }
 
-        if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.5) {
-            SerialLink::buffer({Action::DistanceSensorRead});
+            softTransmit(defense_target);
+
+            Timer timeout;
+            while ((_mallet->position() - _prev_target.first).magnitude() > 0.1 && timeout.delta<std::chrono::milliseconds>() < 250) {
+                std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1)));
+            }
+            if ((_mallet->position() - _prev_target.first).magnitude() < 0.1) {
+                SerialLink::buffer({Action::DistanceSensorRead});
+            }
         }
     }
 }

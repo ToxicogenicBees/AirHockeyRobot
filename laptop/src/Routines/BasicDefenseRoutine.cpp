@@ -68,7 +68,7 @@ void BasicDefenseRoutine::updateTarget() {
         softTransmit(best_target);
     }
 
-    if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
+    if ((_mallet->position() - _prev_target.first).magnitude() < 0.1) {
         SerialLink::buffer({Action::DistanceSensorRead});
     }
 }

@@ -20,15 +20,15 @@ namespace {
     constexpr double STRIKE_POINT_OFFSET = -(Constants::Mallet::RADIUS + Constants::Puck::RADIUS);
 
     // Position deviation
-    constexpr double POSITION_DEVIATION_WEIGHT = 1.0;
-    constexpr double POSITION_OFFSET_MAX = 5.0;
+    constexpr double POSITION_DEVIATION_WEIGHT = 1.2;
+    constexpr double POSITION_OFFSET_MAX = 8.0;
 
     // Velocity deviation
-    constexpr double VELOCITY_DEVIATION_WEIGHT = 1.0;
+    constexpr double VELOCITY_DEVIATION_WEIGHT = 0.8;
     constexpr double VELOCITY_OFFSET_MAX = 3.14 / 16;
 
     // Max deviation
-    constexpr double MAX_DEVIATION = 5.0;
+    constexpr double MAX_DEVIATION = 8.0;
 }
 
 std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orientation, const Ray2<double>& puck_target, double time) {
