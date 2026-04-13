@@ -87,7 +87,7 @@ std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orien
 
     // Find required speed of motor with more steps to setup point
     double speed_to_setup = setup_displacement.magnitude() / time_to_setup;
-    double rpm_to_setup = speed_to_setup / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * Constants::Mallet::MAX_RPM;
+    double rpm_to_setup = 1.25 * speed_to_setup / Constants::Mallet::MAX_SPEED_INCHES_PER_SECOND * Constants::Mallet::MAX_RPM;
     
     // Scalar projection of setup position normal onto CoreXY movement axis
     // to get percent motor speed of the max speed
@@ -118,8 +118,6 @@ double StrikingRoutine::_deviation(const StrikePlan& plan, const Ray2<double>& p
     
     // Find minimum deviation
     double min_deviation = std::numeric_limits<double>::max();
-    double distance_norm;
-    double velocity_norm;
 
     for (auto [time, orientation] : trajectory) {
         // Get puck orientation components
@@ -130,8 +128,8 @@ double StrikingRoutine::_deviation(const StrikePlan& plan, const Ray2<double>& p
         auto velocity_angle = puck_vel.angle(puck_vel_old);
 
         // Normalize components
-        distance_norm = distance / POSITION_OFFSET_MAX;
-        velocity_norm = velocity_angle / VELOCITY_OFFSET_MAX;
+        double distance_norm = distance / POSITION_OFFSET_MAX;
+        double velocity_norm = velocity_angle / VELOCITY_OFFSET_MAX;
 
         // Get deviation
         double deviation = POSITION_DEVIATION_WEIGHT * distance_norm
@@ -154,7 +152,7 @@ double StrikingRoutine::_deviation(const StrikePlan& plan, const Ray2<double>& p
     return min_deviation;
 }
 
-bool StrikingRoutine::strike(const Ray2<double>& orientation,  const Ray2<double>& puck_target, double time) {
+bool StrikingRoutine::strike(const Ray2<double>& orientation, const Ray2<double>& puck_target, double time) {
     // Create a strike plan
     auto plan = _createPlan(orientation, puck_target, time);
 
@@ -187,9 +185,9 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation,  const Ray2<double
         // }
     }
 
-    if (time_to_puck_get_in_position - plan->strikeTime() > 0.001) {
-        std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1e6 * (time_to_puck_get_in_position - plan->strikeTime()) )));
-    } 
+    // if (time_to_puck_get_in_position - plan->strikeTime() > 0.001) {
+    //     std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1e6 * (time_to_puck_get_in_position - plan->strikeTime()) )));
+    // } 
     
     // else if (time_to_puck_get_in_position - plan->strikeTime() < 0.001) {
     //     // abandon strike if puck actually moving faster than expected
@@ -213,7 +211,7 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation,  const Ray2<double
 
     // Wait for the strike motion to complete before returning control
     // Add some slight additional time to complete the movement + decellerate
-    auto strike_time = plan->strikeTime() + 0.5;
+    auto strike_time = plan->strikeTime() + 0.25;
     std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1e6 * strike_time)));
 
     return true;
