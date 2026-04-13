@@ -6,6 +6,9 @@ MovingObject::MovingObject(double radius, int buffer_size)
 void MovingObject::moveTo(const Point2<double>& new_pos, double dt) {
     // Get access to lock
     std::lock_guard<std::mutex> lock(_access_locational_data);
+
+    // Mark as valid
+    _invalid = false;
     
     // Store new position
     _sample_buffer.push_back(new_pos);
@@ -33,8 +36,16 @@ void MovingObject::moveTo(const Point2<double>& new_pos) {
 void MovingObject::orient(const Ray2<double>& orientation) {
     // Get access to lock
     std::lock_guard<std::mutex> lock(_access_locational_data);
+
+    // Mark as valid
+    _invalid = false;
     
     _orientation = orientation;
+}
+
+void MovingObject::markInvalid() {
+    _sample_buffer.clear();
+    _invalid = true;
 }
 
 Ray2<double> MovingObject::orientation() const {

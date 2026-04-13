@@ -59,6 +59,11 @@ class MovingObject : public IObjectView {
         void orient(const Ray2<double>& orientation);
 
         /**
+         * @brief Mark the moving object as being invalid
+         */
+        void markInvalid();
+
+        /**
          * @brief Returns the current orientation of the object, in inches and inches/sec
          * 
          * @return The orientation of the object, in inches and inches/sec

@@ -7,9 +7,12 @@
 #include "Types/Ray2.hpp"
 
 class IObjectView {
+    protected:
+        bool _invalid = false;
+
     public:
         using Timestamp = std::pair<double, Ray2<double>>;
-        
+
         /**
          * @brief Destroy an IObjectView
          */
@@ -50,4 +53,9 @@ class IObjectView {
          * @return The radius of the object, in inches
          */
         virtual double radius() const = 0;
+
+        /**
+         * @brief Determine if the object is in a valid state
+         */
+        bool isValid() const { return !_invalid; }
 };

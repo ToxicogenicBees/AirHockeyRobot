@@ -31,6 +31,7 @@ CameraTracker::CameraTracker(const cv::Scalar& min_color, const cv::Scalar& max_
 void CameraTracker::init() {
     // Open selected camera using selected API
     _capture.open(Constants::Camera::DEVICE_ID, Constants::Camera::API_ID);
+
     // Check if we succeeded
     if (!_capture.isOpened()) {
         std::cerr << "ERROR! Unable to open camera\n";
@@ -79,7 +80,6 @@ void CameraTracker::track() {
     // Check if we succeeded
     if (_frame.empty()) {
         std::cerr << "ERROR! blank frame grabbed\n";
-        init();
         return;
     }
 
@@ -94,8 +94,8 @@ void CameraTracker::track() {
 
     // Invalid centroid
     if (std::abs(m.m00) <= 1e-6) {
-        // update internal timer
-        _puck->moveTo(_puck->position());
+        // Mark as invalid position
+        _puck->markInvalid();
 
         return;
     }
@@ -132,8 +132,10 @@ void CameraTracker::display() {
 
     // Overlay puck position on both the live and filtered frames
     auto filtered_frame = _filter.filtered();
-    cv::circle(filtered_frame, _prev_pixels, 5, {128, 0, 0}, -1);
-    cv::circle(_frame, _prev_pixels, 5, {128, 0, 0}, -1);
+    if (_puck->isValid()) {
+        cv::circle(filtered_frame, _prev_pixels, 5, {128, 0, 0}, -1);
+        cv::circle(_frame, _prev_pixels, 5, {128, 0, 0}, -1);
+    }
 
     // Overlay table info onto live video
     _overlay.overlay(_frame);

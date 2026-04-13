@@ -22,23 +22,23 @@ void Overlay::overlay(cv::Mat& mat) {
         return cv::norm(_converter(center) - _converter(center + offset));
     };
 
-    if (_mallet) {
+    if (_mallet && Table::mallet().isValid()) {
         auto pos = Table::mallet().position();
         int radius = std::round(pixel_radius(pos, Constants::Mallet::RADIUS));
         cv::circle(mat, _converter(pos), radius, _mallet->first, _mallet->second);
     }
 
-    if (_puck) {
+    if (_puck && Table::puck().isValid()) {
         auto pos = Table::puck().position();
         auto radius = pixel_radius(pos, Constants::Puck::RADIUS);
         cv::circle(mat, _converter(pos), radius, _puck->first, _puck->second);
     }
 
-    if (_mallet_target) {
+    if (_mallet_target && Table::mallet().isValid()) {
         cv::circle(mat, _converter(Table::routine()->target().first), 2, _mallet_target->first, _mallet_target->second);
     }
 
-    if (_puck_trajectory) {
+    if (_puck_trajectory && Table::puck().isValid()) {
         // Fetch timestamps
         auto timestamps = Table::puck().trajectory(true);
 
@@ -46,7 +46,7 @@ void Overlay::overlay(cv::Mat& mat) {
             auto [_, first_orientation] = timestamps[0];
             auto prev_point = _converter(first_orientation.position);
 
-            auto validPoint = [&](const cv::Point& p) {
+            auto valid_point = [&](const cv::Point& p) {
                 return std::isfinite(p.x) && std::isfinite(p.y) &&
                     p.x >= 0 && p.y >= 0 &&
                     p.x < mat.cols && p.y < mat.rows;
@@ -58,7 +58,7 @@ void Overlay::overlay(cv::Mat& mat) {
                 
                 const int thickness = 1 + _puck_trajectory->second / 2;
 
-                if (validPoint(prev_point) && validPoint(cur_point)) {
+                if (valid_point(prev_point) && valid_point(cur_point)) {
                     cv::line(mat, prev_point, cur_point, _puck_trajectory->first, thickness);
                     prev_point = cur_point;
                 }
