@@ -21,14 +21,14 @@ namespace {
 
     // Position deviation
     constexpr double POSITION_DEVIATION_WEIGHT = 1.0;
-    constexpr double POSITION_OFFSET_MAX = 8.0;
+    constexpr double POSITION_OFFSET_MAX = 5.0;
 
     // Velocity deviation
     constexpr double VELOCITY_DEVIATION_WEIGHT = 1.0;
     constexpr double VELOCITY_OFFSET_MAX = 3.14 / 16;
 
     // Max deviation
-    constexpr double MAX_DEVIATION = 8.0;
+    constexpr double MAX_DEVIATION = 3.0;
 }
 
 std::optional<StrikePlan> StrikingRoutine::_createPlan(const Ray2<double>& orientation, const Ray2<double>& puck_target, double time) {
@@ -174,6 +174,15 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation,  const Ray2<double
         // Puck has deviated too far from the expected trajectory
         if (_deviation(*plan, puck_target, &time_to_puck_get_in_position) > MAX_DEVIATION) {
             // std::cout << "Too much deviation!!!\n\n";
+            return false;
+        }
+
+        if (time_to_puck_get_in_position - plan->strikeTime() < Constants::FP_ERR) {
+            return false;
+        }
+
+        if (time_to_puck_get_in_position - plan->strikeTime() < plan->setupTime() -  plan->elapsedTime()) {
+            // need to speed up setup
             return false;
         }
     }

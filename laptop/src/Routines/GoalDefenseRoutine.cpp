@@ -27,7 +27,7 @@ void GoalDefenseRoutine::updateTarget() {
     if ( (defense_target - _prev_target.first).magnitude() > Constants::Mallet::RADIUS/2 ) {
         if ( (Table::mallet().position() - defense_target).magnitude() > 12 ) {
             softTransmit({ 0.1, 0.1, 100, 600 }); 
-        } else if ( (Table::mallet().position() - defense_target).magnitude() > 5 ) {
+        } else if ( (Table::mallet().position() - defense_target).magnitude() > 8 ) {
             softTransmit({ 0.1, 0.1, 100, 400 }); 
         } else {
             softTransmit({ 0.1, 0.1, 100, 150 }); 
@@ -47,10 +47,10 @@ void GoalDefenseRoutine::updateTarget() {
     }
 
     // if puck moving very slowly, go to meet it to keep gameplay going
-    if (Table::puck().velocity().magnitude() < 1) {
-        std::clog << "Hello there!\n\n";
+    if (Table::puck().velocity().magnitude() < 5) {
+        // std::clog << "Hello there!\n\n";
         
-        softTransmit({ 0.1, 0.1, 100, 400 }); 
+        softTransmit({ 0.1, 0.1, 50, 100 }); 
         softTransmit(Table::puck().position());
 
         Timer timeout;
@@ -59,7 +59,7 @@ void GoalDefenseRoutine::updateTarget() {
             std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1)));
         }
 
-        if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.1) {
+        if ((Table::mallet().position() - _prev_target.first).magnitude() < 0.5) {
             SerialLink::buffer({Action::DistanceSensorRead});
         }
     }
