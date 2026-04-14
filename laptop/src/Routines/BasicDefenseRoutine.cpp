@@ -61,14 +61,13 @@ void BasicDefenseRoutine::updateTarget() {
     if ((_prev_target.first - best_target).magnitude() > TARGET_ERROR) {
         // Set speed based on distance from the point
         auto displacement = (mallet_position - best_target).magnitude();
-        if (displacement < 1)
-            softTransmit({0, 0, 50, 50});
-        else if (displacement < 2)
-            softTransmit({0, 0, 150, 150});
-        else if (displacement < 5)
-            softTransmit({0.1, 0, 300, 500});
-        else
-            softTransmit({0.2, 0.15, 300, 650});
+        if ( displacement > 12 ) {
+            softTransmit({ 0.1, 0.1, 100, 600 }); 
+        } else if ( displacement > 8 ) {
+            softTransmit({ 0.1, 0.1, 100, 400 }); 
+        } else {
+            softTransmit({ 0.1, 0.1, 100, 150 }); 
+        }
 
         // Set target
         softTransmit(best_target);
