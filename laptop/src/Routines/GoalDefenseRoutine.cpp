@@ -49,6 +49,9 @@ void GoalDefenseRoutine::updateTarget() {
             }
         }
 
+        // average projected x with the current puck x to help remove noise
+        defense_target = (defense_target + Point2<double>{Table::puck().position().x, defense_target.y}) / 2;
+
         // clamp x
         if (defense_target.x < Constants::Mallet::LIMIT_BL.x + Constants::Puck::RADIUS*2 + 1.5) {
             defense_target.x = Constants::Mallet::LIMIT_BL.x + Constants::Puck::RADIUS*2 + 1.5;

@@ -50,7 +50,7 @@ std::string com_port = Constants::Comms::COM_PORT;
 
 const std::unordered_map<std::string, Command> COMMAND_LIST = {
     {"track", Command({
-        {"yellow",  []() { Table::setTracker<CameraTracker>(cv::Scalar{20, 150, 110}, cv::Scalar{40, 255, 255}); } },
+        {"yellow",  []() { Table::setTracker<CameraTracker>(cv::Scalar{20, 110, 110}, cv::Scalar{40, 255, 255}); } },
         {"green",   []() { Table::setTracker<CameraTracker>(cv::Scalar{70, 50, 50}, cv::Scalar{100, 255, 255}); } },
         {"phys",    []() { Table::setTracker<PhysicsTracker>(); } },
         {"none",    []() { Table::setTracker<NoOperationTracker>(); } },
