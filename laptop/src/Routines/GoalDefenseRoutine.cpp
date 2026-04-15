@@ -42,10 +42,10 @@ void GoalDefenseRoutine::updateTarget() {
 
         // if puck still far away stay near goal
         if (Table::puck().position().y > Constants::Mallet::HOME.y + 10) {
-            if (timestamps.back().second.position.x < Constants::Table::ROBOT_GOAL.x - 10) {
-                defense_target.x = Constants::Table::ROBOT_GOAL.x - 10;
-            } else if (timestamps.back().second.position.x > Constants::Table::ROBOT_GOAL.x + 10) {
-                defense_target.x = Constants::Table::ROBOT_GOAL.x + 10;
+            if (timestamps.back().second.position.x < Constants::Table::ROBOT_GOAL.x - Constants::Table::GOAL_WIDTH/2 ) {
+                defense_target.x = Constants::Table::ROBOT_GOAL.x - Constants::Table::GOAL_WIDTH/2;
+            } else if (timestamps.back().second.position.x > Constants::Table::ROBOT_GOAL.x + Constants::Table::GOAL_WIDTH/2) {
+                defense_target.x = Constants::Table::ROBOT_GOAL.x + Constants::Table::GOAL_WIDTH/2;
             }
         }
 
