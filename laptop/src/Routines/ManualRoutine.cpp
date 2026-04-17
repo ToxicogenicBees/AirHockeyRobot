@@ -35,6 +35,6 @@ void ManualRoutine::updateTarget() {
     };
 
     // Transmit position
-    softTransmit({0, 0, 350, 350});
+    softTransmit({0.1, 0.1, 250, 400});
     softTransmit(_position);
 }
