@@ -1,11 +1,11 @@
-#include "Visuals/Overlay.hpp"
+#include "Tracking/TrackerOverlay.hpp"
 #include "Motion/Table.hpp"
 #include "Constants.hpp"
 
-Overlay::Overlay(Converter converter)
+TrackerOverlay::TrackerOverlay(Converter converter)
     :_converter(converter) {}
 
-void Overlay::overlay(cv::Mat& mat) {
+void TrackerOverlay::overlay(cv::Mat& mat) {
     auto overlay_goal = [&](Point2<double> goal, std::optional<Setting> setting) {
         if (setting) {
             auto p1 = _converter( goal - 0.5 * Constants::Table::GOAL_WIDTH * Point2<double>::xAxis() );
@@ -67,26 +67,26 @@ void Overlay::overlay(cv::Mat& mat) {
     }
 }
 
-void Overlay::robotGoal(const Setting& setting) {
+void TrackerOverlay::robotGoal(const Setting& setting) {
     _robot_goal = setting;
 }
 
-void Overlay::humanGoal(const Setting& setting) {
+void TrackerOverlay::humanGoal(const Setting& setting) {
     _human_goal = setting;
 }
 
-void Overlay::malletTarget(const Setting& setting) {
+void TrackerOverlay::malletTarget(const Setting& setting) {
     _mallet_target = setting;
 }
 
-void Overlay::puckTrajectory(const Setting& setting) {
+void TrackerOverlay::puckTrajectory(const Setting& setting) {
     _puck_trajectory = setting;
 }
 
-void Overlay::mallet(const Setting& setting) {
+void TrackerOverlay::mallet(const Setting& setting) {
     _mallet = setting;
 }
 
-void Overlay::puck(const Setting& setting) {
+void TrackerOverlay::puck(const Setting& setting) {
     _puck = setting;
 }

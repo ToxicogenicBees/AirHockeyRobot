@@ -32,6 +32,7 @@ set(main_SOURCES
     src/Tracking/CameraTracker.cpp
     src/Tracking/PhysicsTracker.cpp
     src/Tracking/NoOperationTracker.cpp
+    src/Tracking/TrackerOverlay.cpp
     src/Routines/Routine.cpp
     src/Routines/BasicDefenseRoutine.cpp
     src/Routines/MotionTestRoutine.cpp
@@ -43,7 +44,6 @@ set(main_SOURCES
     src/Routines/ManualRoutine.cpp
     src/Routines/GoalDefenseRoutine.cpp
     src/Routines/NoOperationRoutine.cpp
-    src/Visuals/Overlay.cpp
 )
 
 # --- Function to create executables with common includes and OpenCV ---

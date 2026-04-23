@@ -6,9 +6,9 @@
 #include "opencv2/imgproc.hpp"
 
 #include "Tracking/PuckTracker.hpp"
+#include "Tracking/TrackerOverlay.hpp"
 #include "Motion/MovingObject.hpp"
 #include "Types/ColorFilter.hpp"
-#include "Visuals/Overlay.hpp"
 #include "Types/Point2.hpp"
 #include <utility>
 
@@ -22,7 +22,7 @@ class CameraTracker : public PuckTracker {
         cv::Mat _frame;
 
         // Render overlay
-        Overlay _overlay;
+        TrackerOverlay _overlay;
 
         // Previous capture info
         cv::Point _prev_pixels;
