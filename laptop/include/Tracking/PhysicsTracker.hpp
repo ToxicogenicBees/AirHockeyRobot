@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Tracking/PuckTracker.hpp"
-#include "Visuals/Overlay.hpp"
+#include "Tracking/TrackerOverlay.hpp"
 #include "Types/Timer.hpp"
 
 class PhysicsTracker : public PuckTracker {
     private:
-        Overlay _overlay;
+        TrackerOverlay _overlay;
         cv::Mat _render;
         Timer _timer;
 

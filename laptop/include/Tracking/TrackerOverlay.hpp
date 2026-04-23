@@ -6,7 +6,7 @@
 
 #include "Types/Point2.hpp"
 
-class Overlay {
+class TrackerOverlay {
     public:
         using Converter = std::function<cv::Point(const Point2<double>&)>;
         using Setting = std::pair<cv::Scalar, int>;
@@ -29,7 +29,7 @@ class Overlay {
          * 
          * @param converter Conversion from inch position to pixel location
          */
-        Overlay(Converter converter);
+        TrackerOverlay(Converter converter);
 
         /**
          * @brief Overlay the render settings onto the provided matrix
