@@ -13,11 +13,6 @@ class Motor {
         PinDef* _sleep;
         PinDef* _enable;
 
-        /**
-         * @brief Fault ISR responds to fault condition from motor driver;
-         */
-        void _faultISR();
-
     public:
         // Motor config
         static const uint16_t FULL_STEPS_PER_REV = 200;
@@ -45,11 +40,6 @@ class Motor {
           * @return dir
          */
         uint8_t getDir() const { return _dir->read(); }
-
-         /**
-         * @brief Steps the motor in it's current direction
-         */
-        void step();
 
          /**
          * @brief Sets step pin high;
