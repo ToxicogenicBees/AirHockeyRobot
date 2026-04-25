@@ -200,10 +200,6 @@ void Gantry::_stepMotion() {
     }
 }
 
-void Gantry::home() {
-    // dummy function
-}
-
 void Gantry::pauseMotion() {
     _timer.stop();
 }

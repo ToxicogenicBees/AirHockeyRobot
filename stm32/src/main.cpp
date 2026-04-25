@@ -93,15 +93,8 @@ void setup() {
                 Gantry::setPosition(0.8*median_distance +  0.2*Gantry::getPosition());
                 Packet packet(Action::DistanceSensorRead);
                 SerialLink::buffer(packet); 
-            } else {
-                Packet packet(Action::MalletHome);
-                SerialLink::buffer(packet); 
             }
         }
-    });
-    SerialLink::registerHandler(Action::MalletHome, [](Packet& packet) {
-        // run mallet homing routine using limit switches
-        Gantry::home();
     });
     SerialLink::registerHandler(Action::Ping, [](Packet& packet) {
         SerialLink::buffer({Action::Ping});
