@@ -46,7 +46,7 @@
   Command line arguments
 *************************/
 
-std::string com_port = Constants::Comms::COM_PORT;
+std::string com_port;
 
 const std::unordered_map<std::string, Command> COMMAND_LIST = {
     {"track", Command({
@@ -91,6 +91,7 @@ const std::unordered_map<std::string, Command> COMMAND_LIST = {
 const std::unordered_map<std::string, std::string> DEFAULT_COMMANDS = {
     {"track", "yellow"},
     {"diff", "0"},
+    {"com", "0"},
 };
 
 /*****************
