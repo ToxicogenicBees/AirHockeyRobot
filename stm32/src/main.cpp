@@ -11,19 +11,11 @@
 #include <Arduino.h>
 #include <algorithm>
 
-// Distances buffer, make odd so can easily get median of samples
-constexpr uint8_t BUFFER_SIZE = 11;
-
-Point2<double> distance_buffer[BUFFER_SIZE];
-size_t distance_buffer_index = 0;
-
 // Sensor definitions
 DistanceSensor dist_x(dist_x_trig, dist_x_echo);
 DistanceSensor dist_y(dist_y_trig, dist_y_echo);
 TemperatureSensor temp(temp_read);
 
-uint8_t pressed_switches = 0; // stores any limit switches pressed
-bool use_switches = true;
 LimitSwitch limit_l(lim_l);
 LimitSwitch limit_r(lim_r);
 LimitSwitch limit_b(lim_b);
@@ -32,6 +24,10 @@ LimitSwitch limit_t(lim_t);
 EmergencyStop estop(estop_trig);
 bool gantry_enabled = true;
 
+// Limit switch usage flag
+bool use_switches = true;
+
+// Read the limit switches and store them in a flag byte
 uint8_t readLimitSwitches() {
     uint8_t pressed_switches = 0;
 
@@ -45,12 +41,6 @@ uint8_t readLimitSwitches() {
             // tell gantry to back up a bit away from limit switch towards middle of table
             Gantry::setVelocityProfile({0, 0, 100, 100});
             Gantry::initMotion(new_pos - 25.0 * (new_pos - Constants::Mallet::HOME*25.4).normal());
-
-            // Gantry::setPosition({
-            //     dist_x.distanceBurstMedian(2),
-            //     dist_y.distanceBurstMedian(2)
-            // });
-
             delayMicroseconds(1000);
         }
     };
@@ -71,6 +61,7 @@ uint8_t readLimitSwitches() {
     return pressed_switches;
 }
 
+// Function called on microcontroller startup
 void setup() {
     // Create serial handlers
     SerialLink::registerHandler(Action::VelocityProfile, [](Packet& packet) {
@@ -118,8 +109,6 @@ void setup() {
 
     // Initialize Serial output
     SerialLink::init();
-
-    // Serial.println(SystemCoreClock);  // gets the current core clock speed, this reported 180MHz
     
     // Initialize ADC converter precision
     analogReadResolution(12);
@@ -133,13 +122,11 @@ void setup() {
     limit_t.init();
     estop.init();
     temp.init();
-
     delay(100);
     
     // Calibrate distance sensor
     Gantry::init();   
     Gantry::setVelocityProfile(VelocityProfile(0, 0, 100, 100));
-    // DistanceSensor::calibrate(temp.temperature());; 
     Gantry::setPosition({dist_x.distanceBurstMedian(5), dist_y.distanceBurstMedian(5)}); 
 
     // Disable switches if they're unplugged
@@ -147,6 +134,7 @@ void setup() {
         use_switches = false;    
 }
 
+// Function called in a loop after microcontroller startup
 void loop() {
     // Process serial data
     SerialLink::process();
@@ -166,14 +154,14 @@ void loop() {
         gantry_enabled = true;
     }
 
-    // Serial.print(dist_x.distance());
-    // Serial.print(" ");
-    // Serial.println(dist_y.distance());
+    /*
+        Enable to calibrade distance sensors with a temperature sensor
     
-    // // Calibrate distance sensor
-    // DistanceSensor::calibrate(temp.temperature());
-    // Gantry::setPosition({dist_x.distance(), dist_y.distance(),});
-
+        // Calibrate distance sensor
+        DistanceSensor::calibrate(temp.temperature());
+        Gantry::setPosition({dist_x.distance(), dist_y.distance(),});
+    */
+    
     // Transmit mallet position
     Packet packet(Action::MalletPosition);
     packet << Gantry::getPosition();
