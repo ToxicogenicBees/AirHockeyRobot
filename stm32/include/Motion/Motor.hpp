@@ -34,7 +34,7 @@ class Motor {
          * 
          * @param dir       The desired direction
          */
-        void setDir(bool dir);
+        void setDir(uint8_t dir);
 
         /*
           * @return dir

@@ -32,7 +32,7 @@ void Motor::init() {
     _driver.enableDriver();
 }
 
-void Motor::setDir(bool dir) {
+void Motor::setDir(uint8_t dir) {
     _dir->write(dir);
 }
 
