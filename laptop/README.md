@@ -5,7 +5,7 @@ This subdirectory is in control of capturing images taken by an external camera 
 
 ## Authors
 
-- [Andrew Piunno, @ToxicogenicBees](https://www.github.com/ToxicogenicBees)
-- [William Forcey, @wawesomeNOGUI](https://www.github.com/wawesomeNOGUI)
 - [Kaden Carpenter, @KadenCarp64](https://www.github.com/KadenCarp64)
+- [William Forcey, @wawesomeNOGUI](https://www.github.com/wawesomeNOGUI)
+- [Andrew Piunno, @ToxicogenicBees](https://www.github.com/ToxicogenicBees)
 - [Xander Zavatchen, @maxxrz31](https://www.github.com/maxxrz31)
