@@ -6,8 +6,8 @@
 
 template <class T>
 struct Point2 {
-    // The x- and y-components of the point
-    T x, y;
+    T x;
+    T y;
 
     /***
      * @brief Creates a point with all components equal to 0

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Types/PinDef.hpp"
 #include <vector>
+
+#include "Types/PinDef.hpp"
 
 class Sensor {
     protected:

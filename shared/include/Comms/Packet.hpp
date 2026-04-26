@@ -222,7 +222,7 @@ class Packet {
         /***
          * @brief Overloaded insertion operator
          * 
-         * @param o         A reference to an output stream
+         * @param o         An output stream
          * @param packet    The packet being output to the stream
          * 
          * @result A reference to the output stream being output to

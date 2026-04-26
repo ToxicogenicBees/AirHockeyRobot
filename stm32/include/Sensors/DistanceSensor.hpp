@@ -19,7 +19,7 @@ class DistanceSensor : public Sensor {
         DistanceSensor(PinDef& trig, PinDef& echo);
 
         /**
-         * @brief Calibrate the distance sensor based on temperature
+         * @brief Calibrate the distance sensor based on the temperature, in Celcius
          */
         static void calibrate(double temperature);
 
@@ -33,8 +33,9 @@ class DistanceSensor : public Sensor {
         /**
          * @brief Take multiple readings of the distance sensor and return the median.
          * 
-         * @param n_samples  Number of samples to take
+         * @param samples   Number of samples to take
+         * 
          * @return The median distance read by the sensor, in millimeters
          */
-        double distanceBurstMedian(int n_samples);
+        double distanceBurstMedian(int samples);
 };

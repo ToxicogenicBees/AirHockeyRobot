@@ -56,6 +56,8 @@ class IObjectView {
 
         /**
          * @brief Determine if the object is in a valid state
+         * 
+         * @return If the object is in a valid state
          */
         bool isValid() const { return !_invalid; }
 };
