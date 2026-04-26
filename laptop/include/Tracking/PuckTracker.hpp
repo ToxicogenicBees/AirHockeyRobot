@@ -2,13 +2,18 @@
 
 #include <opencv2/opencv.hpp>
 #include <functional>
+#include <memory>
 
+#include "Tracking/TrackerOverlay.hpp"
 #include "Motion/MovingObject.hpp"
 
 class PuckTracker {
     protected:
         // Puck being tracked
         inline static MovingObject* _puck = nullptr;
+
+        // Tracker overlay
+        TrackerOverlay* _overlay = nullptr;
 
     public:
         /**
@@ -17,9 +22,16 @@ class PuckTracker {
         PuckTracker() = default;
 
         /**
+         * @brief Create a new PuckTracker with a tracker overlay
+         * 
+         * @param converter Inch to pixels converter
+         */
+        PuckTracker(TrackerOverlay::Converter converter);
+
+        /**
          * @brief Destroy a PuckTracker
          */
-        virtual ~PuckTracker() = default;
+        virtual ~PuckTracker();
 
         /**
          * @brief Pass a mallet pointer to all routines

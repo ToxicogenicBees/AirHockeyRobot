@@ -26,7 +26,7 @@ namespace{
 }
 
 CameraTracker::CameraTracker(const cv::Scalar& min_color, const cv::Scalar& max_color)
-    : _filter(min_color, max_color), _overlay(inchesToPixels) {}
+    : PuckTracker(inchesToPixels), _filter(min_color, max_color) {}
 
 void CameraTracker::init() {
     // Open selected camera using selected API
@@ -65,12 +65,12 @@ void CameraTracker::init() {
     */
 
     // Overlay settings
-    _overlay.malletTarget({{255, 255, 255}, 2});
-    _overlay.puckTrajectory({{0, 0, 255}, 2});
-    _overlay.puck({{0, 0, 255}, 2});
-    _overlay.mallet({{255, 255, 255}, 2});
-    _overlay.humanGoal({{255, 127, 0}, 3});
-    _overlay.robotGoal({{0, 255, 0}, 3});
+    _overlay->malletTarget({{255, 255, 255}, 2});
+    _overlay->puckTrajectory({{0, 0, 255}, 2});
+    _overlay->puck({{0, 0, 255}, 2});
+    _overlay->mallet({{255, 255, 255}, 2});
+    _overlay->humanGoal({{255, 127, 0}, 3});
+    _overlay->robotGoal({{0, 255, 0}, 3});
 }
 
 void CameraTracker::track() {
@@ -138,7 +138,7 @@ void CameraTracker::display() {
     }
 
     // Overlay table info onto live video
-    _overlay.overlay(_frame);
+    _overlay->overlay(_frame);
 
     // Show the modified visuals
     cv::imshow("Filtered", filtered_frame);
