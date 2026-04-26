@@ -9,7 +9,7 @@ All movements of the mechanical system designed for a robotic air hockey table i
 ## Requirements
 
 * A simulator is included to test routines without needing an entire mechanical system built.
-* To fully run the program a camera and mechanical system with similar or matching is required.
+* To fully run the program a camera and mechanical system with similar or matching devices is required.
 ## How to Run
 
 * Download main.exe
