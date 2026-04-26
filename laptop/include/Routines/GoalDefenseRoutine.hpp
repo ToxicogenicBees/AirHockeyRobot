@@ -3,8 +3,6 @@
 #include "Routines/Routine.hpp"
 
 class GoalDefenseRoutine : public Routine {
-    private:
-
     public:
         /**
          * @brief Create a new routine

@@ -36,8 +36,10 @@ class Motor {
          */
         void setDir(uint8_t dir);
 
-        /*
-          * @return dir
+        /**
+         * @brief Get the motor's direction pin state
+         * 
+         * @return The motor's direction pin state
          */
         uint8_t getDir() const { return _dir->read(); }
 
