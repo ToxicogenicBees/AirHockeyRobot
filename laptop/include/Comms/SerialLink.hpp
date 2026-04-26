@@ -35,7 +35,10 @@ class SerialLink {
         // Communication timer
         inline static Timer _timer;
 
-        // Receive a packet from the link
+        /**
+         * @brief Parses the incoming RX buffer and forms a packet from the bytes if a valid
+         *        packet is formed
+         */
         static Packet _receivePacket() {
             // Get COM status
             DWORD errors = 0;
@@ -76,6 +79,9 @@ class SerialLink {
         }
 
     public:
+        /**
+         * @brief Initialize the serial link
+         */
         static void init(std::string com_port) {
             // Initialize serial link
             _h_serial = CreateFile(com_port.c_str(),
@@ -114,10 +120,24 @@ class SerialLink {
             _timer.reset();
         }
 
+        /**
+         * @brief Register a packet handler
+         * 
+         * @param action    The packet action this handler processes
+         * @param handler   The packet handler, accepting a packet reference that parses the packet
+         *                  and does some action with it's data
+         */
         static void registerHandler(Action action, processor handler) {
             _handlers[action] = handler;
         }
 
+        /**
+         * @brief Buffers a packet into the outgoing packet buffer. Only one of each packet type
+         *        is accepted in the buffer, except for invalid types and finalize packets which
+         *        are ignored
+         * 
+         * @param packet    The packet to be buffered
+         */
         static void buffer(const Packet& packet) {
             {
                 std::lock_guard<std::mutex> guard(_send_guard);
@@ -125,6 +145,9 @@ class SerialLink {
             }
         }
 
+        /**
+         * @brief Processes the incoming and outgoing packet buffer
+         */
         static void process(bool forceDumpBuffer = false) {
             // Fetch incoming packet
             bool receivedTermination = forceDumpBuffer;
