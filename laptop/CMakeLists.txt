@@ -44,6 +44,8 @@ set(main_SOURCES
     src/Routines/ManualRoutine.cpp
     src/Routines/GoalDefenseRoutine.cpp
     src/Routines/NoOperationRoutine.cpp
+    src/Interaction/GuiWindow.cpp
+    src/Interaction/Button.cpp
 )
 
 # --- Function to create executables with common includes and OpenCV ---

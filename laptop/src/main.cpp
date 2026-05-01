@@ -37,10 +37,18 @@
 #include "Tracking/PhysicsTracker.hpp"
 #include "Tracking/NoOperationTracker.hpp"
 #include "Comms/SerialLink.hpp"
-#include "Types/Command.hpp"
 #include "Motion/Table.hpp"
+#include "Interaction/RoutineButton.hpp"
+#include "Interaction/GuiWindow.hpp"
+#include "Types/Command.hpp"
 #include "Types/Timer.hpp"
 #include "Constants.hpp"
+
+/*******************
+  Gui Interactions
+*******************/
+
+GuiWindow window("GUI Window", {430, 260});
 
 /*************************
   Command line arguments
@@ -54,17 +62,6 @@ const std::unordered_map<std::string, Command> COMMAND_LIST = {
         {"green",   []() { Table::setTracker<CameraTracker>(cv::Scalar{70, 50, 50}, cv::Scalar{100, 255, 255}); } },
         {"phys",    []() { Table::setTracker<PhysicsTracker>(); } },
         {"none",    []() { Table::setTracker<NoOperationTracker>(); } },
-    })},
-
-    {"diff", Command({
-        { "0",      []() { Table::setRoutine<MotionTestRoutine>(); } },
-        { "1",      []() { Table::setRoutine<DodgeRoutine>(); } },
-        { "2",      []() { Table::setRoutine<BasicDefenseRoutine>(); } },
-        { "3",      []() { Table::setRoutine<StrikeTestRoutine>(); } },
-        { "4",      []() { Table::setRoutine<AdvancedDefenseRoutine>(); } },
-        { "5",      []() { Table::setRoutine<BasicOffenseRoutine>(); } },
-        { "manual", []() { Table::setRoutine<ManualRoutine>(); } },
-        { "none",   []() { Table::setRoutine<NoOperationRoutine>(); } },
     })},
 
     {"com", Command({
@@ -90,8 +87,6 @@ const std::unordered_map<std::string, Command> COMMAND_LIST = {
 
 const std::unordered_map<std::string, std::string> DEFAULT_COMMANDS = {
     {"track", "yellow"},
-    {"diff", "0"},
-    {"com", "0"},
 };
 
 /*****************
@@ -152,6 +147,7 @@ void initialize(int argc, char** argv) {
 
     // Initialize the table
     Table::init();
+    Table::setRoutine<NoOperationRoutine>();
     log_msg(log_timer, "Initialized table");
 
     // Run user commands
@@ -174,6 +170,18 @@ void initialize(int argc, char** argv) {
     // Initialize serial comms
     SerialLink::init(com_port);
     log_msg(log_timer, "Initialized communications");
+
+    // Initialize gui window
+    window.addButton<RoutineButton<NoOperationRoutine>>(    {10, 10},   {200, 50}, {255, 255, 255}, "None");
+    window.addButton<RoutineButton<ManualRoutine>>(         {220, 10},  {200, 50}, {255, 255, 255}, "Manual");
+    window.addButton<RoutineButton<MotionTestRoutine>>(     {10, 70},   {200, 50}, {255, 255, 255}, "Motion Test");
+    window.addButton<RoutineButton<DodgeRoutine>>(          {220, 70},  {200, 50}, {255, 255, 255}, "Dodge");
+    window.addButton<RoutineButton<BasicDefenseRoutine>>(   {10, 130},  {200, 50}, {255, 255, 255}, "Defense 1");
+    window.addButton<RoutineButton<AdvancedDefenseRoutine>>({220, 130}, {200, 50}, {255, 255, 255}, "Defense 2");
+    window.addButton<RoutineButton<StrikeTestRoutine>>(     {10, 190},  {200, 50}, {255, 255, 255}, "Offense 1");
+    window.addButton<RoutineButton<BasicOffenseRoutine>>(   {220, 190}, {200, 50}, {255, 255, 255}, "Offense 2");
+    window.draw();
+    log_msg(log_timer, "Initialized " + window.getName());
 
     // Initialization success
     log_msg(init_timer, "Initialization complete");
@@ -216,9 +224,12 @@ int main(int argc, char** argv) {
     });
     mallet_control.detach();
 
-    // OpenCV tracking + rendering
     while (true) {
+        // OpenCV tracking + rendering
         Table::updateTracker();
+
+        // Gui interface
+        window.fetchUserInput();
     }
 
     return 0;
