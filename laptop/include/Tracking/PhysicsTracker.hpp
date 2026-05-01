@@ -6,7 +6,6 @@
 
 class PhysicsTracker : public PuckTracker {
     private:
-        TrackerOverlay _overlay;
         cv::Mat _render;
         Timer _timer;
 

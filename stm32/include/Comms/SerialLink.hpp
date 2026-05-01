@@ -28,7 +28,10 @@ class SerialLink {
         // Communication timer
         inline static Timer _timer;
 
-        // Receive a packet from the link
+        /**
+         * @brief Parses the incoming RX buffer and forms a packet from the bytes if a valid
+         *        packet is formed
+         */
         static Packet _receivePacket() {
             // Store all incoming bytes
             while (Serial.available())
@@ -53,6 +56,9 @@ class SerialLink {
         }
 
     public:
+        /**
+         * @brief Initialize the serial link
+         */
         static void init() {
             // Initialize serial link
             Serial.begin(Constants::Comms::BAUD_RATE);
@@ -62,14 +68,31 @@ class SerialLink {
             _timer.reset();
         }
 
+        /**
+         * @brief Register a packet handler
+         * 
+         * @param action    The packet action this handler processes
+         * @param handler   The packet handler, accepting a packet reference that parses the packet
+         *                  and does some action with it's data
+         */
         static void registerHandler(Action action, processor handler) {
             _handlers[action] = handler;
         }
 
+        /**
+         * @brief Buffers a packet into the outgoing packet buffer. Only one of each packet type
+         *        is accepted in the buffer, except for invalid types and finalize packets which
+         *        are ignored
+         * 
+         * @param packet    The packet to be buffered
+         */
         static void buffer(const Packet& packet) {
             _send_buffer.insert(packet);
         }
 
+        /**
+         * @brief Processes the incoming and outgoing packet buffer
+         */
         static void process() {
             // Fetch incoming packet
             bool receivedTermination = false;

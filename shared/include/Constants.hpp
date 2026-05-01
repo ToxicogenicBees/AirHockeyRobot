@@ -5,7 +5,6 @@
 namespace Constants {
     namespace Comms {
         constexpr uint32_t BAUD_RATE = 115200;          // Baud rate for USB serial communication
-        constexpr char COM_PORT[] = "\\\\.\\COM8";      // Desired COM port
         constexpr int64_t TIMEOUT = 5;                  // Timeout in seconds
     }
     
@@ -15,7 +14,6 @@ namespace Constants {
         const Point2<double> SIZE(26.5, 54.0);          // Size of the table (inches)
         
         constexpr double GOAL_WIDTH = 9.0;              // Width of goals (inches)
-        constexpr double COEF_FRIC = 0.05;              // Coefficient of friction for the surface of the table
         constexpr double COEF_REST = 1.00;              // Coefficient of friction of the walls of the table
     }
 
@@ -35,7 +33,7 @@ namespace Constants {
         constexpr double MAX_RPM = 1200;
         constexpr double MIN_RPM = 350;
         constexpr double INCHES_TO_ACCEL_TO_MAX_RPM = 10; // taken from the motor speed test data accelerating to 800RPM
-        constexpr double MIN_ACCEL_INCHES = 2.25;   // lower bound of distance to accelerate to certain speed
+        constexpr double MIN_ACCEL_INCHES = 2.25;       // lower bound of distance to accelerate to certain speed
         constexpr double DRIVE_PULLEY_RADIUS_MM = 28.8;
         const double MAX_SPEED_INCHES_PER_SECOND = MAX_RPM * 2*3.14/60 * (DRIVE_PULLEY_RADIUS_MM*sqrt(2)/2)/25.4;
 

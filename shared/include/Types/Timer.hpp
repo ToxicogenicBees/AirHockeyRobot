@@ -28,8 +28,8 @@ class Timer {
         /**
          * @brief   Fetches the amount of time passed since the clock was last reset
          * 
-         * @param   cast    The std::chrono::duration_cast type to use when counting the time passed
-         *                  Default is std::chrono::microseconds
+         * @param   cast_type   The std::chrono::duration_cast type to use when counting the time passed
+         *                      Default is std::chrono::microseconds
          * 
          * @return  The amount of time passed since the clock was last reset
          */

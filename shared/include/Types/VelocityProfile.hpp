@@ -72,70 +72,38 @@ class VelocityProfile {
          * 
          * @param accel_percent The acceleration percent
          */
-        void setAccelPercent(double accel_percent) {
+        template <class T>
+        void setAccelPercent(T accel_percent) {
             _accel_percent = (uint8_t) accel_percent;
         }
 
         /**
-         * @brief Sets the acceleration percent
-         * 
-         * @param accel_percent The acceleration percent
-         */
-        void setAccelPercent(uint8_t accel_percent) {
-            _accel_percent = accel_percent;
-        }
-
-        /**
          * @brief Sets the deceleration percent
          * 
          * @param decel_percent The deceleration percent
          */
-        void setDecelPercent(double decel_percent) {
+        template <class T>
+        void setDecelPercent(T decel_percent) {
             _decel_percent = (uint8_t) decel_percent;
         }
 
         /**
-         * @brief Sets the deceleration percent
-         * 
-         * @param decel_percent The deceleration percent
-         */
-        void setDecelPercent(uint8_t decel_percent) {
-            _decel_percent = decel_percent;
-        }
-
-        /**
          * @brief Sets the min RPM
          * 
          * @param min_rpm The min RPM
          */
-        void setMinRPM(double min_rpm) {
+        template <class T>
+        void setMinRPM(T min_rpm) {
             _min_rpm = (uint16_t) min_rpm;
         }
 
         /**
-         * @brief Sets the min RPM
-         * 
-         * @param min_rpm The min RPM
-         */
-        void setMinRPM(uint16_t min_rpm) {
-            _min_rpm = min_rpm;
-        }
-
-        /**
          * @brief Sets the max RPM
          * 
          * @param max_rpm The max RPM
          */
-        void setMaxRPM(double max_rpm) {
+        template <class T>
+        void setMaxRPM(T max_rpm) {
             _max_rpm = (uint16_t) max_rpm;
-        }
-
-        /**
-         * @brief Sets the max RPM
-         * 
-         * @param max_rpm The max RPM
-         */
-        void setMaxRPM(uint16_t max_rpm) {
-            _max_rpm = max_rpm;
         }
 };

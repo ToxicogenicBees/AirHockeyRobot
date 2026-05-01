@@ -54,7 +54,7 @@ GuiWindow window("GUI Window", {430, 260});
   Command line arguments
 *************************/
 
-std::string com_port = Constants::Comms::COM_PORT;
+std::string com_port;
 
 const std::unordered_map<std::string, Command> COMMAND_LIST = {
     {"track", Command({

@@ -102,6 +102,7 @@ class MovingObject : public IObjectView {
         Point2<double> velocity() const override;
 
         /**
+         * @brief Get the radius of the object, in inches
          * 
          * @return The radius of the object, in inches
          */

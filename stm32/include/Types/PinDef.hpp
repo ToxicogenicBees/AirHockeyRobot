@@ -44,32 +44,9 @@ struct PinDef {
     }
 
     /**
-     * @brief Writes the desired state to the pin
-     * 
-     * @param state The desired state
-     */
-    void writeAnalog(uint32_t state) {
-        analogWrite(PIN, state);
-    }
-
-    /**
-     * @brief Toggles the pin's current (digital) state
-     */
-    void toggle() {
-        digitalWrite(PIN, !digitalRead(PIN));
-    }
-
-    /**
      * @brief Initializes the pin's mode, required to read pin properly
      */
     void init() {
         pinMode(PIN, MODE);
-    }
-
-    /**
-     * @brief Returns this->read() when converted to uint8_t
-     */
-    operator uint8_t() const {
-        return read();
     }
 };

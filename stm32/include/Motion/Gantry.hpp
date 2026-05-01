@@ -134,14 +134,4 @@ class Gantry {
          *          when a limit switch is triggered.
          */
         static void pauseMotion();
-
-        /**
-         * @brief Laptop can request to run this homing routine.
-         *          This routine slowly backs mallet into the left
-         *          and bottom limit switches to get a good reading on
-         *          its position. The distance sensors are also tested
-         *          when the mallet triggers both limit switches to deem
-         *          if the distance sensors are reporting good readings.
-         */
-        static void home();
 };

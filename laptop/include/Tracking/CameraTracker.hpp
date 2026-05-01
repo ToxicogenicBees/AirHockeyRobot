@@ -21,9 +21,6 @@ class CameraTracker : public PuckTracker {
         cv::VideoCapture _capture;
         cv::Mat _frame;
 
-        // Render overlay
-        TrackerOverlay _overlay;
-
         // Previous capture info
         cv::Point _prev_pixels;
 

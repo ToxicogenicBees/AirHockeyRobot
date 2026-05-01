@@ -31,7 +31,7 @@ class Routine {
          * @brief Checks if the mallet can reach this position
          * 
          * @return If the mallet can reach this position
-         * @returns -1 if the mallet cannot reach
+         * @retval -1 if the mallet cannot reach
          */
         static bool _canReach(const Point2<double>& position);
 
@@ -101,9 +101,9 @@ class Routine {
         static void transmit(const VelocityProfile& velocity);
 
         /**
-         * @brief Get the current target position
+         * @brief Get the current target state
          * 
-         * @return The current target position
+         * @return The current target state
          */
         static Target target();
 

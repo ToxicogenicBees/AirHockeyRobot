@@ -41,42 +41,42 @@ class TrackerOverlay {
         /**
          * @brief Set robot goal setting
          * 
-         * @param overlay Robot goal setting
+         * @param setting Robot goal setting
          */
         void robotGoal(const Setting& setting);
 
         /**
          * @brief Set human goal setting
          * 
-         * @param overlay Human goal setting
+         * @param setting Human goal setting
          */
         void humanGoal(const Setting& setting);
 
         /**
          * @brief Set mallet target setting
          * 
-         * @param overlay Mallet target setting
+         * @param setting Mallet target setting
          */
         void malletTarget(const Setting& setting);
 
         /**
          * @brief Set puck trajectory setting
          * 
-         * @param overlay Puck trajectory setting
+         * @param setting Puck trajectory setting
          */
         void puckTrajectory(const Setting& setting);
 
         /**
          * @brief Set mallet setting
          * 
-         * @param overlay Mallet setting
+         * @param setting Mallet setting
          */
         void mallet(const Setting& setting);
 
         /**
          * @brief Set puck setting
          * 
-         * @param overlay Puck setting
+         * @param setting Puck setting
          */
         void puck(const Setting& setting);
 };

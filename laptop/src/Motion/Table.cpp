@@ -29,9 +29,6 @@ void Table::init() {
     SerialLink::registerHandler(Action::DistanceSensorRead, [](Packet& packet) {
         std::clog << "Updated position with distance sensors.\n";
     });
-    SerialLink::registerHandler(Action::MalletHome, [](Packet& packet) {
-        std::clog << "Bad distance sensor read.\n";
-    });
 
     // Pass mallet + puck pointers to routines + trackers
     Routine::setMallet(&_mallet);

@@ -19,7 +19,7 @@ namespace {
 }
 
 PhysicsTracker::PhysicsTracker()
-    : _overlay(inchesToPixels),
+    : PuckTracker(inchesToPixels),
       _render(cv::Mat::zeros(PIXELS_PER_INCH * Constants::Table::SIZE.y, PIXELS_PER_INCH * Constants::Table::SIZE.x, CV_8UC3))
 {}
 
@@ -38,12 +38,12 @@ void PhysicsTracker::init() {
     _puck->orient({Constants::Puck::HOME, velocity});
 
     // Overlay settings
-    _overlay.malletTarget({{255, 255, 255}, 2});
-    _overlay.puckTrajectory({{0, 0, 255}, 2});
-    _overlay.puck({{0, 0, 255}, 2});
-    _overlay.mallet({{255, 255, 255}, 2});
-    _overlay.humanGoal({{255, 127, 0}, 3});
-    _overlay.robotGoal({{0, 255, 0}, 3});
+    _overlay->malletTarget({{255, 255, 255}, 2});
+    _overlay->puckTrajectory({{0, 0, 255}, 2});
+    _overlay->puck({{0, 0, 255}, 2});
+    _overlay->mallet({{255, 255, 255}, 2});
+    _overlay->humanGoal({{255, 127, 0}, 3});
+    _overlay->robotGoal({{0, 255, 0}, 3});
 }
 
 void PhysicsTracker::track() {
@@ -146,7 +146,7 @@ void PhysicsTracker::display() {
     _render.setTo(cv::Scalar(0, 0, 0));
 
     // Overlay table data
-    _overlay.overlay(_render);
+    _overlay->overlay(_render);
 
     // Show render
     cv::imshow("Simulated Puck", _render);

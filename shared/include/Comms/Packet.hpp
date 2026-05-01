@@ -22,7 +22,6 @@ enum class Action {
     VelocityProfile,    // Gantry velocity profile data
     MalletPosition,     // Mallet position data
     DistanceSensorRead, // Triggers distance sensor read on micro side
-    MalletHome,         // Requests to perform homing routine with limit switches
     LimitSwitches,      // Holds an uint8_t with the bits set according to limit switches pressed.
     EStop,              // E-Stop triggered event
     Ping,               // Ping the microcontroller
@@ -223,7 +222,7 @@ class Packet {
         /***
          * @brief Overloaded insertion operator
          * 
-         * @param o         A reference to an output stream
+         * @param o         An output stream
          * @param packet    The packet being output to the stream
          * 
          * @result A reference to the output stream being output to
