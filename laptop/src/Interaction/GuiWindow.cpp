@@ -42,15 +42,15 @@ void GuiWindow::fetchUserInput() {
     // Fetch mouse position
     auto mouse_pos = mousePos();
 
-    // Get mouse position on screen
+    // Get the relative mouse position on the window
     auto hwnd = FindWindowA(NULL, _NAME.c_str());
     ScreenToClient(hwnd, &mouse_pos);
 
     // Get what button the user pressed
     Button* activated_button = nullptr;
     for (auto b : _buttons) {
-        auto b_tl = b->getPosition();
-        auto b_br = b_tl + b->getSize();
+        auto b_tl = b->getPosition();       // Button's top-left pixel
+        auto b_br = b_tl + b->getSize();    // Button's bottom-right pixel
 
         if (b_tl.x <= mouse_pos.x && b_tl.y <= mouse_pos.y && mouse_pos.x <= b_br.x && mouse_pos.y <= b_br.y) {
             activated_button = b;
