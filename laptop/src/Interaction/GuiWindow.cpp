@@ -46,19 +46,31 @@ void GuiWindow::fetchUserInput() {
     auto hwnd = FindWindowA(NULL, _NAME.c_str());
     ScreenToClient(hwnd, &mouse_pos);
 
-    // Check if client is hovered over a button
+    // Get what button the user pressed
+    Button* activated_button = nullptr;
     for (auto b : _buttons) {
         auto b_tl = b->getPosition();
         auto b_br = b_tl + b->getSize();
 
-        if (b_tl.x <= mouse_pos.x && b_tl.y <= mouse_pos.y && mouse_pos.x <= b_br.x && mouse_pos.y <= b_br.y)
-            b->activate();
-        else
-            b->deactivate();
+        if (b_tl.x <= mouse_pos.x && b_tl.y <= mouse_pos.y && mouse_pos.x <= b_br.x && mouse_pos.y <= b_br.y) {
+            activated_button = b;
+            break;
+        }
     }
 
-    // Update the window
-    draw();
+    // Update window state
+    if (activated_button) {
+        // Update button states
+        for (auto b : _buttons) {
+            if (b == activated_button)
+                b->activate();
+            else
+                b->deactivate();
+        }
+
+        // Redraw the window
+        draw();
+    }
 }
 
 void GuiWindow::draw() {
