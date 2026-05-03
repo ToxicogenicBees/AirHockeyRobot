@@ -16,20 +16,11 @@ All movements of the mechanical system designed for a robotic air hockey table a
 * Plug in a compatible camera and microcontroller to the laptop
 * Identify the COM port of the microcontroller
 * Run main.exe
-* Input tracking mode, select desired difficulty/routine, and comm port 
+* Input tracking mode and COM port (0-12)
     * Tracking modes:
         * yellow - Track for yellow objects
         * green - Track for green objects
         * phys - Only run simulation
-        * none - No operation
-    * Difficulties:
-        * 0 - Basic motion test
-        * 1 - Avoid puck's location
-        * 2 - Basic defense
-        * 3 - Basic offense 
-        * 4 - Advanced defense
-        * 5 - Advanced offense
-        * manual - Keyboard input to move the robot
         * none - No operation
 ## Authors
 
