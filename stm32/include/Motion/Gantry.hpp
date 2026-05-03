@@ -8,17 +8,6 @@
 
 #include <Arduino.h>
 
-/*
-    Motor pairs and their motion:
-
-    | LEFT    RIGHT   RESULT |
-    |------------------------|
-    | CW      CW      LEFT   |
-    | CW      CCW     DOWN   |
-    | CCW     CW      UP     |
-    | CCW     CCW     RIGHT  |
-*/
-
 class Gantry {
     private:
         // Motors

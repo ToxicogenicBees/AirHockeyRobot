@@ -43,9 +43,9 @@ void StrikeTestRoutine::updateTarget() {
         // Weight target
         auto weight = 
             -0.95 * dist/desired_dist;
-            -0.05 * margin/desired_margin;                                // Relative time between arrivals
-            // + 0.5 / (1 + sqrt(t.z))                           // Time the puck arrives
-            // + 0.75 / (1 + dist);   // The distance from the puck's current location (normalized for time)
+            -0.05 * margin/desired_margin;  // Relative time between arrivals
+            // + 0.5 / (1 + sqrt(t.z))      // Time the puck arrives
+            // + 0.75 / (1 + dist);         // The distance from the puck's current location (normalized for time)
 
         // Check if this weight is the best
         if (weight > best_weight) {
@@ -68,22 +68,10 @@ void StrikeTestRoutine::updateTarget() {
     // Attempt the strike, or move home or defend if it fails
     auto success = strike({best_target, strike_velocity}, {best_target, puck_velocity}, best_time);
     if (!success) {
-        // softTransmit({ 0.1, 0.1, 100, 400 });
-        // _travelHome();
-        // _travelHome();
-        // softTransmit({ 0.1, 0.1, 100, 500 });
-        // softTransmit(Constants::Table::ROBOT_GOAL + Point2<double>::yAxis()*2);
-
-        // _goal_defense.updateTarget();
-
         if ((_mallet->position() - _prev_target.first).magnitude() < 0.1) {
             SerialLink::buffer({Action::DistanceSensorRead});
         }
     } else {
-        // if ((_mallet->position() - _prev_target.first).magnitude() < 0.1) {
-        //     SerialLink::buffer({Action::DistanceSensorRead});
-        // }
-
         _goal_defense.updateTarget();
     }
 

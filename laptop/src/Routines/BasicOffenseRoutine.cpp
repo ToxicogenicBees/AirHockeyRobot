@@ -13,8 +13,8 @@ namespace {
     // Allowed collision normals
     const double INV_SQRT_2 = 1.0 / sqrt(2.0);
     std::vector<Point2<double>> NORMALS = {
-        // {-INV_SQRT_2, INV_SQRT_2},      // Up + left
-        // {INV_SQRT_2, INV_SQRT_2},       // Up + right
+        {-INV_SQRT_2, INV_SQRT_2},      // Up + left
+        {INV_SQRT_2, INV_SQRT_2},       // Up + right
         Point2<double>::yAxis(),        // Up
     };
 
@@ -99,7 +99,6 @@ void BasicOffenseRoutine::updateTarget() {
                     continue;
 
                 // Attempt this strike
-                // std::clog << puck_velocity << " " << puck_velocity.magnitude() << "\n\n";
                 auto success = strike({puck_position, mallet_velocity}, {puck_position, puck_velocity}, time);
 
                 // No need to continue checking possible strikes

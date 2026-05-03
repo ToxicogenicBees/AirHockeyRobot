@@ -43,9 +43,9 @@ void BasicDefenseRoutine::updateTarget() {
 
         // Weight target
         auto weight = 
-            -0.25 * margin;                                // Relative time between arrivals
-            // + 0.5 / (1 + sqrt(t.z))                           // Time the puck arrives
-            // + 0.75 / (1 + dist);   // The distance from the puck's current location (normalized for time)
+            -0.25 * margin;             // Relative time between arrivals
+            // + 0.5 / (1 + sqrt(t.z))  // Time the puck arrives
+            // + 0.75 / (1 + dist);     // The distance from the puck's current location (normalized for time)
 
         // Check if this weight is the best
         if (weight > best_weight) {

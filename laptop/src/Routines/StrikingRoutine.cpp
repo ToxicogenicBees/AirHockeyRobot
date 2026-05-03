@@ -149,11 +149,8 @@ double StrikingRoutine::_deviation(const StrikePlan& plan, const Ray2<double>& p
         }
     }
 
-    // std::clog << min_deviation << " " << velocity_norm << " " << distance_norm << "\n\n";
-
     *time_update = (second_least_deviation_time + least_deviation_time)/2;
     
-    // std::clog << min_deviation << "\n";
     return min_deviation;
 }
 
@@ -180,18 +177,8 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation, const Ray2<double>
             
         // Puck has deviated too far from the expected trajectory
         if (_deviation(*plan, puck_target, &time_to_puck_get_in_position) > MAX_DEVIATION) {
-            // std::cout << "Too much deviation!!!\n\n";
             return false;
         }
-
-        // if (time_to_puck_get_in_position - plan->strikeTime() < Constants::FP_ERR) {
-        //     return false;
-        // }
-
-        // if (time_to_puck_get_in_position - plan->strikeTime() < plan->setupTime() -  plan->elapsedTime()) {
-        //     // need to speed up setup
-        //     return false;
-        // }
     }
 
     if (time_to_puck_get_in_position - plan->strikeTime() > 0.001) {
@@ -202,11 +189,6 @@ bool StrikingRoutine::strike(const Ray2<double>& orientation, const Ray2<double>
 
         std::this_thread::sleep_for(std::chrono::microseconds((int64_t)(1e6 * time_to_wait )));
     }
-    
-    // else if (time_to_puck_get_in_position - plan->strikeTime() < 0.001) {
-    //     // abandon strike if puck actually moving faster than expected
-    //     return false;
-    // }
 
     // Start the strike motion
     double accel_percent = plan->accelerationDistance() / (plan->strikePoint() - plan->setupPoint()).magnitude();
